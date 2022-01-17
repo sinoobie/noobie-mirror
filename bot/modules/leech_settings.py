@@ -122,3 +122,4 @@ but_set_handler = CallbackQueryHandler(setLeechType, pattern="leechset", run_asy
 dispatcher.add_handler(leech_set_handler)
 dispatcher.add_handler(but_set_handler)
 dispatcher.add_handler(set_thumbnail_handler)
+

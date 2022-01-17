@@ -51,3 +51,4 @@ if UPSTREAM_REPO is not None:
                       && git remote add origin {UPSTREAM_REPO} \
                       && git fetch origin -q \
                       && git reset --hard origin/master -q"], shell=True)
+

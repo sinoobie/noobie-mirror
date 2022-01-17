@@ -45,7 +45,7 @@ def exit_clean_up(signal, frame):
         sysexit(1)
 
 def clean_unwanted(path: str):
-    LOGGER.info(f"Cleaning unwanted files/folder: {path}")
+    LOGGER.info(f"Cleaning unwanted files/folders: {path}")
     for dirpath, subdir, files in walk(path, topdown=False):
         for filee in files:
             if filee.endswith(".!qB") or filee.endswith('.parts') and filee.startswith('.'):
@@ -57,7 +57,7 @@ def clean_unwanted(path: str):
         if not listdir(dirpath):
             rmdir(dirpath)
 
-def get_path_size(path):
+def get_path_size(path: str):
     if ospath.isfile(path):
         return ospath.getsize(path)
     total_size = 0
@@ -151,11 +151,12 @@ def get_mime_type(file_path):
     mime_type = mime_type or "text/plain"
     return mime_type
 
-def take_ss(video_file, duration):
+def take_ss(video_file):
     des_dir = 'Thumbnails'
     if not ospath.exists(des_dir):
         mkdir(des_dir)
     des_dir = ospath.join(des_dir, f"{time()}.jpg")
+    duration = get_media_info(video_file)[0]
     if duration == 0:
         duration = 3
     duration = duration // 2

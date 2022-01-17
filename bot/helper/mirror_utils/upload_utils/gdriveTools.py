@@ -253,8 +253,6 @@ class GoogleDriveHelper:
                     raise Exception('Upload Dibatalkan!')
                 link = f"https://drive.google.com/folderview?id={dir_id}"
                 if self.is_cancelled:
-                    LOGGER.info("Deleting uploaded data from Drive...")
-                    self.deletefile(link)
                     return
                 LOGGER.info("Uploaded To G-Drive: " + file_name)
         except Exception as e:
@@ -269,6 +267,10 @@ class GoogleDriveHelper:
         finally:
             self.updater.cancel()
             if self.is_cancelled:
+                if mime_type == 'Folder':
+                    LOGGER.info("Deleting uploaded data from Drive...")
+                    link = f"https://drive.google.com/folderview?id={dir_id}"
+                    self.deletefile(link)
                 return
         self.__listener.onUploadComplete(link, size, self.__total_files, self.__total_folders, mime_type)
 
@@ -906,7 +908,7 @@ class GoogleDriveHelper:
         request = self.__service.files().get_media(fileId=file_id)
         filename = filename.replace('/', '')
         fh = FileIO('{}{}'.format(path, filename), 'wb')
-        downloader = MediaIoBaseDownload(fh, request, chunksize = 50 * 1024 * 1024)
+        downloader = MediaIoBaseDownload(fh, request, chunksize=50 * 1024 * 1024)
         done = False
         while not done:
             if self.is_cancelled:
