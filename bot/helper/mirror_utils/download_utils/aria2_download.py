@@ -48,8 +48,8 @@ def __onDownloadStarted(api, gid):
                     if size > limit * 1024**3:
                         dl.getListener().onDownloadError(f'{mssg}.\nUkuran file/folder kamu adalah {get_readable_file_size(size)}')
                         return api.remove([download], force=True, files=True)
-        except:
-            LOGGER.error(f"onDownloadStart: {gid} stop duplicate and size check didn't pass")
+    except:
+        LOGGER.error(f"onDownloadStart: {gid} stop duplicate and size check didn't pass")
 
 @new_thread
 def __onDownloadComplete(api, gid):
