@@ -80,42 +80,11 @@ def direct_link_generator(link: str, bot = None, update = None):
         raise DirectDownloadLinkException(f'No Direct link function found for {link}')
 
 def zippy_share(url: str) -> str:
-    """ ZippyShare direct link generator
-    Based on https://github.com/KenHV/Mirror-Bot
-             https://github.com/jovanzers/WinTenCermin """
-    try:
-        link = re.findall(r'\bhttps?://.*zippyshare\.com\S+', url)[0]
-    except IndexError:
-        raise DirectDownloadLinkException("ERROR: No Zippyshare links found")
-    try:
-        base_url = re.search('http.+.zippyshare.com/', link).group()
-        response = requests.get(link).content
-        pages = BeautifulSoup(response, "lxml")
-        try:
-            js_script = pages.find("div", {"class": "center"})
-            if js_script is not None:
-                js_script = js_script.find_all("script")[1]
-            else:
-                raise DirectDownloadLinkException("ERROR: No Zippyshare links found")
-        except IndexError:
-            js_script = pages.find("div", {"class": "right"})
-            if js_script is not None:
-                js_script = js_script.find_all("script")[0]
-            else:
-                raise DirectDownloadLinkException("ERROR: No Zippyshare links found")
-        js_content = re.findall(r'\.href.=."/(.*?)";', str(js_script))
-        js_content = str(js_content[0]).split('"')
-#        n = str(js_script).split('var n = ')[1].split(';')[0].split('%')
-#        n = int(n[0]) % int(n[1])
-#        b = str(js_script).split('var b = ')[1].split(';')[0].split('%')
-#        b = int(b[0]) % int(b[1])
-#        z = int(str(js_script).split('var z = ')[1].split(';')[0])
-#        math_ = str(n + b + z - 3)
-        math = re.findall("\d+",js_content[1])
-        math_ = int(math[0]) % int(math[1]) + int(math[2]) % int(math[3])
-        return base_url + str(js_content[0]) + str(math_) + str(js_content[2])
-    except IndexError:
-        raise DirectDownloadLinkException("ERROR: Can't find download button")
+    """ Hxfile direct link generator
+    Based on https://github.com/zevtyardt/lk21
+    """
+    bypasser = Bypass()
+    return bypasser.bypass_zippyshare(url)
 
 def yandex_disk(url: str) -> str:
     """ Yandex.Disk direct link generator
