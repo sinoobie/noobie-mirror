@@ -394,7 +394,7 @@ def _mirror(bot, update, isZip=False, extract=False, isQbit=False, isLeech=False
             try:
                 if "uptobox.com" in link or "uploadhaven.com" in link:
                     msg_ = sendMessage(f"ℹ️ {tag} Generating direct link. Tunggu sebentar...", bot, update)
-                    link = direct_link_generator(link, bot, update)
+                    link = direct_link_generator(link)
                     deleteMessage(bot, msg_)
                 else:
                     link = direct_link_generator(link)
