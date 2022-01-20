@@ -95,8 +95,8 @@ def uploadhaven(url: str, bot, update) -> str:
         wait = form.find("span", {'class':'download-timer-seconds d-inline'}).text
         sleep(int(wait.replace('seconds', '').strip()))
         post = ses.post(url, data=postdata)
-        dl_url = bs(post.text, "lxml").find("div", class_="download-timer").a.get("href")
-        return dl_url
+        dl_url = re.findall('"src", "(.*?)"', post.text)
+        return dl_url[0]
     except Exception as e:
         LOGGER.error(e)
         raise DirectDownloadLinkException("ERROR: Can't extract the link")
