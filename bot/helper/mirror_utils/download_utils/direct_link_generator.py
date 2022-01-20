@@ -100,7 +100,8 @@ def uploadhaven(url: str) -> str:
         dl_url = bs(post.text, 'lxml').find("div", class_="download-timer").a.get("href")
         raise DirectDownloadLinkException("DELETE!")
         return dl_url
-    except:
+    except AttributeError as e:
+        LOGGER.error(e)
         raise DirectDownloadLinkException("ERROR: Can't extract the link")
 
 
