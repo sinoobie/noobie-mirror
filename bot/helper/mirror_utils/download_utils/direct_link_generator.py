@@ -29,7 +29,7 @@ fmed_list = ['fembed.net', 'fembed.com', 'femax20.com', 'fcdn.stream', 'feurl.co
              'naniplay.nanime.in', 'naniplay.nanime.biz', 'naniplay.com', 'mm9842.com']
 
 
-def direct_link_generator(link: str, bot = None, update = None):
+def direct_link_generator(link: str):
     """ direct links generator """
     if 'youtube.com' in link or 'youtu.be' in link:
         raise DirectDownloadLinkException(f"ERROR: Use /{BotCommands.WatchCommand} to mirror Youtube link\nUse /{BotCommands.ZipWatchCommand} to make zip of Youtube playlist")
@@ -40,9 +40,9 @@ def direct_link_generator(link: str, bot = None, update = None):
     elif 'mediafire.com' in link:
         return mediafire(link)
     elif 'uptobox.com' in link:
-        return uptobox(link, bot, update)
+        return uptobox(link)
     elif 'uploadhaven.com' in link:
-        return uploadhaven(link, bot, update)
+        return uploadhaven(link)
     elif 'osdn.net' in link:
         return osdn(link)
     elif 'github.com' in link:
@@ -80,7 +80,7 @@ def direct_link_generator(link: str, bot = None, update = None):
     else:
         raise DirectDownloadLinkException(f'No Direct link function found for {link}')
 
-def uploadhaven(url: str, bot, update) -> str:
+def uploadhaven(url: str) -> str:
     ses = requests.Session()
     req = ses.get(url)
     bs = BeautifulSoup(req.text, 'lxml')
@@ -101,7 +101,7 @@ def uploadhaven(url: str, bot, update) -> str:
         LOGGER.error(e)
         raise DirectDownloadLinkException("ERROR: Can't extract the link")
 
-def uptobox(url: str, bot, update) -> str:
+def uptobox(url: str) -> str:
     """ Uptobox direct link generator
     based on https://github.com/jovanzers/WinTenCermin """
     try:
