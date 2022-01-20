@@ -93,7 +93,7 @@ def uploadhaven(url: str, bot, update) -> str:
             "time": f.find("input", attrs={"name": "time"}).get("value"),
             "hash": f.find("input", attrs={"name": "hash"}).get("value")
         }
-        wait = f.find("span", {'class':'download-timer-seconds d-inline'}).text
+        wait = form.find("span", {'class':'download-timer-seconds d-inline'}).text
         sleep(int(wait.replace('seconds', '').strip()))
         post = ses.post(url, data=postdata)
         dl_url = bs(post.text, 'lxml').find("div", class_="download-timer").a.get("href")
