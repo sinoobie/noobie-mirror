@@ -23,7 +23,7 @@ from bot import LOGGER, UPTOBOX_TOKEN, PHPSESSID, CRYPT
 from bot.helper.telegram_helper.bot_commands import BotCommands
 from bot.helper.ext_utils.bot_utils import is_gdtot_link
 from bot.helper.ext_utils.exceptions import DirectDownloadLinkException
-from bot.helper.telegram_helper.message_utils import sendMessage, deleteMessage
+#from bot.helper.telegram_helper.message_utils import sendMessage, deleteMessage
 
 cookies = {"PHPSESSID": PHPSESSID, "crypt": CRYPT}
 fmed_list = ['fembed.net', 'fembed.com', 'femax20.com', 'fcdn.stream', 'feurl.com', 'layarkacaxxi.icu',
@@ -41,7 +41,9 @@ def direct_link_generator(link: str, bot = None, update = None):
     elif 'mediafire.com' in link:
         return mediafire(link)
     elif 'uptobox.com' in link:
-        return uptobox(link, bot, update)
+        return uptobox(link)
+    elif 'uploadhaven.com' in link:
+        return uploadhaven(link)
     elif 'osdn.net' in link:
         return osdn(link)
     elif 'github.com' in link:
@@ -79,12 +81,34 @@ def direct_link_generator(link: str, bot = None, update = None):
     else:
         raise DirectDownloadLinkException(f'No Direct link function found for {link}')
 
+def uploadhaven(url: str) -> str:
+    ses = requests.Session()
+    req = ses.get(url)
+    bs = BeautifulSoup(req.text, 'lxml')
+    try:
+        raise DirectDownloadLinkException("INFO: Generating Uploadhaven direct link, Tunggu sebentar...")
+        form = bs.find("form", {'id':'form-download'})
+        postdata = {
+            "_token": f.find("input", attrs={"name": "_token"}).get("value"),
+            "key": f.find("input", attrs={"name": "key"}).get("value"),
+            "time": f.find("input", attrs={"name": "time"}).get("value"),
+            "hash": f.find("input", attrs={"name": "hash"}).get("value")
+        }
+        wait = f.find("span", {'class':'download-timer-seconds d-inline'}).text
+        sleep(int(wait.replace('seconds', '').strip()))
+        post = ses.post(url, data=postdata)
+        dl_url = bs(post.text, 'lxml').find("div", class_="download-timer").a.get("href")
+        raise DirectDownloadLinkException("DELETE!")
+        return dl_url
+    except:
+        raise DirectDownloadLinkException("ERROR: Can't extract the link")
+
+
 def zippy_share(url: str) -> str:
-    """ Hxfile direct link generator
+    """ Zippyshare direct link generator
     Based on https://github.com/zevtyardt/lk21
     """
-    bypasser = Bypass()
-    return bypasser.bypass_zippyshare(url)
+    return Bypass().bypass_zippyshare(url)
 
 def yandex_disk(url: str) -> str:
     """ Yandex.Disk direct link generator
@@ -99,7 +123,7 @@ def yandex_disk(url: str) -> str:
     except KeyError:
         raise DirectDownloadLinkException("ERROR: File not found/Download limit reached\n")
 
-def uptobox(url: str, bot, update) -> str:
+def uptobox(url: str) -> str:
     """ Uptobox direct link generator
     based on https://github.com/jovanzers/WinTenCermin """
     try:
@@ -122,14 +146,16 @@ def uptobox(url: str, bot, update) -> str:
             if result['message'].lower() == 'success':
                 dl_url = result['data']['dlLink']
             elif result['message'].lower() == 'waiting needed':
+                raise DirectDownloadLinkException("INFO: Generating Uptobox direct link, Tunggu sebentar...")
                 waiting_time = result["data"]["waiting"] + 1
                 waiting_token = result["data"]["waitingToken"]
-                msg = sendMessage("Generating Uptobox direct link. Tunggu sebentar...", bot, update)
+#                msg = sendMessage("Generating Uptobox direct link. Tunggu sebentar...", bot, update)
                 sleep(waiting_time)
                 req2 = requests.get(f"https://uptobox.com/api/link?token={UPTOBOX_TOKEN}&file_code={file_id}&waitingToken={waiting_token}")
                 result2 = req2.json()
                 dl_url = result2['data']['dlLink']
-                deleteMessage(bot, msg)
+                raise DirectDownloadLinkException("DELETE!")
+#                deleteMessage(bot, msg)
             elif result['message'].lower() == 'you need to wait before requesting a new download link':
                 cooldown = divmod(result['data']['waiting'], 60)
                 raise DirectDownloadLinkException(f"ERROR: Uptobox sedang cooldown {cooldown[0]} menit {cooldown[1]} detik")
@@ -181,15 +207,13 @@ def hxfile(url: str) -> str:
     """ Hxfile direct link generator
     Based on https://github.com/zevtyardt/lk21
     """
-    bypasser = Bypass()
-    return bypasser.bypass_filesIm(url)
+    return Bypass().bypass_filesIm(url)
 
 def anonfiles(url: str) -> str:
     """ Anonfiles direct link generator
     Based on https://github.com/zevtyardt/lk21
     """
-    bypasser = Bypass()
-    return bypasser.bypass_anonfiles(url)
+    return Bypass().bypass_anonfiles(url)
 
 def letsupload(url: str) -> str:
     """ Letsupload direct link generator
@@ -200,16 +224,13 @@ def letsupload(url: str) -> str:
         link = re.findall(r'\bhttps?://.*letsupload\.io\S+', url)[0]
     except IndexError:
         raise DirectDownloadLinkException("No Letsupload links found\n")
-    bypasser = Bypass()
-    dl_url=bypasser.bypass_url(link)
-    return dl_url
+    return Bypass().bypass_url(link)
 
 def fembed(link: str) -> str:
     """ Fembed direct link generator
     Based on https://github.com/zevtyardt/lk21
     """
-    bypasser = Bypass()
-    dl_url=bypasser.bypass_fembed(link)
+    dl_url= Bypass().bypass_fembed(link)
     count = len(dl_url)
     lst_link = [dl_url[i] for i in dl_url]
     return lst_link[count-1]
@@ -218,8 +239,7 @@ def sbembed(link: str) -> str:
     """ Sbembed direct link generator
     Based on https://github.com/zevtyardt/lk21
     """
-    bypasser = Bypass()
-    dl_url=bypasser.bypass_sbembed(link)
+    dl_url= Bypass().bypass_sbembed(link)
     count = len(dl_url)
     lst_link = [dl_url[i] for i in dl_url]
     return lst_link[count-1]
@@ -254,15 +274,13 @@ def antfiles(url: str) -> str:
     """ Antfiles direct link generator
     Based on https://github.com/zevtyardt/lk21
     """
-    bypasser = Bypass()
-    return bypasser.bypass_antfiles(url)
+    return Bypass().bypass_antfiles(url)
 
 def streamtape(url: str) -> str:
     """ Streamtape direct link generator
     Based on https://github.com/zevtyardt/lk21
     """
-    bypasser = Bypass()
-    return bypasser.bypass_streamtape(url)
+    return Bypass().bypass_streamtape(url)
 
 def racaty(url: str) -> str:
     """ Racaty direct link generator
