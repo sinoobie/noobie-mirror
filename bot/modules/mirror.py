@@ -230,13 +230,13 @@ class MirrorListener:
             else:
                 update_all_messages()
         else:
-            msg = f'📁 <b>Name: </b><code>{name}</code>'
-            msg += f'\n📦 <b>Size: </b>{size}'
-            msg += f'\n🏷 <b>Type: </b>{typ}'
+            msg = f'📁 <b>Name: </b><code>{name}</code>\n'
+            msg += f'📦 <b>Size: </b>{size}\n'
+            msg += f'🏷 <b>Type: </b>{typ}\n'
             if ospath.isdir(f'{DOWNLOAD_DIR}{self.uid}/{name}'):
-                msg += f'\n📂 <b>SubFolders: </b>{folders}'
-                msg += f'\n📄 <b>Files: </b>{files}'
-            msg += f'\n\n<b>👤 <b>Pemirror: </b>{self.tag}'
+                msg += f'📂 <b>SubFolders: </b>{folders}\n'
+                msg += f'📄 <b>Files: </b>{files}\n'
+            msg += f'\n\n👤 <b>Pemirror: </b>{self.tag}\n#️⃣ <b>UID: </b><code>{self.message.from_user.id}</code>'
             buttons = ButtonMaker()
             link = short_url(link)
             buttons.buildbutton("☁️ Drive Link", link)
@@ -418,14 +418,14 @@ def _mirror(bot, update, isZip=False, extract=False, isQbit=False, isLeech=False
                     open(file_name, "wb").write(resp.content)
                     link = f"{file_name}"
                 else:
-                    return sendMessage(f"ERROR: link got HTTP response: {resp.status_code}", bot, update)
+                    return sendMessage(f"⚠️ {tag} ERROR: link got HTTP response: {resp.status_code}", bot, update)
             except Exception as e:
                 error = str(e).replace('<', ' ').replace('>', ' ')
                 if error.startswith('No connection adapters were found for'):
                     link = error.split("'")[1]
                 else:
                     LOGGER.error(str(e))
-                    return sendMessage(tag + " " + error, bot, update)
+                    return sendMessage(f"⚠️ {tag} {error}", bot, update)
         else:
             msg = "Qb command hanya untuk torrent. Jika link kamu adalah torrent tapi mendapatkan error ini maka laporkan ke admin"
             return sendMessage(msg, bot, update)
