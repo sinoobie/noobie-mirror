@@ -392,16 +392,19 @@ def _mirror(bot, update, isZip=False, extract=False, isQbit=False, isLeech=False
         content_type = get_content_type(link)
         if content_type is None or match(r'text/html|text/plain', content_type):
             try:
-                link = direct_link_generator(link)
+                if "uptobox.com" in link or "uploadhaven.com" in link:
+                    msg_ = sendMessage("ℹ️ {tag} Generating direct link. Tunggu sebentar...", bot, update)
+                    link = direct_link_generator(link, bot, update)
+                    deleteMessage(bot, msg_)
+                else:
+                    link = direct_link_generator(link)
                 LOGGER.info(f"Generated link: {link}")
             except DirectDownloadLinkException as e:
                 LOGGER.info(str(e))
                 if str(e).startswith('ERROR:'):
+                    if "uptobox.com" in link or "uploadhaven.com" in link:
+                        deleteMessage(bot, msg_)
                     return sendMessage(f"⚠️ {tag} {e}", bot, update)
-                elif str(e).startswith('INFO:'):
-                    __msg = sendMessage(f"ℹ️ {tag} {e}", bot, update)
-                elif str(e) == "DELETE!":
-                    deleteMessage(bot, __msg)
     elif isQbit and not is_magnet(link) and not ospath.exists(link):
         if link.endswith('.torrent'):
             content_type = None
