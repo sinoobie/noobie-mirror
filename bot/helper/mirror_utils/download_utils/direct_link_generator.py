@@ -23,7 +23,6 @@ from bot import LOGGER, UPTOBOX_TOKEN, PHPSESSID, CRYPT
 from bot.helper.telegram_helper.bot_commands import BotCommands
 from bot.helper.ext_utils.bot_utils import is_gdtot_link
 from bot.helper.ext_utils.exceptions import DirectDownloadLinkException
-from bot.helper.telegram_helper.message_utils import sendMessage, deleteMessage
 
 cookies = {"PHPSESSID": PHPSESSID, "crypt": CRYPT}
 fmed_list = ['fembed.net', 'fembed.com', 'femax20.com', 'fcdn.stream', 'feurl.com', 'layarkacaxxi.icu',
@@ -88,10 +87,10 @@ def uploadhaven(url: str, bot, update) -> str:
     try:
         form = bs.find("form", {'id':'form-download'})
         postdata = {
-            "_token": f.find("input", attrs={"name": "_token"}).get("value"),
-            "key": f.find("input", attrs={"name": "key"}).get("value"),
-            "time": f.find("input", attrs={"name": "time"}).get("value"),
-            "hash": f.find("input", attrs={"name": "hash"}).get("value")
+            "_token": form.find("input", attrs={"name": "_token"}).get("value"),
+            "key": form.find("input", attrs={"name": "key"}).get("value"),
+            "time": form.find("input", attrs={"name": "time"}).get("value"),
+            "hash": form.find("input", attrs={"name": "hash"}).get("value")
         }
         wait = form.find("span", {'class':'download-timer-seconds d-inline'}).text
         sleep(int(wait.replace('seconds', '').strip()))
