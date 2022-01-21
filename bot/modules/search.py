@@ -156,7 +156,7 @@ def _getResult(search_results, key, message, tool):
                     for subres in result['Files']:
                         msg += f"<b>Quality: </b>{subres['Quality']} | <b>Size: </b>{subres['Size']}<br>"
                         try:
-                            msg += f"<a href='{subres['Torrent']}'>Direct Link</a><br>"
+                            msg += f"<b>Share Direct Link to</b> <a href='http://t.me/share/url?url={quote(subres['Torrent'])}'>Telegram</a><br>"
                         except KeyError:
                             msg += f"<b>Share Magnet to</b> <a href='http://t.me/share/url?url={subres['Magnet']}'>Telegram</a><br>"
                 else:
