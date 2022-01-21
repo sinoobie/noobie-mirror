@@ -169,7 +169,7 @@ def _getResult(search_results, key, message, tool):
             except KeyError:
                 pass
             try:
-                msg += f"<b> Share Direct Link to</b> <a href='http://t.me/share/url?url={quote(result['Torrent'])}'>Telegram</a><br>"
+                msg += f"<b>Share Direct Link to</b> <a href='http://t.me/share/url?url={quote(result['Torrent'])}'>Telegram</a><br>"
             except KeyError:
                 pass
         else:
