@@ -149,7 +149,7 @@ def _getResult(search_results, key, message, tool):
     for index, result in enumerate(search_results, start=1):
         if tool == 'api':
             try:
-                msg += f"<code><a href='{result['Url']}'>{escape(result['Name'])}</a></code><br>"
+                msg += f"<br><code><a href='{result['Url']}'>{escape(result['Name'])}</a></code><br>"
                 if "Category" in result.keys():
                     msg += f"<b>Category: </b><code>{result['Category']}</code><br>"
                 if "Files" in result.keys():
@@ -165,13 +165,13 @@ def _getResult(search_results, key, message, tool):
             except KeyError:
                 pass
             try:
-                msg += f"<b>Share Magnet to</b> <a href='http://t.me/share/url?url={quote(result['Magnet'])}'>Telegram</a><br><br>"
+                msg += f"<b>Share Magnet to</b> <a href='http://t.me/share/url?url={quote(result['Magnet'])}'>Telegram</a><br>"
             except KeyError:
                 pass
             try:
-                msg += f"<a href='{result['Torrent']}'>Direct Link</a><br><br>"
+                msg += f"<b> Share Direct Link to</b> <a href='http://t.me/share/url?url={quote(result['Torrent'])}'>Telegram</a><br>"
             except KeyError:
-                msg += "<br>"
+                pass
         else:
             msg += f"<a href='{result.descrLink}'>{escape(result.fileName)}</a><br>"
             msg += f"<b>Size: </b>{get_readable_file_size(result.fileSize)}<br>"

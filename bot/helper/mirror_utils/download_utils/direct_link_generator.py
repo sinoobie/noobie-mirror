@@ -29,59 +29,60 @@ fmed_list = ['fembed.net', 'fembed.com', 'femax20.com', 'fcdn.stream', 'feurl.co
              'naniplay.nanime.in', 'naniplay.nanime.biz', 'naniplay.com', 'mm9842.com']
 
 
-def direct_link_generator(link: str):
+def direct_link_generator(link: str, host):
     """ direct links generator """
-    if 'youtube.com' in link or 'youtu.be' in link:
+    if 'youtube.com' in host or 'youtu.be' in host:
         raise DirectDownloadLinkException(f"ERROR: Use /{BotCommands.WatchCommand} to mirror Youtube link\nUse /{BotCommands.ZipWatchCommand} to make zip of Youtube playlist")
-    elif 'zippyshare.com' in link:
+    elif 'zippyshare.com' in host:
         return zippy_share(link)
-    elif 'yadi.sk' in link or 'disk.yandex.com' in link:
+    elif 'yadi.sk' in host or 'disk.yandex.com' in host:
         return yandex_disk(link)
-    elif 'mediafire.com' in link:
+    elif 'mediafire.com' in host:
         return mediafire(link)
-    elif 'uptobox.com' in link:
+    elif 'uptobox.com' in host:
         return uptobox(link)
-    elif 'uploadhaven.com' in link:
+    elif 'uploadhaven.com' in host:
         return uploadhaven(link)
-    elif 'osdn.net' in link:
+    elif 'osdn.net' in host:
         return osdn(link)
-    elif 'github.com' in link:
+    elif 'github.com' in host:
         return github(link)
-    elif 'hxfile.co' in link:
+    elif 'hxfile.co' in host:
         return hxfile(link)
-    elif 'anonfiles.com' in link:
+    elif 'anonfiles.com' in host:
         return anonfiles(link)
-    elif 'letsupload.io' in link:
+    elif 'letsupload.io' in host:
         return letsupload(link)
-    elif '1drv.ms' in link:
+    elif '1drv.ms' in host:
         return onedrive(link)
-    elif 'pixeldrain.com' in link:
+    elif 'pixeldrain.com' in host:
         return pixeldrain(link)
-    elif 'antfiles.com' in link:
+    elif 'antfiles.com' in host:
         return antfiles(link)
-    elif 'streamtape.com' in link:
+    elif 'streamtape.com' in host:
         return streamtape(link)
-    elif 'bayfiles.com' in link:
+    elif 'bayfiles.com' in host:
         return anonfiles(link)
-    elif 'racaty.net' in link:
+    elif 'racaty.net' in host:
         return racaty(link)
-    elif '1fichier.com' in link:
+    elif '1fichier.com' in host:
         return fichier(link)
-    elif 'solidfiles.com' in link:
+    elif 'solidfiles.com' in host:
         return solidfiles(link)
-    elif 'krakenfiles.com' in link:
+    elif 'krakenfiles.com' in host:
         return krakenfiles(link)
     elif is_gdtot_link(link):
         return gdtot(link)
-    elif any(x in link for x in fmed_list):
+    elif any(x in host for x in fmed_list):
         return fembed(link)
-    elif any(x in link for x in ['sbembed.com', 'watchsb.com', 'streamsb.net', 'sbplay.org']):
+    elif any(x in host for x in ['sbembed.com', 'watchsb.com', 'streamsb.net', 'sbplay.org']):
         return sbembed(link)
     else:
         raise DirectDownloadLinkException(f'No Direct link function found for {link}')
 
 def uploadhaven(url: str) -> str:
     ses = requests.Session()
+    ses.headers = {'Referer':'https://uploadhaven.com/'}
     req = ses.get(url)
     bs = BeautifulSoup(req.text, 'lxml')
     try:

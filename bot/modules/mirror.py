@@ -7,7 +7,7 @@ from shutil import rmtree
 from threading import Thread
 from subprocess import run as srun
 from pathlib import PurePath
-from urllib.parse import quote
+from urllib.parse import quote, urlparse
 from telegram.ext import CommandHandler
 from telegram import InlineKeyboardMarkup
 
@@ -391,18 +391,19 @@ def _mirror(bot, update, isZip=False, extract=False, isQbit=False, isLeech=False
        and not ospath.exists(link) and not is_gdrive_link(link) and not link.endswith('.torrent'):
         content_type = get_content_type(link)
         if content_type is None or match(r'text/html|text/plain', content_type):
+            host = urlparse(link).netloc
             try:
-                if "uptobox.com" in link or "uploadhaven.com" in link:
+                if "uptobox.com" in host or "uploadhaven.com" in host:
                     msg_ = sendMessage(f"ℹ️ {tag} Generating direct link. Tunggu sebentar...", bot, update)
-                    link = direct_link_generator(link)
+                    link = direct_link_generator(link, host)
                     deleteMessage(bot, msg_)
                 else:
-                    link = direct_link_generator(link)
+                    link = direct_link_generator(link, host)
                 LOGGER.info(f"Generated link: {link}")
             except DirectDownloadLinkException as e:
                 LOGGER.info(str(e))
                 if str(e).startswith('ERROR:'):
-                    if "uptobox.com" in link or "uploadhaven.com" in link:
+                    if "uptobox.com" in host or "uploadhaven.com" in host:
                         deleteMessage(bot, msg_)
                     return sendMessage(f"⚠️ {tag} {e}", bot, update)
     elif isQbit and not is_magnet(link) and not ospath.exists(link):
