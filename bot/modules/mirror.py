@@ -207,9 +207,9 @@ class MirrorListener:
                 chat_id = str(self.message.chat.id)[4:]
                 msg += f'\n👤 <b>Leecher: </b>{self.tag}'
                 if self.message.reply_to_message is not None:
-                    msg += f'\n#️⃣ <b>UID: </b><code>{self.message.reply_to_message.from_user.id}</code>'
+                    msg += f'\n#️⃣ <b>UID: </b><code>{self.message.reply_to_message.from_user.id}</code>\n\n'
                 else:
-                    msg += f'\n#️⃣ <b>UID: </b><code>{self.message.from_user.id}</code>'
+                    msg += f'\n#️⃣ <b>UID: </b><code>{self.message.from_user.id}</code>\n\n'
                 fmsg = ''
                 for index, item in enumerate(list(files), start=1):
                     msg_id = files[item]
