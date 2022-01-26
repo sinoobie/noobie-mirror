@@ -128,10 +128,17 @@ def get_readable_message():
         for index, download in enumerate(list(download_dict.values())[START:], start=1):
             # user yang mirror
             pemirror = download.Pemirror()
-            if pemirror.from_user.username:
-                uname = f"<code>@{pemirror.from_user.username}</code> (<code>{pemirror.from_user.id}</code>)"
+            reply_to = pemirror.reply_to_message
+            if reply_to is not None:
+                if reply_to.from_user.username:
+                    tag = f"<code>@{reply_to.from_user.username}</code> | <code>{reply_to.from_user.id}</code>"
+                else:
+                    tag = f"<code>{reply_to.from_user.first_name}</code> | <code>{reply_to.from_user.id}</code>"
             else:
-                uname = f"<code>{pemirror.from_user.first_name}</code> (<code>{pemirror.from_user.id}</code>)"
+                if pemirror.from_user.username:
+                    tag = f"<code>@{pemirror.from_user.username}</code> | <code>{pemirror.from_user.id}</code>"
+                else:
+                    tag = f"<code>{pemirror.from_user.first_name}</code> | <code>{pemirror.from_user.id}</code>"
             # link yang di mirror
             message_args = pemirror.text.split(' ', maxsplit=1)
             try:
@@ -148,7 +155,6 @@ def get_readable_message():
                 link = f"https://t.me/share/url?url={quote(link)}"
             # jika user reply ke sebuah link
             if not findall(URL_REGEX, link):
-                reply_to = pemirror.reply_to_message
                 if reply_to is not None:
                     link = f"https://t.me/c/{str(pemirror.chat.id)[4:]}/{reply_to.message_id}"
             # sampai sini custom statusnya
@@ -173,7 +179,7 @@ def get_readable_message():
                            f" | <b>Leechers:</b> {download.torrent_info().num_leechs}"
                 except:
                     pass
-                msg += f"\n👤 {uname}"
+                msg += f"\n👤 {tag}"
                 msg += f"\n❌ <code>/{BotCommands.CancelMirror} {download.gid()}</code>"
             elif download.status() == MirrorStatus.STATUS_SEEDING:
                 msg += f"\n📦 <b>Size: </b>{download.size()}"
@@ -184,7 +190,7 @@ def get_readable_message():
                 msg += f"\n❌ <code>/{BotCommands.CancelMirror} {download.gid()}</code>"
             else:
                 msg += f"\n📦 {download.size()}"
-                msg += f"\n👤 {uname}"
+                msg += f"\n👤 {tag}"
             msg += "\n\n"
             if STATUS_LIMIT is not None and index == STATUS_LIMIT:
                 break

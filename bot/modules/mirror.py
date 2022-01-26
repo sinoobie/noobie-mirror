@@ -291,7 +291,7 @@ class MirrorListener:
                 pass
             del download_dict[self.message.message_id]
             count = len(download_dict)
-        sendMessage(f"{self.tag} {e_str}", self.bot, self.update)
+        sendMessage(f"⚠️ {self.tag} {e_str}", self.bot, self.update)
         if count == 0:
             self.clean()
         else:
@@ -394,7 +394,7 @@ def _mirror(bot, update, isZip=False, extract=False, isQbit=False, isLeech=False
             host = urlparse(link).netloc
             try:
                 if "uptobox.com" in host or "uploadhaven.com" in host:
-                    msg_ = sendMessage(f"ℹ️ {tag} Generating direct link. Tunggu sebentar...", bot, update)
+                    msg_ = sendMessage(f"ℹ️ {tag} Generating {host} direct link. Tunggu sebentar...", bot, update)
                     link = direct_link_generator(link, host)
                     deleteMessage(bot, msg_)
                 else:
@@ -457,7 +457,7 @@ def _mirror(bot, update, isZip=False, extract=False, isQbit=False, isLeech=False
     else:
         Thread(target=add_aria2c_download, args=(link, f'{DOWNLOAD_DIR}{listener.uid}/', listener, name)).start()
 
-    if isLeech is False and reply_to is None:
+    if (isLeech is False) and (reply_to is None):
         deleteMessage(bot, update.message)
 
 def mirror(update, context):
