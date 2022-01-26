@@ -131,14 +131,14 @@ def get_readable_message():
             reply_to = pemirror.reply_to_message
             if reply_to is not None:
                 if reply_to.from_user.username:
-                    tag = f"<code>@{reply_to.from_user.username}</code> | 🆔 <code>{reply_to.from_user.id}</code>"
+                    tag = f"<code>@{reply_to.from_user.username}</code> (<code>{reply_to.from_user.id}</code>)"
                 else:
-                    tag = f"<code>{reply_to.from_user.first_name}</code> | 🆔 <code>{reply_to.from_user.id}</code>"
+                    tag = f"<code>{reply_to.from_user.first_name}</code> (<code>{reply_to.from_user.id}</code>)"
             else:
                 if pemirror.from_user.username:
-                    tag = f"<code>@{pemirror.from_user.username}</code> | 🆔 <code>{pemirror.from_user.id}</code>"
+                    tag = f"<code>@{pemirror.from_user.username}</code> (<code>{pemirror.from_user.id}</code>)"
                 else:
-                    tag = f"<code>{pemirror.from_user.first_name}</code> | 🆔 <code>{pemirror.from_user.id}</code>"
+                    tag = f"<code>{pemirror.from_user.first_name}</code> (<code>{pemirror.from_user.id}</code>)"
             # link yang di mirror
             message_args = pemirror.text.split(' ', maxsplit=1)
             try:
