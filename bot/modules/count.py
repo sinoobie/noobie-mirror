@@ -38,7 +38,7 @@ def countNode(update, context):
         gd = GoogleDriveHelper()
         result = gd.count(link)
         deleteMessage(context.bot, msg)
-        cc = f'\n\n<b>cc: </b>{tag}'
+        cc = f'\n\n👤 <b>cc: </b>{tag}'
         sendMessage(result + cc, context.bot, update)
         if gdtot_link:
             gd.deletefile(link)

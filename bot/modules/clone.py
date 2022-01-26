@@ -83,9 +83,10 @@ def cloneNode(update, context):
                     update_all_messages()
             except IndexError:
                 pass
+        cc = f'\n\n👤 <b>Pemirror: </b>{tag}'
         if reply_to is not None:
-            cc = f'\n\n👤 <b>Pemirror: </b>{tag}\n#️⃣ <b>UID: </b><code>{reply_to.from_user.id}</code>'
-        else: cc = f'\n\n👤 <b>Pemirror: </b>{tag}\n#️⃣ <b>UID: </b><code>{update.message.from_user.id}</code>'
+            cc += f'\n#️⃣ <b>UID: </b><code>{reply_to.from_user.id}</code>'
+        else: cc += f'\n#️⃣ <b>UID: </b><code>{update.message.from_user.id}</code>'
         if button in ["cancelled", ""]:
             sendMessage(f"{tag} {result}", context.bot, update)
         else:

@@ -205,7 +205,11 @@ class MirrorListener:
                 sendMessage(msg, self.bot, self.update)
             else:
                 chat_id = str(self.message.chat.id)[4:]
-                msg += f'\n👤 <b>Leecher: </b>{self.tag}\n#️⃣ <b>UID: </b><code>{self.message.from_user.id}</code>\n\n'
+                msg += f'\n👤 <b>Leecher: </b>{self.tag}'
+                if self.message.reply_to_message is not None:
+                    msg += f'\n#️⃣ <b>UID: </b><code>{self.message.reply_to_message.from_user.id}</code>'
+                else:
+                    msg += f'\n#️⃣ <b>UID: </b><code>{self.message.from_user.id}</code>'
                 fmsg = ''
                 for index, item in enumerate(list(files), start=1):
                     msg_id = files[item]
@@ -236,7 +240,11 @@ class MirrorListener:
             if ospath.isdir(f'{DOWNLOAD_DIR}{self.uid}/{name}'):
                 msg += f'📂 <b>SubFolders: </b>{folders}\n'
                 msg += f'📄 <b>Files: </b>{files}\n'
-            msg += f'\n👤 <b>Pemirror: </b>{self.tag}\n#️⃣ <b>UID: </b><code>{self.message.from_user.id}</code>'
+            msg += f'\n👤 <b>Pemirror: </b>{self.tag}'
+            if self.message.reply_to_message is not None:
+                msg += f'\n#️⃣ <b>UID: </b><code>{self.message.reply_to_message.from_user.id}</code>'
+            else:
+                msg += f'\n#️⃣ <b>UID: </b><code>{self.message.from_user.id}</code>'
             buttons = ButtonMaker()
             link = short_url(link)
             buttons.buildbutton("☁️ Drive Link", link)
