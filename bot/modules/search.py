@@ -112,8 +112,8 @@ def _search(key, site, message, tool):
             if site == "all":
                 search_results = list(itertools.chain.from_iterable(search_results))
             if isinstance(search_results, list):
-                msg = f"<b>Ditemukan <u>{min(len(search_results), SEARCH_LIMIT)}</u></b>"
-                msg += f" <b>hasil untuk <code>{key}</code>\nTorrent Site:- <i>{SITES.get(site)}</i></b>"
+                msg = f"<b>Ditemukan <u>{min(len(search_results), SEARCH_LIMIT)} hasil</u></b>"
+                msg += f" <b>untuk <code>{key}</code>\nTorrent Site:- <i>{SITES.get(site)}</i></b>"
             else:
                 return editMessage(f"Tidak ada torrent yang cocok dengan <code>{key}</code>\nTorrent Site:- <i>{SITES.get(site)}</i>", message)
         except Exception as e:
@@ -131,8 +131,8 @@ def _search(key, site, message, tool):
         search_results = dict_search_results.results
         total_results = dict_search_results.total
         if total_results != 0:
-            msg = f"<b>Ditemukan <u>{min(len(search_results), SEARCH_LIMIT)}</u></b>"
-            msg += f" <b>hasil untuk <code>{key}</code>\nTorrent Site:- <i>{site.capitalize()}</i></b>"
+            msg = f"<b>Ditemukan <u>{min(len(search_results), SEARCH_LIMIT)} hasil</u></b>"
+            msg += f" <b>untuk <code>{key}</code>\nTorrent Site:- <i>{site.capitalize()}</i></b>"
         else:
             return editMessage(f"Tidak ada torrent yang cocok dengan <code>{key}</code>\nTorrent Site:- <i>{site.capitalize()}</i>", message)
     link = _getResult(search_results, key, message, tool)
