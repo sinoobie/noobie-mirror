@@ -78,7 +78,8 @@ def direct_link_generator(link: str, host):
     elif any(x in host for x in ['sbembed.com', 'watchsb.com', 'streamsb.net', 'sbplay.org']):
         return sbembed(link)
     else:
-        raise DirectDownloadLinkException(f'No Direct link function found for {link}')
+        LOGGER.info(f'No Direct link function found for {link}')
+        raise DirectDownloadLinkException("ERROR: Sepertinya bukan direct link!\n\n<code>direct_link_generator: Can not extract the link</code>")
 
 def uploadhaven(url: str) -> str:
     ses = requests.Session()

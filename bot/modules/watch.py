@@ -16,6 +16,7 @@ from .mirror import MirrorListener
 listener_dict = {}
 
 def _watch(bot, update, isZip=False, isLeech=False, pswd=None, tag=None):
+    global tag
     mssg = update.message.text
     message_args = mssg.split(' ')
     name_args = mssg.split('|', maxsplit=1)
@@ -85,7 +86,7 @@ def _watch(bot, update, isZip=False, isLeech=False, pswd=None, tag=None):
         buttons.sbutton("Cancel", f"qu {msg_id} cancel")
         YTBUTTONS = InlineKeyboardMarkup(buttons.build_menu(3))
         listener_dict[msg_id] = [listener, user_id, link, name, YTBUTTONS]
-        bmsg = sendMarkup('Pilih Kualitas Playlist Video:', bot, update, YTBUTTONS)
+        bmsg = sendMarkup(f'ℹ️ {tag} Pilih Kualitas Playlist Video:', bot, update, YTBUTTONS)
     else:
         formats = result.get('formats')
         formats_dict = {}
@@ -134,7 +135,7 @@ def _watch(bot, update, isZip=False, isLeech=False, pswd=None, tag=None):
         buttons.sbutton("Cancel", f"qu {msg_id} cancel")
         YTBUTTONS = InlineKeyboardMarkup(buttons.build_menu(2))
         listener_dict[msg_id] = [listener, user_id, link, name, YTBUTTONS, formats_dict]
-        bmsg = sendMarkup('Pilih Kualitas Video:', bot, update, YTBUTTONS)
+        bmsg = sendMarkup(f'ℹ️ {tag} Pilih Kualitas Video:', bot, update, YTBUTTONS)
 
     Thread(target=_auto_cancel, args=(bmsg, msg_id)).start()
     if isLeech is False and reply_to is None:
@@ -168,7 +169,7 @@ def _qual_subbuttons(task_id, qual, msg):
     buttons.sbutton("Back", f"qu {task_id} back")
     buttons.sbutton("Cancel", f"qu {task_id} cancel")
     SUBBUTTONS = InlineKeyboardMarkup(buttons.build_menu(2))
-    editMessage(f"Pilih Video Bitrate untuk <b>{qual}</b>:", msg, SUBBUTTONS)
+    editMessage(f"ℹ️ {tag} Pilih Video Bitrate untuk <b>{qual}</b>:", msg, SUBBUTTONS)
 
 def _audio_subbuttons(task_id, msg, playlist=False):
     buttons = button_build.ButtonMaker()
@@ -184,7 +185,7 @@ def _audio_subbuttons(task_id, msg, playlist=False):
     buttons.sbutton("Back", f"qu {task_id} back")
     buttons.sbutton("Cancel", f"qu {task_id} cancel")
     SUBBUTTONS = InlineKeyboardMarkup(buttons.build_menu(2))
-    editMessage(f"Pilih Audio{i} Bitrate:", msg, SUBBUTTONS)
+    editMessage(f"ℹ️ {tag} Pilih Audio{i} Bitrate:", msg, SUBBUTTONS)
 
 def select_format(update, context):
     query = update.callback_query
@@ -196,7 +197,7 @@ def select_format(update, context):
     try:
         task_info = listener_dict[task_id]
     except:
-        return editMessage("Itu adalah task lama", msg)
+        return editMessage(f"ℹ️ {tag} Itu adalah task lama", msg)
     uid = task_info[1]
     if user_id != uid:
         return query.answer(text="Bukan buat elu!", show_alert=True)
@@ -206,7 +207,7 @@ def select_format(update, context):
         return _qual_subbuttons(task_id, qual, msg)
     elif data[2] == "back":
         query.answer()
-        return editMessage('Pilih Kualitas Video:', msg, task_info[4])
+        return editMessage(f'ℹ️ {tag} Pilih Kualitas Video:', msg, task_info[4])
     elif data[2] == "audio":
         query.answer()
         if len(data) == 4:
@@ -233,7 +234,7 @@ def _auto_cancel(msg, msg_id):
     sleep(60)
     try:
         del listener_dict[msg_id]
-        editMessage('Timed out! Task telah dibatalkan.', msg)
+        editMessage(f'ℹ️ {tag} Timed out! Task telah dibatalkan.', msg)
     except:
         pass
 
