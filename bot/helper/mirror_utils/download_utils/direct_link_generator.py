@@ -81,7 +81,7 @@ def direct_link_generator(link: str, host):
         return sbembed(link)
     else:
         LOGGER.info(f'No Direct link function found for {link}')
-        raise DirectDownloadLinkException("ERROR: Gagal generate direct link!\n\n<code>direct_link_generator: Can not extract the link</code>")
+        raise DirectDownloadLinkException("ERROR: Link tidak di dukung direct link generator atau bukan direct link.\n\n<code>direct_link_generator: unsupported link</code>")
 
 def uploadhaven(url: str) -> str:
     ses = requests.Session()
