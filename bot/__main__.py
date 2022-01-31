@@ -258,7 +258,7 @@ botcmds = [
     ]
 
 def main():
-    bot.set_my_commands(botcmds)
+    # bot.set_my_commands(botcmds)
     start_cleanup()
     if IS_VPS:
         asyrun(start_server_async(PORT))
