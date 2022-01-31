@@ -81,7 +81,7 @@ def direct_link_generator(link: str, host):
         return sbembed(link)
     else:
         LOGGER.info(f'No Direct link function found for {link}')
-        raise DirectDownloadLinkException("ERROR: Link tidak di dukung direct link generator atau bukan direct link.\n\n<code>direct_link_generator: unsupported link</code>")
+        raise DirectDownloadLinkException("ERROR: Link tidak di dukung <i>direct link generator</i> atau sepertinya link kamu bukan direct link.")
 
 def uploadhaven(url: str) -> str:
     ses = requests.Session()
@@ -124,7 +124,6 @@ def uptobox(url: str) -> str:
             file_link = f'https://uptobox.com/api/link?token={UPTOBOX_TOKEN}&file_code={file_id}'
             req = requests.get(file_link)
             result = req.json()
-            LOGGER.info(f"UPTOBOX_API {result}")
             if result['message'].lower() == 'success':
                 dl_url = result['data']['dlLink']
             elif result['message'].lower() == 'waiting needed':
@@ -138,6 +137,7 @@ def uptobox(url: str) -> str:
                 cooldown = divmod(result['data']['waiting'], 60)
                 raise DirectDownloadLinkException(f"ERROR: Uptobox sedang cooldown {cooldown[0]} menit {cooldown[1]} detik")
             else:
+                LOGGER.info(f"UPTOBOX_ERROR: {result}")
                 raise DirectDownloadLinkException(f"ERROR: {result['message']}")
     return dl_url
 
