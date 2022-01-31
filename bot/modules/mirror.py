@@ -177,7 +177,8 @@ class MirrorListener:
             drive.upload(up_name)
 
     def onDownloadError(self, error):
-        error = error.replace('<', ' ').replace('>', ' ')
+        if 'aria2c_download_error:' not in error:
+            error = error.replace('<', ' ').replace('>', ' ')
         with download_dict_lock:
             try:
                 download = download_dict[self.uid]
@@ -428,14 +429,14 @@ def _mirror(bot, update, isZip=False, extract=False, isQbit=False, isLeech=False
                     open(file_name, "wb").write(resp.content)
                     link = f"{file_name}"
                 else:
-                    return sendMessage(f"⚠️ {tag} ERROR: link got HTTP response: {resp.status_code}", bot, update)
+                    return sendMessage(f"⚠️ {tag} ERROR: Link got {resp.status_code} HTTP response", bot, update)
             except Exception as e:
                 error = str(e).replace('<', ' ').replace('>', ' ')
                 if error.startswith('No connection adapters were found for'):
                     link = error.split("'")[1]
                 else:
                     LOGGER.error(str(e))
-                    return sendMessage(f"⚠️ {tag} {error}", bot, update)
+                    return sendMessage(f"⚠️ {tag} No connection adapters\n\n<code>qBit_dotTorrent_generator: {error}</code>", bot, update)
         else:
             msg = "Qb command hanya untuk torrent. Jika link kamu adalah torrent tapi mendapatkan error ini maka laporkan ke admin"
             return sendMessage(msg, bot, update)

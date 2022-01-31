@@ -85,7 +85,7 @@ def __onDownloadError(api, gid):
     except:
         pass
     if dl:
-        dl.getListener().onDownloadError(f"Sepertinya bukan direct link!\n\n<code>aria2c_download_error: {error}</code>")
+        dl.getListener().onDownloadError(f"Sepertinya link kamu bukan direct link.\n\n<code>aria2c_download_error: {error}</code>")
 
 def start_listener():
     aria2.listen_to_notifications(threaded=True, on_download_start=__onDownloadStarted,
@@ -101,7 +101,7 @@ def add_aria2c_download(link: str, path, listener, filename):
     if download.error_message:
         error = str(download.error_message).replace('<', ' ').replace('>', ' ')
         LOGGER.info(f"Download Error: {error}")
-        return sendMessage(f"⚠️ Sepertinya bukan direct link!\n\n<code>aria2c_download_error: {error}</code>", listener.bot, listener.update)
+        return sendMessage(f"⚠️ {listener.tag} Oops terjadi error atau sepertinya link kamu bukan direct link.\n\n<code>aria2c_download_error: {error}</code>", listener.bot, listener.update)
     with download_dict_lock:
         download_dict[listener.uid] = AriaDownloadStatus(download.gid, listener)
         LOGGER.info(f"Started: {download.gid} DIR: {download.dir} ")
