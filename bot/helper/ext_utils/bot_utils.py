@@ -304,17 +304,18 @@ def new_thread(fn):
 
 def get_content_type(link: str):
     try:
-        res = rhead(link, allow_redirects=True, timeout=5)
-        content_type = res.headers.get('content-type')
+        res = urlopen(link, timeout=5)
+        info = res.info()
+        content_type = info.get_content_type()
     except:
         content_type = None
 
     if content_type is None:
         try:
-            res = urlopen(link, timeout=5)
-            info = res.info()
-            content_type = info.get_content_type()
+            res = rhead(link, allow_redirects=True, timeout=5)
+            content_type = res.headers.get('content-type')
         except:
             content_type = None
+
     return content_type
 

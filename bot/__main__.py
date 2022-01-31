@@ -57,7 +57,7 @@ def stats(update, context):
 #            f'<b>Memory Total:</b> {mem_t}\n'\
 #            f'<b>Memory Free:</b> {mem_a}\n'\
 #            f'<b>Memory Used:</b> {mem_u}\n'\
-    stats += '<b>Bot Version:</b> 2022.01.29'
+    stats += '<b>Bot Version:</b> 2022.01.31'
     sendMessage(stats, context.bot, update)
 
 
@@ -228,37 +228,37 @@ def bot_help(update, context):
 botcmds = [
 
         (f'{BotCommands.MirrorCommand}', 'Mirror'),
-        (f'{BotCommands.ZipMirrorCommand}','Mirror dan upload lalu arsip ke zip'),
-        (f'{BotCommands.UnzipMirrorCommand}','Mirror dan extract files'),
+        (f'{BotCommands.ZipMirrorCommand}','Mirror lalu arsip ke zip'),
+        (f'{BotCommands.UnzipMirrorCommand}','Mirror dan ekstrak file'),
         (f'{BotCommands.QbMirrorCommand}','Mirror torrent menggunakan qBittorrent'),
         (f'{BotCommands.QbZipMirrorCommand}','Mirror torrent menggunakan qBittorrent dan arsip ke zip'),
-        (f'{BotCommands.QbUnzipMirrorCommand}','Mirror torrent menggunakan qBittorrent dan extract files'),
+        (f'{BotCommands.QbUnzipMirrorCommand}','Mirror torrent menggunakan qBittorrent dan ekstrak file'),
         (f'{BotCommands.WatchCommand}','Mirror YouTube link'),
         (f'{BotCommands.ZipWatchCommand}','Mirror YouTube link lalu arsip ke zip'),
         (f'{BotCommands.CloneCommand}','Copy file/folder to Drive'),
-        (f'{BotCommands.LeechCommand}','Leech'),
-        (f'{BotCommands.ZipLeechCommand}','Leech dan upload lalu arsip ke zip'),
-        (f'{BotCommands.UnzipLeechCommand}','Leech dan extract files'),
-        (f'{BotCommands.QbLeechCommand}','Leech torrent menggunakan qBittorrent'),
-        (f'{BotCommands.QbZipLeechCommand}','Leech torrent menggunakan qBittorrent dan arsip ke zip'),
-        (f'{BotCommands.QbUnzipLeechCommand}','Leech torrent menggunakan qBittorrent dan extract'),
-        (f'{BotCommands.LeechWatchCommand}','Leech YouTube link'),
-        (f'{BotCommands.LeechZipWatchCommand}','Leech YouTube link lalu arsip ke zip'),
+        (f'{BotCommands.LeechCommand}','Upload file ke telegram'),
+        (f'{BotCommands.ZipLeechCommand}','Arsip file ke zip lalu Upload ke telegram'),
+        (f'{BotCommands.UnzipLeechCommand}','Ekstrak file lalu Upload file ke telegram'),
+        (f'{BotCommands.QbLeechCommand}','Upload torrent ke telegram menggunakan qBittorrent'),
+        (f'{BotCommands.QbZipLeechCommand}','Arsip torrent ke zip lalu Upload ke telegram menggunakan qBittorrent'),
+        (f'{BotCommands.QbUnzipLeechCommand}','Ekstrak torrent lalu Upload ke telegram menggunakan qBittorrent'),
+        (f'{BotCommands.LeechWatchCommand}','Upload YouTube video ke telegram'),
+        (f'{BotCommands.LeechZipWatchCommand}','Arsip ke zip YouTube video lalu upload ke telegram'),
         (f'{BotCommands.CountCommand}','Menghitung file/folder dari Drive'),
         (f'{BotCommands.DeleteCommand}','Menghapus file/folder dari Drive'),
         (f'{BotCommands.CancelMirror}','Cancel sebuah task'),
         (f'{BotCommands.CancelAllCommand}','Cancel semua downloading tasks'),
         (f'{BotCommands.LeechSetCommand}','Leech settings'),
-        (f'{BotCommands.SetThumbCommand}','Set thumbnail'),
+        (f'{BotCommands.SetThumbCommand}','Set Leech thumbnail'),
         (f'{BotCommands.StatusCommand}','Menampilkan status mirror'),
-        (f'{BotCommands.StatsCommand}','Statik penggunaan bot'),
+        (f'{BotCommands.StatsCommand}','Statistik penggunaan bot'),
         (f'{BotCommands.PingCommand}','Ping bot'),
         (f'{BotCommands.RestartCommand}','Restart bot'),
-        (f'{BotCommands.HelpCommand}','Mendapatkan detail help')
+        (f'{BotCommands.HelpCommand}','Mendapatkan detail perintah bot')
     ]
 
 def main():
-    # bot.set_my_commands(botcmds)
+    bot.set_my_commands(botcmds)
     start_cleanup()
     if IS_VPS:
         asyrun(start_server_async(PORT))
