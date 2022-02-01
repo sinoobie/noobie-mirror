@@ -305,10 +305,8 @@ def new_thread(fn):
     return wrapper
 
 def get_content_type(link: str):
-    headers={'User-Agent': 'Mozilla/5.0'}
     try:
-        req = Request(link, headers=header)
-        res = urlopen(req, context=ssl._create_unverified_context(), timeout=5)
+        res = urlopen(link, context=ssl._create_unverified_context(), timeout=5)
         info = res.info()
         content_type = info.get_content_type()
     except:
@@ -316,7 +314,7 @@ def get_content_type(link: str):
 
     if content_type is None:
         try:
-            res = rhead(link, headers=header, allow_redirects=True, verify=False, timeout=5)
+            res = rhead(link, allow_redirects=True, verify=False, timeout=5)
             content_type = res.headers.get('content-type')
         except:
             content_type = None
