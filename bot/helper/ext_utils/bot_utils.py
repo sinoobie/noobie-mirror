@@ -1,3 +1,5 @@
+import ssl
+
 from re import match, findall, split
 from threading import Thread, Event
 from time import time
@@ -304,7 +306,7 @@ def new_thread(fn):
 
 def get_content_type(link: str):
     try:
-        res = urlopen(link, timeout=5)
+        res = urlopen(link, context=ssl._create_unverified_context(), timeout=5)
         info = res.info()
         content_type = info.get_content_type()
     except:
@@ -312,7 +314,7 @@ def get_content_type(link: str):
 
     if content_type is None:
         try:
-            res = rhead(link, allow_redirects=True, timeout=5)
+            res = rhead(link, allow_redirects=True, verify=False, timeout=5)
             content_type = res.headers.get('content-type')
         except:
             content_type = None
