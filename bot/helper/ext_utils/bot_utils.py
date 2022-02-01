@@ -305,9 +305,7 @@ def new_thread(fn):
     return wrapper
 
 def get_content_type(link: str):
-    header = {
-        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/36.0.1985.125 Safari/537.36'
-    }
+    headers={'User-Agent': 'Mozilla/5.0'}
     try:
         req = Request(link, headers=header)
         res = urlopen(req, context=ssl._create_unverified_context(), timeout=5)
