@@ -6,7 +6,7 @@ from time import time
 from math import ceil
 from psutil import virtual_memory, cpu_percent, disk_usage
 from requests import head as rhead
-from urllib.request import urlopen
+from urllib.request import urlopen, Request
 from telegram import InlineKeyboardMarkup
 from urllib.parse import quote
 
@@ -305,8 +305,12 @@ def new_thread(fn):
     return wrapper
 
 def get_content_type(link: str):
+    header = {
+        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/36.0.1985.125 Safari/537.36'
+    }
     try:
-        res = urlopen(link, context=ssl._create_unverified_context(), timeout=5)
+        req = Request(link, headers=header)
+        res = urlopen(req, context=ssl._create_unverified_context(), timeout=5)
         info = res.info()
         content_type = info.get_content_type()
     except:
@@ -314,7 +318,7 @@ def get_content_type(link: str):
 
     if content_type is None:
         try:
-            res = rhead(link, allow_redirects=True, verify=False, timeout=5)
+            res = rhead(link, headers=header, allow_redirects=True, verify=False, timeout=5)
             content_type = res.headers.get('content-type')
         except:
             content_type = None
