@@ -446,7 +446,7 @@ def _mirror(bot, update, isZip=False, extract=False, isQbit=False, isLeech=False
             gmsg += f"Use /{BotCommands.ZipMirrorCommand} untuk membuat zip dari Google Drive folder\n\n"
             gmsg += f"Use /{BotCommands.UnzipMirrorCommand} untuk mengekstraks file Google Drive archive"
             return sendMessage(gmsg, bot, update)
-        Thread(target=add_gd_download, args=(link, listener, gdtot_link)).start()
+        Thread(target=add_gd_download, args=(link, listener)).start()
 
     elif is_mega_link(link):
         if BLOCK_MEGA_LINKS:
