@@ -1,5 +1,4 @@
 import signal
-import os
 
 from os import path as ospath, remove as osremove, execl as osexecl
 from subprocess import run as srun
@@ -57,7 +56,7 @@ def stats(update, context):
 #            f'<b>Memory Total:</b> {mem_t}\n'\
 #            f'<b>Memory Free:</b> {mem_a}\n'\
 #            f'<b>Memory Used:</b> {mem_u}\n'\
-    stats += '<b>Bot Version:</b> 2022.01.31'
+    stats += '<b>Bot Version:</b> 2022.02.02'
     sendMessage(stats, context.bot, update)
 
 

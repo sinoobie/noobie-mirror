@@ -160,7 +160,7 @@ def get_readable_message():
                 if reply_to is not None:
                     link = f"https://t.me/c/{str(pemirror.chat.id)[4:]}/{reply_to.message_id}"
             # sampai sini custom statusnya
-            msg += f"💽 <code>{download.name()}</code>"
+            msg += f"💽 <code>{download.name().replace('<', '')}</code>"
             msg += f"\n<a href=\"{link}\"><b>{download.status()}</b></a>"
             if download.status() not in [
                 MirrorStatus.STATUS_ARCHIVING,
@@ -214,8 +214,8 @@ def get_readable_message():
                     uldl_bytes += float(speedy.split('M')[0]) * 1048576
         dlspeed = get_readable_file_size(dlspeed_bytes)
         ulspeed = get_readable_file_size(uldl_bytes)
-        bmsg += f"\n💾 <b>RAM:</b> {virtual_memory().percent}% | 🕒 <b>UPTIME:</b> {currentTime}" \
-                f"\n🔻 <b>DL:</b> {dlspeed}/s | 🔺 <b>UL:</b> {ulspeed}/s"
+        bmsg += f"\n💾 <b>RAM:</b> {virtual_memory().percent}% | 🕒 <b>UPTIME:</b> {currentTime}"
+        bmsg += f"\n🔻 <b>DL:</b> {dlspeed}/s | 🔺 <b>UL:</b> {ulspeed}/s"
         if STATUS_LIMIT is not None and tasks > STATUS_LIMIT:
             msg += f"📑 {PAGE_NO}/{pages} Pages | 🎯 {tasks} Tasks\n"
             buttons = ButtonMaker()
@@ -322,6 +322,5 @@ def get_content_type(link: str):
             content_type = res.headers.get('content-type')
         except:
             content_type = None
-
     return content_type
 
