@@ -132,7 +132,7 @@ def _search(key, site, message, tool):
         total_results = dict_search_results.total
         if total_results != 0:
             msg = f"<b>Hasil pencarian:</b> <code>{key}</code>\n"
-            msg += f"<b>Ditemukan: <u>{min(len(search_results), SEARCH_LIMIT)} hasil</u>\nTorrent Site:- <i>{SITES.get(site)}</i></b>"
+            msg += f"<b>Ditemukan: <u>{min(len(search_results), SEARCH_LIMIT)} hasil</u>\nTorrent Site:- <i>{site.capitalize()}</i></b>"
         else:
             return editMessage(f"ℹ️ Tidak ada torrent yang cocok dengan <code>{key}</code>\nTorrent Site:- <i>{site.capitalize()}</i>", message)
     link = _getResult(search_results, key, message, tool)
@@ -147,9 +147,10 @@ def _getResult(search_results, key, message, tool):
     telegraph_content = []
     msg = f"<h4>Search Result For {key}</h4>"
     for index, result in enumerate(search_results, start=1):
+        msg += "<br>"
         if tool == 'api':
             try:
-                msg += f"<br><code><a href='{result['Url']}'>{escape(result['Name'])}</a></code><br>"
+                msg += f"<code><a href='{result['Url']}'>{escape(result['Name'])}</a></code><br>"
                 if "Category" in result.keys():
                     msg += f"<b>Category: </b><code>{result['Category']}</code><br>"
                 if "Files" in result.keys():
@@ -173,14 +174,14 @@ def _getResult(search_results, key, message, tool):
             except KeyError:
                 pass
         else:
-            msg += f"<a href='{result.descrLink}'>{escape(result.fileName)}</a><br>"
+            msg += f"<code><a href='{result.descrLink}'>{escape(result.fileName)}</a></code><br>"
             msg += f"<b>Size: </b>{get_readable_file_size(result.fileSize)}<br>"
             msg += f"<b>Seeders: </b>{result.nbSeeders} | <b>Leechers: </b>{result.nbLeechers}<br>"
             link = result.fileUrl
             if link.startswith('magnet:'):
-                msg += f"<b>Share Magnet to</b> <a href='http://t.me/share/url?url={quote(link)}'>Telegram</a><br><br>"
+                msg += f"<b>Share Magnet to</b> <a href='http://t.me/share/url?url={quote(link)}'>Telegram</a><br>"
             else:
-                msg += f"<b>Share Url to</b> <a href='http://t.me/share/url?url={link}'>Telegram</a><br><br>"
+                msg += f"<b>Share Url to</b> <a href='http://t.me/share/url?url={link}'>Telegram</a><br>"
 
         if len(msg.encode('utf-8')) > 39000:
            telegraph_content.append(msg)

@@ -735,7 +735,7 @@ class GoogleDriveHelper:
         if _tipe == "both":
             _tipe = "folders & files"
         msg = f"<b>Hasil pencarian:</b> <code>{fileName}</code>\n"
-        msg += f"<b>Ditemukan: <u>{contents_count} hasil</u>\nList Mode: <i>{_tipe}</i></b>"
+        msg += f"<b>Ditemukan: <u>{contents_count} hasil</u>\nList Mode:- <i>{_tipe}</i></b>"
         buttons = ButtonMaker()
         buttons.buildbutton("🔎 LIHAT", f"https://telegra.ph/{self.path[0]}")
 
