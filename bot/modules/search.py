@@ -55,7 +55,7 @@ def torser(update, context):
     try:
         key = update.message.text.split(" ", maxsplit=1)[1]
     except IndexError:
-        return sendMessage("Ketik sebuah keyword untuk memulai pencarian!", context.bot, update)
+        return sendMessage("ℹ️ Ketik sebuah keyword untuk memulai pencarian!", context.bot, update)
     if SEARCH_API_LINK is not None and SEARCH_PLUGINS is not None:
         buttons = button_build.ButtonMaker()
         buttons.sbutton('Api', f"torser {user_id} api")
@@ -112,12 +112,12 @@ def _search(key, site, message, tool):
             if site == "all":
                 search_results = list(itertools.chain.from_iterable(search_results))
             if isinstance(search_results, list):
-                msg = f"<b>Ditemukan <u>{min(len(search_results), SEARCH_LIMIT)} hasil</u></b>"
-                msg += f" <b>untuk <code>{key}</code>\nTorrent Site:- <i>{SITES.get(site)}</i></b>"
+                msg = f"<b>Hasil pencarian:</b> <code>{key}</code>\n"
+                msg += f"<b>Ditemukan: <u>{min(len(search_results), SEARCH_LIMIT)} hasil</u>\nTorrent Site:- <i>{SITES.get(site)}</i></b>"
             else:
-                return editMessage(f"Tidak ada torrent yang cocok dengan <code>{key}</code>\nTorrent Site:- <i>{SITES.get(site)}</i>", message)
+                return editMessage(f"ℹ️ Tidak ada torrent yang cocok dengan <code>{key}</code>\nTorrent Site:- <i>{SITES.get(site)}</i>", message)
         except Exception as e:
-            editMessage(str(e), message)
+            editMessage(f"⚠️ {e}", message)
     else:
         client = get_client()
         search = client.search_start(pattern=str(key), plugins=str(site), category='all')
@@ -131,10 +131,10 @@ def _search(key, site, message, tool):
         search_results = dict_search_results.results
         total_results = dict_search_results.total
         if total_results != 0:
-            msg = f"<b>Ditemukan <u>{min(len(search_results), SEARCH_LIMIT)} hasil</u></b>"
-            msg += f" <b>untuk <code>{key}</code>\nTorrent Site:- <i>{site.capitalize()}</i></b>"
+            msg = f"<b>Hasil pencarian:</b> <code>{key}</code>\n"
+            msg += f"<b>Ditemukan: <u>{min(len(search_results), SEARCH_LIMIT)} hasil</u>\nTorrent Site:- <i>{SITES.get(site)}</i></b>"
         else:
-            return editMessage(f"Tidak ada torrent yang cocok dengan <code>{key}</code>\nTorrent Site:- <i>{site.capitalize()}</i>", message)
+            return editMessage(f"ℹ️ Tidak ada torrent yang cocok dengan <code>{key}</code>\nTorrent Site:- <i>{site.capitalize()}</i>", message)
     link = _getResult(search_results, key, message, tool)
     buttons = button_build.ButtonMaker()
     buttons.buildbutton("🔎 LIHAT", link)

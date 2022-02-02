@@ -30,12 +30,12 @@ def cloneNode(update, context):
             tag = reply_to.from_user.mention_html(reply_to.from_user.first_name)
     if is_gdtot_link(link):
         try:
-            msg = sendMessage(f"Processing: <code>{link}</code>", context.bot, update)
+            msg = sendMessage(f"ℹ️ Processing: <code>{link}</code>", context.bot, update)
             link = gdtot(link)
             deleteMessage(context.bot, msg)
         except DirectDownloadLinkException as e:
             deleteMessage(context.bot, msg)
-            return sendMessage(str(e), context.bot, update)
+            return sendMessage(f"⚠️ {tag} {e}", context.bot, update)
     if is_gdrive_link(link):
         gd = GoogleDriveHelper()
         res, size, name, files = gd.helper(link)
@@ -53,7 +53,7 @@ def cloneNode(update, context):
                 msg2 = f'⚠️ {tag} Gagal, Clone limit adalah {CLONE_LIMIT}GB.\nUkuran File/Folder kamu adalah {get_readable_file_size(size)}.'
                 return sendMessage(msg2, context.bot, update)
         if files <= 20:
-            msg = sendMessage(f"Cloning: <code>{link}</code>", context.bot, update)
+            msg = sendMessage(f"ℹ️ Cloning: <code>{link}</code>", context.bot, update)
             result, button = gd.clone(link)
             deleteMessage(context.bot, msg)
         else:
@@ -81,12 +81,12 @@ def cloneNode(update, context):
             cc += f'\n#️⃣ <b>UID: </b><code>{reply_to.from_user.id}</code>'
         else: cc += f'\n#️⃣ <b>UID: </b><code>{update.message.from_user.id}</code>'
         if button in ["cancelled", ""]:
-            sendMessage(f"{tag} {result}", context.bot, update)
+            sendMessage(f"⚠️ {tag} {result}", context.bot, update)
         else:
             sendMarkup(result + cc, context.bot, update, button)
         deleteMessage(context.bot, update.message)
     else:
-        sendMessage('Ketik Gdrive atau gdtot link setelah command!', context.bot, update)
+        sendMessage(f'ℹ️ {tag} Ketik Gdrive atau gdtot link yang mau di-mirror.', context.bot, update)
 
 clone_handler = CommandHandler(BotCommands.CloneCommand, cloneNode, filters=CustomFilters.authorized_chat | CustomFilters.authorized_user, run_async=True)
 dispatcher.add_handler(clone_handler)

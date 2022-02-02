@@ -14,7 +14,7 @@ def list_buttons(update, context):
     try:
         key = update.message.text.split(" ", maxsplit=1)[1]
     except IndexError:
-        return sendMessage('Ketik sebuah keyword untuk memulai pencarian!', context.bot, update)
+        return sendMessage('ℹ️ Ketik sebuah keyword untuk memulai pencarian!', context.bot, update)
     buttons = button_build.ButtonMaker()
 #    buttons.sbutton("Drive Root", f"types {user_id} root")
 #    buttons.sbutton("Recursive", f"types {user_id} recu")
@@ -52,7 +52,7 @@ def select_type(update, context):
         Thread(target=_list_drive, args=(key, msg, list_method, item_type)).start()
     else:
         query.answer()
-        editMessage("<b>pencarian dibatalkan!</b>", msg)
+        editMessage("<b>ℹ️ Pencarian dibatalkan!</b>", msg)
 
 
 def _list_drive(key, bmsg, list_method, item_type):
@@ -66,7 +66,7 @@ def _list_drive(key, bmsg, list_method, item_type):
         _tipe = item_type
         if _tipe == "both":
             _tipe = "folders & files"
-        editMessage(f'Tidak ada hasil yang ditemukan untuk <code>{key}</code>\nList Mode: <i>{_tipe}</i>', bmsg)
+        editMessage(f'ℹ️ Tidak ada hasil yang ditemukan untuk <code>{key}</code>\nList Mode: <i>{_tipe}</i>', bmsg)
 
 
 list_handler = CommandHandler(BotCommands.ListCommand, list_buttons, filters=CustomFilters.authorized_chat | CustomFilters.authorized_user, run_async=True)

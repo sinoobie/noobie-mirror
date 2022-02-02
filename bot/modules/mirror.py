@@ -382,7 +382,7 @@ def _mirror(bot, update, isZip=False, extract=False, isQbit=False, isLeech=False
             pass
 
     if not is_url(link) and not is_magnet(link) and not ospath.exists(link):
-        help_msg = "<b>Ketik atau reply sebuah link untuk memulai mirror dari direct/torrent link</b>"
+        help_msg = f"ℹ️ {tag} Tidak ada file/link yang mau di-mirror."
 #        help_msg += "\n<code>/command</code> {link} |newname pswd: mypassword [𝚣𝚒𝚙/𝚞𝚗𝚣𝚒𝚙]"
 #        help_msg += "\n\n<b>Atau reply sebuah link atau file:</b>"
 #        help_msg += "\n<code>/command</code> |newname pswd: mypassword [𝚣𝚒𝚙/𝚞𝚗𝚣𝚒𝚙]"

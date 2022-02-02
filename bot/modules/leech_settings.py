@@ -110,10 +110,10 @@ def setThumb(update, context):
         osremove(photo_dir)
         if DB_URI is not None:
             DbManger().user_save_thumb(user_id, des_dir)
-        msg = f"Custom thumbnail saved for <a href='tg://user?id={user_id}'>{update.message.from_user.full_name}</a>."
+        msg = f"ℹ️ Custom thumbnail saved for <a href='tg://user?id={user_id}'>{update.message.from_user.full_name}</a>."
         sendMessage(msg, context.bot, update)
     else:
-        sendMessage("Reply to a photo to save custom thumbnail.", context.bot, update)
+        sendMessage("ℹ️ Reply to a photo to save custom thumbnail.", context.bot, update)
 
 leech_set_handler = CommandHandler(BotCommands.LeechSetCommand, leechSet, filters=CustomFilters.authorized_chat | CustomFilters.authorized_user, run_async=True)
 set_thumbnail_handler = CommandHandler(BotCommands.SetThumbCommand, setThumb, filters=CustomFilters.authorized_chat | CustomFilters.authorized_user, run_async=True)

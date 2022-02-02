@@ -118,7 +118,7 @@ class GoogleDriveHelper:
         try:
             file_id = self.__getIdFromUrl(link)
         except (KeyError, IndexError):
-            msg = "Google Drive ID Tidak ditemukan pada link tersebut"
+            msg = "ℹ️ Google Drive ID Tidak ditemukan pada link tersebut"
             return msg
         msg = ''
         try:
@@ -341,7 +341,7 @@ class GoogleDriveHelper:
         try:
             file_id = self.__getIdFromUrl(link)
         except (KeyError, IndexError):
-            msg = "Google Drive ID Tidak ditemukan pada link tersebut"
+            msg = "ℹ️ Google Drive ID Tidak ditemukan pada link tersebut"
             return msg
         msg = ""
         LOGGER.info(f"File ID: {file_id}")
@@ -734,7 +734,8 @@ class GoogleDriveHelper:
         _tipe = itemType
         if _tipe == "both":
             _tipe = "folders & files"
-        msg = f"<b>Ditemukan <u>{contents_count} hasil</u> dari pencarian: </b><code>{fileName}</code>\n<b>List Mode: <i>{_tipe}</i></b>"
+        msg = f"<b>Hasil pencarian:</b> <code>{fileName}</code>\n"
+        msg += f"<b>Ditemukan: <u>{contents_count} hasil</u>\n<b>List Mode: <i>{_tipe}</i></b>"
         buttons = ButtonMaker()
         buttons.buildbutton("🔎 LIHAT", f"https://telegra.ph/{self.path[0]}")
 
@@ -744,7 +745,7 @@ class GoogleDriveHelper:
         try:
             file_id = self.__getIdFromUrl(link)
         except (KeyError, IndexError):
-            msg = "Google Drive ID Tidak ditemukan pada link tersebut"
+            msg = "ℹ️ Google Drive ID Tidak ditemukan pada link tersebut"
             return msg
         msg = ""
         LOGGER.info(f"File ID: {file_id}")
@@ -812,7 +813,7 @@ class GoogleDriveHelper:
         try:
             file_id = self.__getIdFromUrl(link)
         except (KeyError, IndexError):
-            msg = "Google Drive ID Tidak ditemukan pada link tersebut"
+            msg = "ℹ️ Google Drive ID Tidak ditemukan pada link tersebut"
             return msg, "", "", ""
         LOGGER.info(f"File ID: {file_id}")
         try:

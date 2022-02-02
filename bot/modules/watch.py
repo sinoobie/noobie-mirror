@@ -55,7 +55,7 @@ def _watch(bot, update, isZip=False, isLeech=False, pswd=None, tag=None):
             tag = reply_to.from_user.mention_html(reply_to.from_user.first_name)
 
     if not is_url(link):
-        help_msg = "<b>Ketik atau reply sebuah link untuk memulai mirror video dari youtube</b>"
+        help_msg = f"ℹ️ {tag} Tidak ada link video yang mau di-mirror."
 #        help_msg += "\n<code>/command</code> {link} |newname pswd: mypassword [𝚣𝚒𝚙]"
 #        help_msg += "\n\n<b>Atau reply sebuah link:</b>"
 #        help_msg += "\n<code>/command</code> |newname pswd: mypassword [𝚣𝚒𝚙]"

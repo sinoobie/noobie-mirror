@@ -32,7 +32,7 @@ def countNode(update, context):
         try:
             link = gdtot(link)
         except DirectDownloadLinkException as e:
-            return sendMessage(str(e), context.bot, update)
+            return sendMessage(f"⚠️ {tag} {e}", context.bot, update)
     if is_gdrive_link(link):
         msg = sendMessage(f"Counting: <code>{link}</code>", context.bot, update)
         gd = GoogleDriveHelper()
@@ -43,7 +43,7 @@ def countNode(update, context):
         if gdtot_link:
             gd.deletefile(link)
     else:
-        sendMessage('Send Gdrive link along with command or by replying to the link by command', context.bot, update)
+        sendMessage(f'ℹ️ {tag} Send Gdrive link along with command or by replying to the link by command', context.bot, update)
 
 count_handler = CommandHandler(BotCommands.CountCommand, countNode, filters=CustomFilters.authorized_chat | CustomFilters.authorized_user, run_async=True)
 dispatcher.add_handler(count_handler)

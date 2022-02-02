@@ -16,7 +16,7 @@ def cancel_mirror(update, context):
         gid = args[1]
         dl = getDownloadByGid(gid)
         if not dl:
-            sendMessage(f"GID: <code>{gid}</code> Tidak Ditemukan.", context.bot, update)
+            sendMessage(f"ℹ️ GID: <code>{gid}</code> Tidak Ditemukan.", context.bot, update)
             return
         mirror_message = dl.message
     elif update.message.reply_to_message:
@@ -30,15 +30,14 @@ def cancel_mirror(update, context):
     if len(args) == 1 and (
         not mirror_message or mirror_message.message_id not in keys
     ):
-        msg = f"Ketik <code>/{BotCommands.CancelMirror} GID</code> untuk cancel mirror!"
-        sendMessage(msg, context.bot, update)
-        return
+        msg = f"ℹ️ Ketik <code>/{BotCommands.CancelMirror} GID</code> untuk cancel mirror!"
+        return sendMessage(msg, context.bot, update)
     if dl.status() == MirrorStatus.STATUS_ARCHIVING:
-        sendMessage("Archival in Progress, You Can't Cancel It.", context.bot, update)
+        sendMessage("⚠️ Archival in Progress, You Can't Cancel It.", context.bot, update)
     elif dl.status() == MirrorStatus.STATUS_EXTRACTING:
-        sendMessage("Extract in Progress, You Can't Cancel It.", context.bot, update)
+        sendMessage("⚠️ Extract in Progress, You Can't Cancel It.", context.bot, update)
     elif dl.status() == MirrorStatus.STATUS_SPLITTING:
-        sendMessage("Split in Progress, You Can't Cancel It.", context.bot, update)
+        sendMessage("⚠️ Split in Progress, You Can't Cancel It.", context.bot, update)
     else:
         dl.download().cancel_download()
 
@@ -55,7 +54,7 @@ def cancel_all(update, context):
                 sleep(0.3)
         else:
             break
-    sendMessage(f'{count} Download telah dibatalkan semua!', context.bot, update)
+    sendMessage(f'ℹ️ {count} Download telah dibatalkan semua!', context.bot, update)
 
 
 
