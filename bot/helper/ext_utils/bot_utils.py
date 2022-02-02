@@ -305,7 +305,6 @@ def new_thread(fn):
     return wrapper
 
 def get_content_type(link: str):
-def get_content_type(link: str):
     header = {
         'User-Agent': 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:95.0) Gecko/20100101 Firefox/95.0'
     }
