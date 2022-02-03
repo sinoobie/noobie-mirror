@@ -94,13 +94,13 @@ def torserbut(update, context):
         site = data[2]
         tool = data[3]
         if tool == 'api':
-            editMessage(f"<b>Memulai pencarian torrent <code>{key}</code>\nTorrent Site:- <i>{SITES.get(site)}</i></b>", message)
+            editMessage(f"<b>Sedang mencari torrent <code>{key}</code>\nTorrent Site:- <i>{SITES.get(site)}</i></b>", message)
         else:
-            editMessage(f"<b>Memulai pencarian torrent <code>{key}</code>\nTorrent Site:- <i>{site.capitalize()}</i></b>", message)
+            editMessage(f"<b>Sedang mencari torrent <code>{key}</code>\nTorrent Site:- <i>{site.capitalize()}</i></b>", message)
         Thread(target=_search, args=(key, site, message, tool)).start()
     else:
         query.answer()
-        editMessage("Pencarian dibatalkan!", message)
+        editMessage(f"ℹ️ <b>Pencarian torrent <code>{key}</code> dibatalkan!</b>", message)
 
 def _search(key, site, message, tool):
     LOGGER.info(f"Searching: {key} from {site}")
@@ -209,6 +209,7 @@ def _edit_telegraph(path, telegraph_content):
     prev_page = 0
     num_of_path = len(path)
     for content in telegraph_content :
+        content += "<br>"
         if nxt_page == 1 :
             content += f'<b><a href="https://telegra.ph/{path[nxt_page]}">Next</a></b>'
             nxt_page += 1

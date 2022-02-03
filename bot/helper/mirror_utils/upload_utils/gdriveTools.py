@@ -127,9 +127,9 @@ class GoogleDriveHelper:
             LOGGER.info(f"Delete Result: {msg}")
         except HttpError as err:
             if "File not found" in str(err):
-                msg = "File Tidak Ditemukan."
+                msg = f"ℹ️ {file_id}: File Tidak Ditemukan."
             elif "insufficientFilePermissions" in str(err):
-                msg = "Insufficient File Permissions"
+                msg = f"⚠️ {file_id}: Insufficient File Permissions"
                 token_service = self.__alt_authorize()
                 if token_service is not None:
                     self.__service = token_service
@@ -402,15 +402,15 @@ class GoogleDriveHelper:
             err = str(err).replace('>', '').replace('<', '')
             LOGGER.error(err)
             if "User rate limit exceeded" in str(err):
-                msg = "User rate limit exceeded."
+                msg = f"ℹ️ {file_id}: Link tersebut sudah mencapai limit harian, coba besok lagi."
             elif "File not found" in str(err):
                 token_service = self.__alt_authorize()
                 if token_service is not None:
                     self.__service = token_service
                     return self.clone(link)
-                msg = "File Tidak Ditemukan."
+                msg = f"ℹ️ {file_id}: File Tidak Ditemukan."
             else:
-                msg = f"Error.\n{err}"
+                msg = f"⚠️ {file_id} Error.\n{err}"
             return msg, ""
         return msg, InlineKeyboardMarkup(buttons.build_menu(2))
 
@@ -781,9 +781,9 @@ class GoogleDriveHelper:
                 if token_service is not None:
                     self.__service = token_service
                     return self.count(link)
-                msg = "File Tidak Ditemukan."
+                msg = f"ℹ️ {file_id}: File Tidak Ditemukan."
             else:
-                msg = f"Error.\n{err}"
+                msg = f"⚠️ {file_id} Error.\n{err}"
         return msg
 
     def __gDrive_file(self, filee):
@@ -838,9 +838,9 @@ class GoogleDriveHelper:
                 if token_service is not None:
                     self.__service = token_service
                     return self.helper(link)
-                msg = "File Tidak Ditemukan."
+                msg = f"ℹ️ {file_id}: File Tidak Ditemukan."
             else:
-                msg = f"Error.\n{err}"
+                msg = f"⚠️ {file_id} Error.\n{err}"
             return msg, "", "", ""
         return "", size, name, files
 
@@ -863,7 +863,7 @@ class GoogleDriveHelper:
             err = str(err).replace('>', '').replace('<', '')
             LOGGER.error(err)
             if "downloadQuotaExceeded" in str(err):
-                err = "Download Quota Exceeded."
+                err = "Link tersebut sudah mencapai limit harian, coba besok lagi."
             elif "File not found" in str(err):
                 token_service = self.__alt_authorize()
                 if token_service is not None:

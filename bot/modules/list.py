@@ -48,11 +48,11 @@ def select_type(update, context):
         query.answer()
         list_method = data[3]
         item_type = data[2]
-        editMessage(f"<b>Sedang Mencari </b><code>{key}</code>", msg)
+        editMessage(f"<b>Sedang mencari file </b><code>{key}</code>", msg)
         Thread(target=_list_drive, args=(key, msg, list_method, item_type)).start()
     else:
         query.answer()
-        editMessage("<b>ℹ️ Pencarian dibatalkan!</b>", msg)
+        editMessage(f"<b>ℹ️ Pencarian file <code>{key}</code> dibatalkan!</b>", msg)
 
 
 def _list_drive(key, bmsg, list_method, item_type):
@@ -66,7 +66,7 @@ def _list_drive(key, bmsg, list_method, item_type):
         _tipe = item_type
         if _tipe == "both":
             _tipe = "folders & files"
-        editMessage(f'ℹ️ Tidak ada hasil yang ditemukan untuk <code>{key}</code>\nList Mode: <i>{_tipe}</i>', bmsg)
+        editMessage(f'ℹ️ Tidak ada file yang cocok dengan <code>{key}</code>\nList Mode:- <i>{_tipe}</i>', bmsg)
 
 
 list_handler = CommandHandler(BotCommands.ListCommand, list_buttons, filters=CustomFilters.authorized_chat | CustomFilters.authorized_user, run_async=True)
