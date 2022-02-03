@@ -10,7 +10,9 @@ from bot.helper.telegram_helper.bot_commands import BotCommands
 from bot.helper.telegram_helper import button_build
 
 def list_buttons(update, context):
+    global cmd_msg
     user_id = update.message.from_user.id
+    cmd_msg = update.message
     try:
         key = update.message.text.split(" ", maxsplit=1)[1]
     except IndexError:
@@ -51,13 +53,13 @@ def select_type(update, context):
         list_method = data[3]
         item_type = data[2]
         editMessage(f"<b>Sedang mencari file </b><code>{key}</code>", msg)
-        Thread(target=_list_drive, args=(key, msg, list_method, item_type, context.bot, update)).start()
+        Thread(target=_list_drive, args=(key, msg, list_method, item_type, context.bot)).start()
     else:
         query.answer()
-        smsg = editMessage(f"<b>ℹ️ Pencarian file <code>{key}</code> dibatalkan!</b>", msg)
-        Thread(target=auto_delete_message, args=(context.bot, update.message, smsg)).start()
+        editMessage(f"<b>ℹ️ Pencarian file <code>{key}</code> dibatalkan!</b>", msg)
+        Thread(target=auto_delete_message, args=(context.bot, cmd_msg, msg)).start()
 
-def _list_drive(key, bmsg, list_method, item_type, bot, update):
+def _list_drive(key, bmsg, list_method, item_type, bot):
     LOGGER.info(f"listing: {key}")
     list_method = list_method == "recu"
     gdrive = GoogleDriveHelper()
@@ -68,8 +70,8 @@ def _list_drive(key, bmsg, list_method, item_type, bot, update):
         _tipe = item_type
         if _tipe == "both":
             _tipe = "folders & files"
-        smsg = editMessage(f'ℹ️ Tidak ada file yang cocok dengan <code>{key}</code>\nList Mode:- <i>{_tipe}</i>', bmsg)
-        Thread(target=auto_delete_message, args=(bot, update.message, smsg)).start()
+        editMessage(f'ℹ️ Tidak ada file yang cocok dengan <code>{key}</code>\nList Mode:- <i>{_tipe}</i>', bmsg)
+        Thread(target=auto_delete_message, args=(bot, cmd_msg, bmsg)).start()
 
 
 list_handler = CommandHandler(BotCommands.ListCommand, list_buttons, filters=CustomFilters.authorized_chat | CustomFilters.authorized_user, run_async=True)
