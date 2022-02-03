@@ -177,7 +177,7 @@ class MirrorListener:
             drive.upload(up_name)
 
     def onDownloadError(self, error):
-        if 'aria2c_download_error:' not in error:
+        if '<code>aria2_' not in error:
             error = error.replace('<', ' ').replace('>', ' ')
         with download_dict_lock:
             try:
