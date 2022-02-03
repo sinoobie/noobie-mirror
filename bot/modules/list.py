@@ -4,7 +4,7 @@ from telegram.ext import CommandHandler, CallbackQueryHandler
 
 from bot import LOGGER, dispatcher
 from bot.helper.mirror_utils.upload_utils.gdriveTools import GoogleDriveHelper
-from bot.helper.telegram_helper.message_utils import sendMessage, editMessage, sendMarkup
+from bot.helper.telegram_helper.message_utils import sendMessage, editMessage, sendMarkup, auto_delete_message
 from bot.helper.telegram_helper.filters import CustomFilters
 from bot.helper.telegram_helper.bot_commands import BotCommands
 from bot.helper.telegram_helper import button_build
@@ -14,7 +14,9 @@ def list_buttons(update, context):
     try:
         key = update.message.text.split(" ", maxsplit=1)[1]
     except IndexError:
-        return sendMessage('ℹ️ Ketik sebuah keyword untuk memulai pencarian!', context.bot, update)
+        smsg = sendMessage('ℹ️ Ketik sebuah keyword untuk memulai pencarian!', context.bot, update)
+        Thread(target=auto_delete_message, args=(context.bot, update.message, smsg)).start()
+        return
     buttons = button_build.ButtonMaker()
 #    buttons.sbutton("Drive Root", f"types {user_id} root")
 #    buttons.sbutton("Recursive", f"types {user_id} recu")
@@ -49,13 +51,13 @@ def select_type(update, context):
         list_method = data[3]
         item_type = data[2]
         editMessage(f"<b>Sedang mencari file </b><code>{key}</code>", msg)
-        Thread(target=_list_drive, args=(key, msg, list_method, item_type)).start()
+        Thread(target=_list_drive, args=(key, msg, list_method, item_type, context.bot, update)).start()
     else:
         query.answer()
-        editMessage(f"<b>ℹ️ Pencarian file <code>{key}</code> dibatalkan!</b>", msg)
+        smsg = editMessage(f"<b>ℹ️ Pencarian file <code>{key}</code> dibatalkan!</b>", msg)
+        Thread(target=auto_delete_message, args=(context.bot, update.message, smsg)).start()
 
-
-def _list_drive(key, bmsg, list_method, item_type):
+def _list_drive(key, bmsg, list_method, item_type, bot, update):
     LOGGER.info(f"listing: {key}")
     list_method = list_method == "recu"
     gdrive = GoogleDriveHelper()
@@ -66,7 +68,8 @@ def _list_drive(key, bmsg, list_method, item_type):
         _tipe = item_type
         if _tipe == "both":
             _tipe = "folders & files"
-        editMessage(f'ℹ️ Tidak ada file yang cocok dengan <code>{key}</code>\nList Mode:- <i>{_tipe}</i>', bmsg)
+        smsg = editMessage(f'ℹ️ Tidak ada file yang cocok dengan <code>{key}</code>\nList Mode:- <i>{_tipe}</i>', bmsg)
+        Thread(target=auto_delete_message, args=(bot, update.message, smsg)).start()
 
 
 list_handler = CommandHandler(BotCommands.ListCommand, list_buttons, filters=CustomFilters.authorized_chat | CustomFilters.authorized_user, run_async=True)

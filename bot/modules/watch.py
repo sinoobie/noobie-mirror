@@ -5,7 +5,7 @@ from time import sleep
 from re import split as resplit
 
 from bot import DOWNLOAD_DIR, dispatcher
-from bot.helper.telegram_helper.message_utils import sendMessage, sendMarkup, editMessage, deleteMessage
+from bot.helper.telegram_helper.message_utils import sendMessage, sendMarkup, editMessage, deleteMessage, auto_delete_message
 from bot.helper.telegram_helper import button_build
 from bot.helper.ext_utils.bot_utils import get_readable_file_size, is_url
 from bot.helper.mirror_utils.download_utils.youtube_dl_download_helper import YoutubeDLHelper
@@ -59,7 +59,9 @@ def _watch(bot, update, isZip=False, isLeech=False, pswd=None, tag=None):
 #        help_msg += "\n<code>/command</code> {link} |newname pswd: mypassword [𝚣𝚒𝚙]"
 #        help_msg += "\n\n<b>Atau reply sebuah link:</b>"
 #        help_msg += "\n<code>/command</code> |newname pswd: mypassword [𝚣𝚒𝚙]"
-        return sendMessage(help_msg, bot, update)
+        smsg = sendMessage(help_msg, bot, update)
+        Thread(target=auto_delete_message, args=(bot, update.message, smsg)).start()
+        return
 
     listener = MirrorListener(bot, update, isZip, isLeech=isLeech, pswd=pswd, tag=tag)
     buttons = button_build.ButtonMaker()

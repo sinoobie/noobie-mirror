@@ -10,7 +10,7 @@ from telegram.ext import CommandHandler, CallbackQueryHandler
 
 from bot import dispatcher, LOGGER, SEARCH_API_LINK, SEARCH_PLUGINS, get_client
 from bot.helper.ext_utils.telegraph_helper import telegraph
-from bot.helper.telegram_helper.message_utils import editMessage, sendMessage, sendMarkup
+from bot.helper.telegram_helper.message_utils import editMessage, sendMessage, sendMarkup, auto_delete_message
 from bot.helper.telegram_helper.filters import CustomFilters
 from bot.helper.telegram_helper.bot_commands import BotCommands
 from bot.helper.ext_utils.bot_utils import get_readable_file_size
@@ -55,7 +55,9 @@ def torser(update, context):
     try:
         key = update.message.text.split(" ", maxsplit=1)[1]
     except IndexError:
-        return sendMessage("ℹ️ Ketik sebuah keyword untuk memulai pencarian!", context.bot, update)
+        smsg = sendMessage("ℹ️ Ketik sebuah keyword untuk memulai pencarian!", context.bot, update)
+        Thread(target=auto_delete_message, args=(context.bot, update.message, smsg)).start()
+        return
     if SEARCH_API_LINK is not None and SEARCH_PLUGINS is not None:
         buttons = button_build.ButtonMaker()
         buttons.sbutton('Api', f"torser {user_id} api")
@@ -97,12 +99,13 @@ def torserbut(update, context):
             editMessage(f"<b>Sedang mencari torrent <code>{key}</code>\nTorrent Site:- <i>{SITES.get(site)}</i></b>", message)
         else:
             editMessage(f"<b>Sedang mencari torrent <code>{key}</code>\nTorrent Site:- <i>{site.capitalize()}</i></b>", message)
-        Thread(target=_search, args=(key, site, message, tool)).start()
+        Thread(target=_search, args=(key, site, message, tool, context.bot, update)).start()
     else:
         query.answer()
-        editMessage(f"ℹ️ <b>Pencarian torrent <code>{key}</code> dibatalkan!</b>", message)
+        smsg = editMessage(f"ℹ️ <b>Pencarian torrent <code>{key}</code> dibatalkan!</b>", message)
+        Thread(target=auto_delete_message, args=(context.bot, update.message, smsg)).start()
 
-def _search(key, site, message, tool):
+def _search(key, site, message, tool, bot, update):
     LOGGER.info(f"Searching: {key} from {site}")
     if tool == 'api':
         api = f"{SEARCH_API_LINK}/api/{site}/{key}"
@@ -115,7 +118,9 @@ def _search(key, site, message, tool):
                 msg = f"<b>Hasil pencarian:</b> <code>{key}</code>\n"
                 msg += f"<b>Ditemukan: <u>{min(len(search_results), SEARCH_LIMIT)} hasil</u>\nTorrent Site:- <i>{SITES.get(site)}</i></b>"
             else:
-                return editMessage(f"ℹ️ Tidak ada torrent yang cocok dengan <code>{key}</code>\nTorrent Site:- <i>{SITES.get(site)}</i>", message)
+                smsg = editMessage(f"ℹ️ Tidak ada torrent yang cocok dengan <code>{key}</code>\nTorrent Site:- <i>{SITES.get(site)}</i>", message)
+                Thread(target=auto_delete_message, args=(bot, update.message, smsg)).start()
+                return
         except Exception as e:
             editMessage(f"⚠️ {e}", message)
     else:
@@ -134,7 +139,9 @@ def _search(key, site, message, tool):
             msg = f"<b>Hasil pencarian:</b> <code>{key}</code>\n"
             msg += f"<b>Ditemukan: <u>{min(len(search_results), SEARCH_LIMIT)} hasil</u>\nTorrent Site:- <i>{site.capitalize()}</i></b>"
         else:
-            return editMessage(f"ℹ️ Tidak ada torrent yang cocok dengan <code>{key}</code>\nTorrent Site:- <i>{site.capitalize()}</i>", message)
+            smsg = editMessage(f"ℹ️ Tidak ada torrent yang cocok dengan <code>{key}</code>\nTorrent Site:- <i>{site.capitalize()}</i>", message)
+            Thread(target=auto_delete_message, args=(bot, update.message, smsg)).start()
+            return
     link = _getResult(search_results, key, message, tool)
     buttons = button_build.ButtonMaker()
     buttons.buildbutton("🔎 LIHAT", link)

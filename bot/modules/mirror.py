@@ -33,7 +33,7 @@ from bot.helper.mirror_utils.upload_utils.gdriveTools import GoogleDriveHelper
 from bot.helper.mirror_utils.upload_utils.pyrogramEngine import TgUploader
 from bot.helper.telegram_helper.bot_commands import BotCommands
 from bot.helper.telegram_helper.filters import CustomFilters
-from bot.helper.telegram_helper.message_utils import sendMessage, sendMarkup, delete_all_messages, update_all_messages, deleteMessage
+from bot.helper.telegram_helper.message_utils import sendMessage, sendMarkup, delete_all_messages, update_all_messages, deleteMessage, auto_delete_message
 from bot.helper.telegram_helper.button_build import ButtonMaker
 
 
@@ -390,7 +390,9 @@ def _mirror(bot, update, isZip=False, extract=False, isQbit=False, isLeech=False
 #        help_msg += "\n<code>/command</code> {link} |newname pswd: mypassword\nusername\npassword"
 #        help_msg += "\n\n<b>Qbittorrent selection:</b>"
 #        help_msg += "\n<code>/qbcommand</code> <b>s</b> {link} atau reply sebuah {file}"
-        return sendMessage(help_msg, bot, update)
+        smsg = sendMessage(help_msg, bot, update)
+        Thread(target=auto_delete_message, args=(bot, update.message, smsg)).start()
+        return
 
     LOGGER.info(link)
 
@@ -435,17 +437,19 @@ def _mirror(bot, update, isZip=False, extract=False, isQbit=False, isLeech=False
                     LOGGER.error(str(e))
                     return sendMessage(f"⚠️ {tag} No connection adapters\n\n<code>qBit_dotTorrent_generator: {error}</code>", bot, update)
         else:
-            msg = "Qb command hanya untuk torrent. Jika link kamu adalah torrent tapi mendapatkan error ini maka laporkan ke admin"
+            msg = f"ℹ️ {tag} Qb command hanya untuk torrent. Jika link kamu adalah torrent tapi mendapatkan error ini maka laporkan ke admin"
             return sendMessage(msg, bot, update)
 
     listener = MirrorListener(bot, update, isZip, extract, isQbit, isLeech, pswd, tag)
 
     if is_gdrive_link(link):
         if not isZip and not extract and not isLeech:
-            gmsg = f"Use /{BotCommands.CloneCommand} untuk clone Google Drive file/folder\n\n"
-            gmsg += f"Use /{BotCommands.ZipMirrorCommand} untuk membuat zip dari Google Drive folder\n\n"
-            gmsg += f"Use /{BotCommands.UnzipMirrorCommand} untuk mengekstraks file Google Drive archive"
-            return sendMessage(gmsg, bot, update)
+            gmsg = f"Gunakan /{BotCommands.CloneCommand} untuk clone Google Drive file/folder\n\n"
+            gmsg += f"Gunakan /{BotCommands.ZipMirrorCommand} untuk membuat zip dari Google Drive folder\n\n"
+            gmsg += f"Gunakan /{BotCommands.UnzipMirrorCommand} untuk mengekstraks file Google Drive archive"
+            smsg = sendMessage(gmsg, bot, update)
+            Thread(target=auto_delete_message, args=(bot, update.message, smsg)).start()
+            return
         Thread(target=add_gd_download, args=(link, listener)).start()
 
     elif is_mega_link(link):
