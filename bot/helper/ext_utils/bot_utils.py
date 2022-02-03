@@ -309,17 +309,17 @@ def get_content_type(link: str):
         'User-Agent': 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:95.0) Gecko/20100101 Firefox/95.0'
     }
     try:
-        req= Request(link, headers=header)
-        res = urlopen(req, context=ssl._create_unverified_context(), timeout=10)
-        info = res.info()
-        content_type = info.get_content_type()
+        res = rhead(link, headers=header, allow_redirects=True, verify=False, timeout=10)
+        content_type = res.headers.get('content-type')
     except:
         content_type = None
 
     if content_type is None:
         try:
-            res = rhead(link, headers=header, allow_redirects=True, verify=False, timeout=10)
-            content_type = res.headers.get('content-type')
+            req= Request(link, headers=header)
+            res = urlopen(req, context=ssl._create_unverified_context(), timeout=10)
+            info = res.info()
+            content_type = info.get_content_type()
         except:
             content_type = None
     return content_type
