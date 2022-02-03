@@ -51,9 +51,7 @@ SEARCH_LIMIT = 300
 
 
 def torser(update, context):
-    global cmd_msg
     user_id = update.message.from_user.id
-    cmd_msg = update.message
     try:
         key = update.message.text.split(" ", maxsplit=1)[1]
     except IndexError:
@@ -105,7 +103,6 @@ def torserbut(update, context):
     else:
         query.answer()
         editMessage(f"ℹ️ <b>Pencarian torrent <code>{key}</code> dibatalkan!</b>", message)
-        Thread(target=auto_delete_message, args=(context.bot, cmd_msg, message)).start()
 
 def _search(key, site, message, tool, bot):
     LOGGER.info(f"Searching: {key} from {site}")
@@ -120,9 +117,7 @@ def _search(key, site, message, tool, bot):
                 msg = f"<b>Hasil pencarian:</b> <code>{key}</code>\n"
                 msg += f"<b>Ditemukan: <u>{min(len(search_results), SEARCH_LIMIT)} hasil</u>\nTorrent Site:- <i>{SITES.get(site)}</i></b>"
             else:
-                editMessage(f"ℹ️ Tidak ada torrent yang cocok dengan <code>{key}</code>\nTorrent Site:- <i>{SITES.get(site)}</i>", message)
-                Thread(target=auto_delete_message, args=(bot, cmd_msg, message)).start()
-                return
+                return editMessage(f"ℹ️ Tidak ada torrent yang cocok dengan <code>{key}</code>\nTorrent Site:- <i>{SITES.get(site)}</i>", message)
         except Exception as e:
             editMessage(f"⚠️ {e}", message)
     else:
@@ -141,9 +136,7 @@ def _search(key, site, message, tool, bot):
             msg = f"<b>Hasil pencarian:</b> <code>{key}</code>\n"
             msg += f"<b>Ditemukan: <u>{min(len(search_results), SEARCH_LIMIT)} hasil</u>\nTorrent Site:- <i>{site.capitalize()}</i></b>"
         else:
-            editMessage(f"ℹ️ Tidak ada torrent yang cocok dengan <code>{key}</code>\nTorrent Site:- <i>{site.capitalize()}</i>", message)
-            Thread(target=auto_delete_message, args=(bot, cmd_msg, message)).start()
-            return
+            return editMessage(f"ℹ️ Tidak ada torrent yang cocok dengan <code>{key}</code>\nTorrent Site:- <i>{site.capitalize()}</i>", message)
     link = _getResult(search_results, key, message, tool)
     buttons = button_build.ButtonMaker()
     buttons.buildbutton("🔎 LIHAT", link)
