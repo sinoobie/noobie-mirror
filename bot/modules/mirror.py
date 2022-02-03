@@ -72,7 +72,7 @@ class MirrorListener:
         if self.isZip:
             try:
                 with download_dict_lock:
-                    download_dict[self.uid] = ZipStatus(name, m_path, size, self)
+                    download_dict[self.uid] = ZipStatus(name, m_path, size, self.message)
                 pswd = self.pswd
                 path = m_path + ".zip"
                 LOGGER.info(f'Zip: orig_path: {m_path}, zip_path: {path}')
@@ -102,7 +102,7 @@ class MirrorListener:
                     path = get_base_name(m_path)
                 LOGGER.info(f"Extracting: {name}")
                 with download_dict_lock:
-                    download_dict[self.uid] = ExtractStatus(name, m_path, size, self)
+                    download_dict[self.uid] = ExtractStatus(name, m_path, size, self.message)
                 pswd = self.pswd
                 if ospath.isdir(m_path):
                     for dirpath, subdir, files in walk(m_path, topdown=False):
@@ -153,7 +153,7 @@ class MirrorListener:
                         if not checked:
                             checked = True
                             with download_dict_lock:
-                                download_dict[self.uid] = SplitStatus(up_name, up_path, size)
+                                download_dict[self.uid] = SplitStatus(up_name, up_path, size, self.message)
                             LOGGER.info(f"Splitting: {up_name}")
                         fssplit(f_path, f_size, file_, dirpath, TG_SPLIT_SIZE)
                         osremove(f_path)
@@ -308,6 +308,7 @@ def _mirror(bot, update, isZip=False, extract=False, isQbit=False, isLeech=False
     message_args = mesg[0].split(' ', maxsplit=1)
     name_args = mesg[0].split('|', maxsplit=1)
     qbitsel = False
+    is_gdtot = False
     try:
         link = message_args[1]
         if link.startswith("s ") or link == "s":
@@ -402,6 +403,7 @@ def _mirror(bot, update, isZip=False, extract=False, isQbit=False, isLeech=False
         if content_type is None or match(r'text/html|text/plain', content_type):
             host = urlparse(link).netloc
             try:
+                is_gdtot = is_gdtot_link(link)
                 if "uptobox.com" in host or "uploadhaven.com" in host:
                     msg_ = sendMessage(f"ℹ️ {tag} Generating {host} direct link. Tunggu sebentar...", bot, update)
                     link = direct_link_generator(link, host)
@@ -425,8 +427,9 @@ def _mirror(bot, update, isZip=False, extract=False, isQbit=False, isLeech=False
                 resp = requests.get(link, timeout=10)
                 if resp.status_code == 200:
                     file_name = str(time()).replace(".", "") + ".torrent"
-                    open(file_name, "wb").write(resp.content)
-                    link = f"{file_name}"
+                    with open(file_name, "wb") as t:
+                        t.write(resp.content)
+                    link = str(file_name)
                 else:
                     return sendMessage(f"⚠️ {tag} ERROR: Link got {resp.status_code} HTTP response", bot, update)
             except Exception as e:
@@ -450,7 +453,7 @@ def _mirror(bot, update, isZip=False, extract=False, isQbit=False, isLeech=False
             smsg = sendMessage(gmsg, bot, update)
             Thread(target=auto_delete_message, args=(bot, update.message, smsg)).start()
             return
-        Thread(target=add_gd_download, args=(link, listener)).start()
+        Thread(target=add_gd_download, args=(link, listener, is_gdtot)).start()
 
     elif is_mega_link(link):
         if BLOCK_MEGA_LINKS:

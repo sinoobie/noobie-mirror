@@ -1,3 +1,6 @@
+import random
+import string
+
 from telegram.ext import CommandHandler
 from threading import Thread
 
@@ -29,7 +32,8 @@ def cloneNode(update, context):
             tag = f"@{reply_to.from_user.username}"
         else:
             tag = reply_to.from_user.mention_html(reply_to.from_user.first_name)
-    if is_gdtot_link(link):
+    is_gdtot = is_gdtot_link(link)
+    if is_gdtot:
         try:
             msg = sendMessage(f"ℹ️ Processing: <code>{link}</code>", context.bot, update)
             link = gdtot(link)
@@ -59,7 +63,7 @@ def cloneNode(update, context):
             deleteMessage(context.bot, msg)
         else:
             drive = GoogleDriveHelper(name)
-            gid = link.split('id=')[-1][:12]
+            gid = ''.join(random.SystemRandom().choices(string.ascii_letters + string.digits, k=12))
             clone_status = CloneStatus(drive, size, update, gid)
             with download_dict_lock:
                 download_dict[update.message.message_id] = clone_status
@@ -85,6 +89,8 @@ def cloneNode(update, context):
             sendMessage(f"⚠️ {tag} {result}", context.bot, update)
         else:
             sendMarkup(result + cc, context.bot, update, button)
+        if is_gdtot:
+            gd.deletefile(link)
         deleteMessage(context.bot, update.message)
     else:
         smsg = sendMessage(f'ℹ️ {tag} Ketik Gdrive atau gdtot link yang mau di-mirror.', context.bot, update)

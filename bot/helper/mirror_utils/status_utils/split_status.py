@@ -2,11 +2,11 @@ from bot.helper.ext_utils.bot_utils import get_readable_file_size, MirrorStatus
 
 
 class SplitStatus:
-    def __init__(self, name, path, size, listener):
+    def __init__(self, name, path, size, message):
         self.__name = name
         self.__path = path
         self.__size = size
-        self.message = listener.message
+        self.message = message
 
     def progress(self):
         return '0'
