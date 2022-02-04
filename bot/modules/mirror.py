@@ -415,6 +415,8 @@ def _mirror(bot, update, isZip=False, extract=False, isQbit=False, isLeech=False
                 check_ = None
             except DirectDownloadLinkException as e:
                 LOGGER.info(str(e))
+                deleteMessage(bot, check_)
+                check_ = None
                 if str(e).startswith('ERROR:'):
                     return sendMessage(f"⚠️ {tag} {e}", bot, update)
     elif isQbit and not is_magnet(link) and not ospath.exists(link):
@@ -422,20 +424,26 @@ def _mirror(bot, update, isZip=False, extract=False, isQbit=False, isLeech=False
             content_type = None
         else:
             content_type = get_content_type(link)
+        deleteMessage(bot, check_)
+        check_ = None
         if content_type is None or match(r'application/x-bittorrent|application/octet-stream', content_type):
             try:
                 resp = requests.get(link, timeout=10)
-                deleteMessage(bot, check_)
-                check_ = None
                 if resp.status_code == 200:
                     file_name = str(time()).replace(".", "") + ".torrent"
                     with open(file_name, "wb") as t:
                         t.write(resp.content)
                     link = str(file_name)
+                    deleteMessage(bot, check_)
+                    check_ = None
                 else:
+                    deleteMessage(bot, check_)
+                    check_ = None
                     return sendMessage(f"⚠️ {tag} ERROR: Link got {resp.status_code} HTTP response", bot, update)
             except Exception as e:
                 error = str(e).replace('<', ' ').replace('>', ' ')
+                deleteMessage(bot, check_)
+                check_ = None
                 if error.startswith('No connection adapters were found for'):
                     link = error.split("'")[1]
                 else:
@@ -445,9 +453,9 @@ def _mirror(bot, update, isZip=False, extract=False, isQbit=False, isLeech=False
             msg = f"ℹ️ {tag} Qb command hanya untuk torrent. Jika link kamu adalah torrent tapi mendapatkan error ini maka laporkan ke admin"
             return sendMessage(msg, bot, update)
 
-    listener = MirrorListener(bot, update, isZip, extract, isQbit, isLeech, pswd, tag)
     if check_ != None:
         deleteMessage(bot, check_)
+    listener = MirrorListener(bot, update, isZip, extract, isQbit, isLeech, pswd, tag)
 
     if is_gdrive_link(link):
         if not isZip and not extract and not isLeech:
