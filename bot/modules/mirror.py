@@ -396,11 +396,14 @@ def _mirror(bot, update, isZip=False, extract=False, isQbit=False, isLeech=False
         return
 
     LOGGER.info(link)
+    check_ = sendMessage(f"ℹ️ {tag} Sedang memeriksa link, Tunggu sebentar...", bot, update)
 
     if not is_mega_link(link) and not isQbit and not is_magnet(link) \
        and not ospath.exists(link) and not is_gdrive_link(link) and not link.endswith('.torrent'):
         content_type = get_content_type(link)
-        if content_type is None or match(r'text/html|text/plain', content_type):
+        deleteMessage(bot, check_)
+        check_ = None
+        if match(r'text/html|text/plain', content_type):
             host = urlparse(link).netloc
             try:
                 is_gdtot = is_gdtot_link(link)
@@ -422,6 +425,8 @@ def _mirror(bot, update, isZip=False, extract=False, isQbit=False, isLeech=False
             content_type = None
         else:
             content_type = get_content_type(link)
+        deleteMessage(bot, check_)
+        check_ = None
         if content_type is None or match(r'application/x-bittorrent|application/octet-stream', content_type):
             try:
                 resp = requests.get(link, timeout=10)
@@ -444,6 +449,8 @@ def _mirror(bot, update, isZip=False, extract=False, isQbit=False, isLeech=False
             return sendMessage(msg, bot, update)
 
     listener = MirrorListener(bot, update, isZip, extract, isQbit, isLeech, pswd, tag)
+    if check_ != None:
+        deleteMessage(bot, check_)
 
     if is_gdrive_link(link):
         if not isZip and not extract and not isLeech:
