@@ -424,8 +424,6 @@ def _mirror(bot, update, isZip=False, extract=False, isQbit=False, isLeech=False
             content_type = None
         else:
             content_type = get_content_type(link)
-        deleteMessage(bot, check_)
-        check_ = None
         if content_type is None or match(r'application/x-bittorrent|application/octet-stream', content_type):
             try:
                 resp = requests.get(link, timeout=10)
@@ -441,9 +439,9 @@ def _mirror(bot, update, isZip=False, extract=False, isQbit=False, isLeech=False
                     check_ = None
                     return sendMessage(f"⚠️ {tag} ERROR: Link got {resp.status_code} HTTP response", bot, update)
             except Exception as e:
-                error = str(e).replace('<', ' ').replace('>', ' ')
                 deleteMessage(bot, check_)
                 check_ = None
+                error = str(e).replace('<', ' ').replace('>', ' ')
                 if error.startswith('No connection adapters were found for'):
                     link = error.split("'")[1]
                 else:
