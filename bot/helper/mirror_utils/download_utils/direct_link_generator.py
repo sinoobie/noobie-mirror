@@ -71,8 +71,8 @@ def direct_link_generator(link: str, host):
         return solidfiles(link)
     elif 'krakenfiles.com' in host:
         return krakenfiles(link)
-#    elif 'sourceforge.net' in host:
-#        return link.rstrip("/download")
+    elif 'sourceforge.net' in host:
+        return sourceforge(link)
     elif is_gdtot_link(link):
         return gdtot(link)
     elif any(x in host for x in fmed_list):
@@ -82,6 +82,17 @@ def direct_link_generator(link: str, host):
     else:
         LOGGER.info(f'No Direct link function found for {link}')
         raise DirectDownloadLinkException("ERROR: Link tidak di dukung <i>direct link generator</i> atau sepertinya link kamu bukan direct link.")
+
+def sourceforge(url: str) -> str:
+    header = {'user-agent':'Mozilla/5.0 (Linux; Android 11; SAMSUNG SM-G973U) AppleWebKit/537.36 (KHTML, like Gecko) SamsungBrowser/14.2 Chrome/87.0.4280.141 Mobile Safari/537.36'}
+    req = requests.get(url, headers=header)
+    bs = BeautifulSoup(req.text, 'html.parser')
+    try:
+        dlb = bs.find('a', {'class':'button green'})
+        return dlb.get('href')
+    except Exception as e:
+        LOGGER.error(e)
+        raise DirectDownloadLinkException("ERROR: Can't find download link")
 
 def uploadhaven(url: str) -> str:
     ses = requests.Session()
