@@ -306,6 +306,7 @@ def fichier(link: str) -> str:
     """ 1Fichier direct link generator
     Based on https://github.com/Maujar
     """
+    link = link.split('&af=')[0]
     regex = r"^([http:\/\/|https:\/\/]+)?.*1fichier\.com\/\?.+"
     gan = re.match(regex, link)
     if not gan:
