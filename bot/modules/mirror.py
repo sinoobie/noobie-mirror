@@ -401,35 +401,32 @@ def _mirror(bot, update, isZip=False, extract=False, isQbit=False, isLeech=False
     if not is_mega_link(link) and not isQbit and not is_magnet(link) \
        and not ospath.exists(link) and not is_gdrive_link(link) and not link.endswith('.torrent'):
         content_type = get_content_type(link)
-        deleteMessage(bot, check_)
-        check_ = None
         if match(r'text/html|text/plain', content_type):
             host = urlparse(link).netloc
             try:
                 is_gdtot = is_gdtot_link(link)
                 if "uptobox.com" in host or "uploadhaven.com" in host:
-                    msg_ = sendMessage(f"ℹ️ {tag} Generating {host} direct link. Tunggu sebentar...", bot, update)
+                    editMessage(f"ℹ️ {tag} Generating {host} direct link. Tunggu sebentar...", check_)
                     link = direct_link_generator(link, host)
-                    deleteMessage(bot, msg_)
                 else:
                     link = direct_link_generator(link, host)
                 LOGGER.info(f"Generated link: {link}")
+                deleteMessage(bot, check_)
+                check_ = None
             except DirectDownloadLinkException as e:
                 LOGGER.info(str(e))
                 if str(e).startswith('ERROR:'):
-                    if "uptobox.com" in host or "uploadhaven.com" in host:
-                        deleteMessage(bot, msg_)
                     return sendMessage(f"⚠️ {tag} {e}", bot, update)
     elif isQbit and not is_magnet(link) and not ospath.exists(link):
         if link.endswith('.torrent'):
             content_type = None
         else:
             content_type = get_content_type(link)
-        deleteMessage(bot, check_)
-        check_ = None
         if content_type is None or match(r'application/x-bittorrent|application/octet-stream', content_type):
             try:
                 resp = requests.get(link, timeout=10)
+                deleteMessage(bot, check_)
+                check_ = None
                 if resp.status_code == 200:
                     file_name = str(time()).replace(".", "") + ".torrent"
                     with open(file_name, "wb") as t:
