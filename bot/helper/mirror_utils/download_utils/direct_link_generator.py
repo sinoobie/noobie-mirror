@@ -71,8 +71,8 @@ def direct_link_generator(link: str, host):
         return solidfiles(link)
     elif 'krakenfiles.com' in host:
         return krakenfiles(link)
-    elif 'sourceforge.net' in host:
-        return link.rstrip("/download")
+#    elif 'sourceforge.net' in host:
+#        return link.rstrip("/download")
     elif is_gdtot_link(link):
         return gdtot(link)
     elif any(x in host for x in fmed_list):
