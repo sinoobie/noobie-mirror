@@ -408,7 +408,7 @@ def _mirror(bot, update, isZip=False, extract=False, isQbit=False, isLeech=False
         if content_type is None:
             deleteMessage(bot, check_)
             check_ = None
-            return sendMessage(f"⚠️ {tag} ERROR: Sepertinya link kamu bukan direct link.")
+            return sendMessage(f"⚠️ {tag} ERROR: Sepertinya link kamu bukan direct link.", bot, update)
         elif match(r'text/html|text/plain', content_type):
             host = urlparse(link).netloc
             try:
