@@ -160,7 +160,7 @@ def get_readable_message():
                 if reply_to is not None:
                     link = f"https://t.me/c/{str(pemirror.chat.id)[4:]}/{reply_to.message_id}"
             # sampai sini custom statusnya
-            msg += f"💽 <code>{download.name().replace('<', '')}</code>"
+            msg += f"💽 <code>{str(download.name()).replace('<', '')}</code>"
             msg += f"\n<a href=\"{link}\"><b>{download.status()}</b></a>"
             if download.status() not in [
                 MirrorStatus.STATUS_ARCHIVING,
