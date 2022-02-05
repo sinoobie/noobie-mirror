@@ -33,7 +33,8 @@ from bot.helper.mirror_utils.upload_utils.gdriveTools import GoogleDriveHelper
 from bot.helper.mirror_utils.upload_utils.pyrogramEngine import TgUploader
 from bot.helper.telegram_helper.bot_commands import BotCommands
 from bot.helper.telegram_helper.filters import CustomFilters
-from bot.helper.telegram_helper.message_utils import sendMessage, sendMarkup, delete_all_messages, update_all_messages, deleteMessage, auto_delete_message
+from bot.helper.telegram_helper.message_utils import sendMessage, sendMarkup, delete_all_messages, update_all_messages, \
+                                                     deleteMessage, auto_delete_message, editMessage
 from bot.helper.telegram_helper.button_build import ButtonMaker
 
 
@@ -427,16 +428,14 @@ def _mirror(bot, update, isZip=False, extract=False, isQbit=False, isLeech=False
         if content_type is None or match(r'application/x-bittorrent|application/octet-stream', content_type):
             try:
                 resp = requests.get(link, timeout=10)
+                deleteMessage(bot, check_)
+                check_ = None
                 if resp.status_code == 200:
                     file_name = str(time()).replace(".", "") + ".torrent"
                     with open(file_name, "wb") as t:
                         t.write(resp.content)
                     link = str(file_name)
-                    deleteMessage(bot, check_)
-                    check_ = None
                 else:
-                    deleteMessage(bot, check_)
-                    check_ = None
                     return sendMessage(f"⚠️ {tag} ERROR: Link got {resp.status_code} HTTP response", bot, update)
             except Exception as e:
                 deleteMessage(bot, check_)
@@ -449,7 +448,7 @@ def _mirror(bot, update, isZip=False, extract=False, isQbit=False, isLeech=False
                     return sendMessage(f"⚠️ {tag} No connection adapters\n\n<code>qBit_dotTorrent_generator: {error}</code>", bot, update)
         else:
             msg = f"ℹ️ {tag} Qb command hanya untuk torrent. Jika link kamu adalah torrent tapi mendapatkan error ini maka laporkan ke admin"
-            return sendMessage(msg, bot, update)
+            return editMessage(msg, check_)
 
     if check_ != None:
         deleteMessage(bot, check_)
