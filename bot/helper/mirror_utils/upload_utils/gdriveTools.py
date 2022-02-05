@@ -7,7 +7,7 @@ from os import makedirs, path as ospath, listdir
 from urllib.parse import parse_qs, urlparse
 from requests.utils import quote as rquote
 from io import FileIO
-from re import search
+from re import search, match
 from random import randrange
 from google.auth.transport.requests import Request
 from google.oauth2 import service_account
@@ -239,6 +239,9 @@ class GoogleDriveHelper:
         try:
             if ospath.isfile(file_path):
                 mime_type = get_mime_type(file_path)
+                if match(r'text/html|text/plain', str(mime_type)):
+                    self.__listener.onUploadError("Sepertinya link kamu bukan direct link.")
+                    return
                 link = self.__upload_file(file_path, file_name, mime_type, parent_id)
                 if self.is_cancelled:
                     return
