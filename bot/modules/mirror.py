@@ -405,11 +405,7 @@ def _mirror(bot, update, isZip=False, extract=False, isQbit=False, isLeech=False
     if not is_mega_link(link) and not isQbit and not is_magnet(link) \
        and not ospath.exists(link) and not is_gdrive_link(link) and not link.endswith('.torrent'):
         content_type = get_content_type(link)
-        if content_type is None:
-            deleteMessage(bot, check_)
-            check_ = None
-            return sendMessage(f"⚠️ {tag} ERROR: Sepertinya link kamu bukan direct link.\nℹ️ Namun jika kamu yakin link kamu adalah direct link silahkan mirror ulang", bot, update)
-        elif match(r'text/html|text/plain', content_type):
+        if match(r'text/html|text/plain', str(content_type)):
             host = urlparse(link).netloc
             try:
                 is_gdtot = is_gdtot_link(link)
