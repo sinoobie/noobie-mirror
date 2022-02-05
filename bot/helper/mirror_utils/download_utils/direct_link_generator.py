@@ -80,8 +80,7 @@ def direct_link_generator(link: str, host):
     elif any(x in host for x in ['sbembed.com', 'watchsb.com', 'streamsb.net', 'sbplay.org']):
         return sbembed(link)
     else:
-        LOGGER.info(f'No Direct link function found for {link}')
-        raise DirectDownloadLinkException("ERROR: Link tidak di dukung <i>direct link generator</i> atau sepertinya link kamu bukan direct link.")
+        raise DirectDownloadLinkException(f'No Direct link function found for {link}')
 
 def sourceforge(url: str) -> str:
     header = {'user-agent':'Mozilla/5.0 (Linux; Android 11; SAMSUNG SM-G973U) AppleWebKit/537.36 (KHTML, like Gecko) SamsungBrowser/14.2 Chrome/87.0.4280.141 Mobile Safari/537.36'}

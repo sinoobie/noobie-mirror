@@ -301,7 +301,7 @@ class MirrorListener:
                 pass
             del download_dict[self.message.message_id]
             count = len(download_dict)
-        sendMessage(f"⚠️ {self.tag} {e_str}", self.bot, self.update)
+        sendMessage(f"⚠️ {self.tag} Download kamu dihentikan karena: {e_str}", self.bot, self.update)
         if count == 0:
             self.clean()
         else:
@@ -405,7 +405,7 @@ def _mirror(bot, update, isZip=False, extract=False, isQbit=False, isLeech=False
     if not is_mega_link(link) and not isQbit and not is_magnet(link) \
        and not ospath.exists(link) and not is_gdrive_link(link) and not link.endswith('.torrent'):
         content_type = get_content_type(link)
-        if match(r'text/html|text/plain', str(content_type)):
+        if content_type is None or match(r'text/html|text/plain', content_type):
             host = urlparse(link).netloc
             try:
                 is_gdtot = is_gdtot_link(link)

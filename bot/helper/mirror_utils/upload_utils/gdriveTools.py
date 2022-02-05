@@ -240,6 +240,7 @@ class GoogleDriveHelper:
             if ospath.isfile(file_path):
                 mime_type = get_mime_type(file_path)
                 if match(r'text/html|text/plain', str(mime_type)):
+                    LOGGER.info(f"Upload cancelled because: mimeType = {mime_type}")
                     self.__listener.onUploadError("Sepertinya link kamu bukan direct link.")
                     return
                 link = self.__upload_file(file_path, file_name, mime_type, parent_id)
