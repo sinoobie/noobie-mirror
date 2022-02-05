@@ -306,24 +306,24 @@ def new_thread(fn):
 
 def get_content_type(link: str):
     header = {
-        'User-Agent': 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:95.0) Gecko/20100101 Firefox/95.0'
+        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/36.0.1985.125 Safari/537.36'
     }
     try:
-        res = rhead(link, headers=header, allow_redirects=True, verify=False, timeout=5)
+        res = rhead(link, allow_redirects=True, timeout=5)
         content_type = res.headers.get('content-type')
     except:
         try:
-            req= Request(link, headers=header)
-            res = urlopen(req, context=ssl._create_unverified_context(), timeout=5)
+            res = urlopen(req, timeout=5)
             info = res.info()
             content_type = info.get_content_type()
         except:
             try:
-                res = rhead(link, allow_redirects=True, timeout=5)
+                res = rhead(link, headers=header, allow_redirects=True, verify=False, timeout=5)
                 content_type = res.headers.get('content-type')
             except:
                 try:
-                    res = urlopen(req, timeout=5)
+                    req = Request(link, headers=header)
+                    res = urlopen(req, context=ssl._create_unverified_context(), timeout=5)
                     info = res.info()
                     content_type = info.get_content_type()
                 except:

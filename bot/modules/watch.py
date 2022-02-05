@@ -66,14 +66,14 @@ def _watch(bot, update, isZip=False, isLeech=False, pswd=None, tag=None):
 
     check_ = sendMessage(f"ℹ️ {tag} Sedang memeriksa link, Tunggu sebentar...", bot, update)
     header = {
-        'User-Agent': 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:95.0) Gecko/20100101 Firefox/95.0'
+        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/36.0.1985.125 Safari/537.36'
     }
     try:
-        res = rhead(link, headers=header, allow_redirects=True, verify=False, timeout=5)
+        res = rhead(link, allow_redirects=True, timeout=5)
         link = res.url
     except:
         try:
-            res = rhead(link, allow_redirects=True, timeout=5)
+            res = rhead(link, headers=header, allow_redirects=True, verify=False, timeout=5)
             link = res.url
         except:
             link = link
