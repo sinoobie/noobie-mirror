@@ -50,7 +50,7 @@ def cloneNode(update, context):
             LOGGER.info('Checking File/Folder if already in Drive...')
             smsg, button = gd.drive_list(name, True, True)
             if smsg:
-                msg3 = f"⚠️ {tag} File/Folder sudah ada di Drive.\nHasil pencariannya:"
+                msg3 = f"⚠️ {tag} File/Folder sudah ada di Drive."
                 return sendMarkup(msg3, context.bot, update, button)
         if CLONE_LIMIT is not None:
             LOGGER.info('Checking File/Folder Size...')

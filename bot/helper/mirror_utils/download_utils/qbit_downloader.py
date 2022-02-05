@@ -144,8 +144,8 @@ def _qb_listener(listener, client, ext_hash, select, path):
                         qbmsg, button = GoogleDriveHelper().drive_list(qbname, True)
                         if qbmsg:
                             msg = "File/Folder sudah ada di Drive."
-                            _onDownloadError(msg, client, ext_hash, listener)
-                            sendMarkup("Hasil pencariannya:", listener.bot, listener.update, button)
+                            _onDownloadError(msg, client, ext_hash, listener, markup=True, button=button)
+                            # sendMarkup("Hasil pencariannya:", listener.bot, listener.update, button)
                             break
                     dupChecked = True
                 if not sizeChecked:
@@ -240,10 +240,13 @@ def _get_hash_file(path):
     mgt = tr.magnet_link
     return _get_hash_magnet(mgt)
 
-def _onDownloadError(err: str, client, ext_hash, listener):
+def _onDownloadError(err: str, client, ext_hash, listener, markup=False, button=None):
     client.torrents_pause(torrent_hashes=ext_hash)
     sleep(0.3)
-    listener.onDownloadError(err)
+    if markup == True:
+        listener.onDownloadError(err, markup=markup, button=button)
+    else:
+        listener.onDownloadError(err)
     client.torrents_delete(torrent_hashes=ext_hash, delete_files=True)
     client.auth_log_out()
 

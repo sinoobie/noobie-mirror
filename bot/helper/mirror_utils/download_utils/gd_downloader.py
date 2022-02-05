@@ -25,7 +25,7 @@ def add_gd_download(link, listener, is_gdtot):
         if gname is not None:
             gmsg, button = GoogleDriveHelper().drive_list(gname, True)
             if gmsg:
-                msg = f"⚠️ {listener.tag} File/Folder sudah ada di Drive.\nHasil pencariannya:"
+                msg = f"⚠️ {listener.tag} File/Folder sudah ada di Drive."
                 return sendMarkup(msg, listener.bot, listener.update, button)
     if ZIP_UNZIP_LIMIT is not None:
         LOGGER.info('Checking File/Folder Size...')

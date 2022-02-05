@@ -166,7 +166,7 @@ def add_mega_download(mega_link: str, path: str, listener):
         if mname is not None:
             smsg, button = GoogleDriveHelper().drive_list(mname, True)
             if smsg:
-                msg1 = "File/Folder sudah ada di Drive.\nHasil pencariannya:"
+                msg1 = f"⚠️ {listener.tag} File/Folder sudah ada di Drive."
                 return sendMarkup(msg1, listener.bot, listener.update, button)
     limit = None
     if ZIP_UNZIP_LIMIT is not None and (listener.isZip or listener.extract):

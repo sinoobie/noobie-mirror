@@ -177,7 +177,7 @@ class MirrorListener:
             update_all_messages()
             drive.upload(up_name)
 
-    def onDownloadError(self, error):
+    def onDownloadError(self, error, markup=False, button=None):
         if '<code>aria2_' not in error:
             error = error.replace('<', ' ').replace('>', ' ')
         with download_dict_lock:
@@ -189,7 +189,10 @@ class MirrorListener:
                 LOGGER.error(str(e))
             count = len(download_dict)
         msg = f"⚠️ {self.tag} Download kamu dihentikan karena: {error}"
-        sendMessage(msg, self.bot, self.update)
+        if markup == True:
+            sendMarkup(msg, self.bot, self.update, button)
+        else:
+            sendMessage(msg, self.bot, self.update)
         if count == 0:
             self.clean()
         else:
