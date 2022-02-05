@@ -3,6 +3,7 @@ from telegram.ext import CommandHandler, CallbackQueryHandler
 from telegram import InlineKeyboardMarkup
 from time import sleep
 from re import split as resplit
+from requests import head as rhead
 
 from bot import DOWNLOAD_DIR, dispatcher
 from bot.helper.telegram_helper.message_utils import sendMessage, sendMarkup, editMessage, deleteMessage, auto_delete_message
@@ -68,11 +69,11 @@ def _watch(bot, update, isZip=False, isLeech=False, pswd=None, tag=None):
         'User-Agent': 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:95.0) Gecko/20100101 Firefox/95.0'
     }
     try:
-        res = rhead(link, headers=header, allow_redirects=True, verify=False, timeout=7)
+        res = rhead(link, headers=header, allow_redirects=True, verify=False, timeout=5)
         link = res.url
     except:
         try:
-            res = rhead(link, allow_redirects=True, timeout=7)
+            res = rhead(link, allow_redirects=True, timeout=5)
             link = res.url
         except:
             link = link
