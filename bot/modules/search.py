@@ -139,7 +139,7 @@ def _search(key, site, message, tool, bot):
             return editMessage(f"ℹ️ Tidak ada torrent yang cocok dengan <code>{key}</code>\nTorrent Site:- <i>{site.capitalize()}</i>", message)
     link = _getResult(search_results, key, message, tool)
     buttons = button_build.ButtonMaker()
-    buttons.buildbutton("🔎 LIHAT", link)
+    buttons.buildbutton("🔎 Hasil Pencarian", link)
     button = InlineKeyboardMarkup(buttons.build_menu(1))
     editMessage(msg, message, button)
     if tool != 'api':
