@@ -130,17 +130,17 @@ def get_readable_message():
         for index, download in enumerate(list(download_dict.values())[START:], start=1):
             # user yang mirror
             pemirror = download.Pemirror()
+            if pemirror.from_user.username:
+                tag = f"<code>@{pemirror.from_user.username}</code> (<code>{pemirror.from_user.id}</code>)"
+            else:
+                tag = f"<code>{pemirror.from_user.first_name}</code> (<code>{pemirror.from_user.id}</code>)"
             reply_to = pemirror.reply_to_message
             if reply_to is not None:
-                if reply_to.from_user.username:
-                    tag = f"<code>@{reply_to.from_user.username}</code> (<code>{reply_to.from_user.id}</code>)"
-                else:
-                    tag = f"<code>{reply_to.from_user.first_name}</code> (<code>{reply_to.from_user.id}</code>)"
-            else:
-                if pemirror.from_user.username:
-                    tag = f"<code>@{pemirror.from_user.username}</code> (<code>{pemirror.from_user.id}</code>)"
-                else:
-                    tag = f"<code>{pemirror.from_user.first_name}</code> (<code>{pemirror.from_user.id}</code>)"
+                if not reply_to.from_user.is_bot:
+                    if reply_to.from_user.username:
+                        tag = f"<code>@{reply_to.from_user.username}</code> (<code>{reply_to.from_user.id}</code>)"
+                    else:
+                        tag = f"<code>{reply_to.from_user.first_name}</code> (<code>{reply_to.from_user.id}</code>)"
             # link yang di mirror
             message_args = pemirror.text.split(' ', maxsplit=1)
             try:
