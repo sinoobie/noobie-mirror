@@ -63,6 +63,20 @@ def _watch(bot, update, isZip=False, isLeech=False, pswd=None, tag=None):
         Thread(target=auto_delete_message, args=(bot, update.message, smsg)).start()
         return
 
+    check_ = sendMessage(f"ℹ️ {tag} Sedang memeriksa link, Tunggu sebentar...", bot, update)
+    header = {
+        'User-Agent': 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:95.0) Gecko/20100101 Firefox/95.0'
+    }
+    try:
+        res = rhead(link, headers=header, allow_redirects=True, verify=False, timeout=7)
+        link = res.url
+    except:
+        try:
+            res = rhead(link, allow_redirects=True, timeout=7)
+            link = res.url
+        except:
+            link = link
+
     listener = MirrorListener(bot, update, isZip, isLeech=isLeech, pswd=pswd, tag=tag)
     buttons = button_build.ButtonMaker()
     best_video = "bv*+ba/b"
@@ -70,7 +84,9 @@ def _watch(bot, update, isZip=False, isLeech=False, pswd=None, tag=None):
     ydl = YoutubeDLHelper(listener)
     try:
         result = ydl.extractMetaData(link, name, True)
+        deleteMessage(bot, check_)
     except Exception as e:
+        deleteMessage(bot, check_)
         msg = str(e).replace('<', ' ').replace('>', ' ').replace(';','').split('please report this issue on')[0]
         return sendMessage(f"⚠️ {tag} {msg.strip()}", bot, update)
     if 'entries' in result:
