@@ -96,6 +96,8 @@ def start_listener():
 def add_aria2c_download(link: str, path, listener, filename):
     if is_magnet(link):
         download = aria2.add_magnet(link, {'dir': path, 'out': filename})
+    elif 'archive.org' in link:
+        download = aria2.add_uris([link], {'dir': path, 'out': filename, 'load-cookies': '/usr/src/app/cookie_archiveorg.txt'})
     else:
         download = aria2.add_uris([link], {'dir': path, 'out': filename})
     if download.error_message:
