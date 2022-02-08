@@ -107,6 +107,8 @@ class YoutubeDLHelper:
         self.__listener.onDownloadError(error)
 
     def extractMetaData(self, link, name, get_info=False):
+        if 'facebook.com' in link:
+            self.opts['cookiefile'] = 'f-cookies.txt'
 
         if get_info:
             self.opts['playlist_items'] = '0'
