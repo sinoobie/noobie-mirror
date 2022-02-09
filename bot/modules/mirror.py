@@ -199,7 +199,7 @@ class MirrorListener:
             update_all_messages()
 
     def onUploadComplete(self, link: str, size, files, folders, typ, name: str):
-        msg = f'📁 <b>Name: </b><code>{str(name).replace("<", "")}</code>\n'
+        msg = f'📁 <b>Name: </b><code>{name.replace("<", "")}</code>\n'
         msg += f'📦 <b>Size: </b>{size}\n'
         if self.isLeech:
             count = len(files)
