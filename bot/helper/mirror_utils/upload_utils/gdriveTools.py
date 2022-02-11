@@ -127,9 +127,9 @@ class GoogleDriveHelper:
             LOGGER.info(f"Delete Result: {msg}")
         except HttpError as err:
             if "File not found" in str(err):
-                msg = f"ℹ️ {file_id}: File Tidak Ditemukan."
+                msg = f"ℹ️ {link}: File not found."
             elif "insufficientFilePermissions" in str(err):
-                msg = f"⚠️ {file_id}: Insufficient File Permissions"
+                msg = f"⚠️ {link}: Insufficient File Permissions."
                 token_service = self.__alt_authorize()
                 if token_service is not None:
                     self.__service = token_service
@@ -168,7 +168,7 @@ class GoogleDriveHelper:
         # File body description
         file_metadata = {
             'name': file_name,
-            'description': 'Uploaded by Mirror-in',
+            'description': 'Uploaded by Mirror-in\nhttps://t.me/cermin_in',
             'mimeType': mime_type,
         }
         if parent_id is not None:
@@ -241,7 +241,7 @@ class GoogleDriveHelper:
                 mime_type = get_mime_type(file_path)
                 if match(r'text/html|text/plain', str(mime_type)):
                     LOGGER.info(f"Upload cancelled because: mimeType = {mime_type}")
-                    self.__listener.onUploadError("Sepertinya link kamu bukan direct link.")
+                    self.__listener.onUploadError("Download kamu dihentikan karena: Sepertinya link kamu bukan direct link.")
                     return
                 link = self.__upload_file(file_path, file_name, mime_type, parent_id)
                 if self.is_cancelled:
@@ -406,15 +406,15 @@ class GoogleDriveHelper:
             err = str(err).replace('>', '').replace('<', '')
             LOGGER.error(err)
             if "User rate limit exceeded" in str(err):
-                msg = f"ℹ️ {file_id}: Link tersebut sudah mencapai limit harian, coba besok lagi."
+                msg = f"ℹ️ {link}: Link tersebut sudah mencapai limit harian, coba besok lagi."
             elif "File not found" in str(err):
                 token_service = self.__alt_authorize()
                 if token_service is not None:
                     self.__service = token_service
                     return self.clone(link)
-                msg = f"ℹ️ {file_id}: File Tidak Ditemukan."
+                msg = f"ℹ️ {link}: File not found."
             else:
-                msg = f"⚠️ {file_id} Error.\n{err}"
+                msg = f"⚠️ {link} Error.\n{err}"
             return msg, ""
         return msg, InlineKeyboardMarkup(buttons.build_menu(2))
 
@@ -441,7 +441,7 @@ class GoogleDriveHelper:
     def __create_directory(self, directory_name, parent_id):
         file_metadata = {
             "name": directory_name,
-            "description": "Uploaded by Mirror-in",
+            "description": "Uploaded by Mirror-in\nhttps://t.me/cermin_in",
             "mimeType": self.__G_DRIVE_DIR_MIME_TYPE
         }
         if parent_id is not None:
@@ -785,9 +785,9 @@ class GoogleDriveHelper:
                 if token_service is not None:
                     self.__service = token_service
                     return self.count(link)
-                msg = f"ℹ️ {file_id}: File Tidak Ditemukan."
+                msg = f"ℹ️ {link}: File not found."
             else:
-                msg = f"⚠️ {file_id} Error.\n{err}"
+                msg = f"⚠️ {link} Error.\n{err}"
         return msg
 
     def __gDrive_file(self, filee):
@@ -842,9 +842,9 @@ class GoogleDriveHelper:
                 if token_service is not None:
                     self.__service = token_service
                     return self.helper(link)
-                msg = f"ℹ️ {file_id}: File Tidak Ditemukan."
+                msg = f"ℹ️ {link}: File not found."
             else:
-                msg = f"⚠️ {file_id} Error.\n{err}"
+                msg = f"⚠️ {link} Error.\n{err}"
             return msg, "", "", ""
         return "", size, name, files
 

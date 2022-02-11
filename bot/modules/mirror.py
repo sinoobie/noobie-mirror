@@ -301,7 +301,7 @@ class MirrorListener:
                 pass
             del download_dict[self.message.message_id]
             count = len(download_dict)
-        sendMessage(f"⚠️ {self.tag} Download kamu dihentikan karena: {e_str}", self.bot, self.update)
+        sendMessage(f"⚠️ {self.tag} {e_str}", self.bot, self.update)
         if count == 0:
             self.clean()
         else:
