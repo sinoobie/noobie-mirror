@@ -51,7 +51,7 @@ def select_type(update, context):
         list_method = data[3]
         item_type = data[2]
         editMessage(f"<b>Sedang mencari file </b><code>{key}</code>", msg)
-        Thread(target=_list_drive, args=(key, msg, list_method, item_type, context.bot)).start()
+        Thread(target=_list_drive, args=(key, msg, list_method, item_type)).start()
     else:
         query.answer()
         editMessage(f"<b>ℹ️ Pencarian file <code>{key}</code> dibatalkan!</b>", msg)

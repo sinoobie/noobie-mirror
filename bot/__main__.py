@@ -260,7 +260,7 @@ def main():
     if ospath.isfile(".restartmsg"):
         with open(".restartmsg") as f:
             chat_id, msg_id = map(int, f)
-        bot.edit_message_text("♻️ <b>Bot Restarted!</b>\n\n⚠️ <b><u>Seluruh proses mirror dihentikan</u></b>", chat_id, msg_id)
+        bot.edit_message_text("♻️ Bot Restarted!", chat_id, msg_id)
         osremove(".restartmsg")
     elif OWNER_ID:
         try:
