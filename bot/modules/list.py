@@ -56,7 +56,7 @@ def select_type(update, context):
         query.answer()
         editMessage(f"<b>ℹ️ Pencarian file <code>{key}</code> dibatalkan!</b>", msg)
 
-def _list_drive(key, bmsg, list_method, item_type, bot):
+def _list_drive(key, bmsg, list_method, item_type):
     LOGGER.info(f"listing: {key}")
     list_method = list_method == "recu"
     gdrive = GoogleDriveHelper()

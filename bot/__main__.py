@@ -2,7 +2,6 @@ import signal
 
 from os import path as ospath, remove as osremove, execl as osexecl
 from subprocess import run as srun
-from asyncio import run as asyrun
 from psutil import disk_usage, cpu_percent, swap_memory, cpu_count, virtual_memory, net_io_counters, Process as psprocess
 from time import time
 from pyrogram import idle
@@ -10,8 +9,7 @@ from sys import executable
 from telegram import ParseMode, InlineKeyboardMarkup
 from telegram.ext import CommandHandler
 
-from wserver import start_server_async
-from bot import bot, app, dispatcher, updater, botStartTime, IGNORE_PENDING_REQUESTS, IS_VPS, PORT, alive, web, OWNER_ID, AUTHORIZED_CHATS, LOGGER, Interval, nox, rss_session, a2c
+from bot import bot, app, dispatcher, updater, botStartTime, IGNORE_PENDING_REQUESTS, PORT, alive, web, OWNER_ID, AUTHORIZED_CHATS, LOGGER, Interval, rss_session, a2c
 from .helper.ext_utils.fs_utils import start_cleanup, clean_all, exit_clean_up
 from .helper.telegram_helper.bot_commands import BotCommands
 from .helper.telegram_helper.message_utils import sendMessage, sendMarkup, editMessage, sendLogFile
@@ -56,7 +54,7 @@ def stats(update, context):
 #            f'<b>Memory Total:</b> {mem_t}\n'\
 #            f'<b>Memory Free:</b> {mem_a}\n'\
 #            f'<b>Memory Used:</b> {mem_u}\n'\
-    stats += '<b>Bot Version:</b> 2022.02.09'
+    stats += '<b>Bot Version:</b> 2022.02.15'
     sendMessage(stats, context.bot, update)
 
 
@@ -78,7 +76,7 @@ Type /{BotCommands.HelpCommand} to get a list of available commands
     """
 
 def restart(update, context):
-    restart_message = sendMessage("Restarting...", context.bot, update)
+    restart_message = sendMessage("♻️ Restarting...", context.bot, update)
     if Interval:
         Interval[0].cancel()
     alive.kill()
@@ -88,7 +86,6 @@ def restart(update, context):
     procs.kill()
     clean_all()
     srun(["python3", "update.py"])
-    nox.kill()
     a2cproc = psprocess(a2c.pid)
     for proc in a2cproc.children(recursive=True):
         proc.kill()
@@ -259,13 +256,11 @@ botcmds = [
 def main():
     # bot.set_my_commands(botcmds)
     start_cleanup()
-    if IS_VPS:
-        asyrun(start_server_async(PORT))
     # Check if the bot is restarting
     if ospath.isfile(".restartmsg"):
         with open(".restartmsg") as f:
             chat_id, msg_id = map(int, f)
-        bot.edit_message_text("Restarted successfully!", chat_id, msg_id)
+        bot.edit_message_text("♻️ <b>Bot Restarted!</b>\n\n⚠️ <b><u>Seluruh proses mirror dihentikan</u></b>", chat_id, msg_id)
         osremove(".restartmsg")
     elif OWNER_ID:
         try:

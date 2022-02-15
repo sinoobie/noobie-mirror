@@ -4,6 +4,7 @@ from re import match, findall, split
 from threading import Thread, Event
 from time import time
 from math import ceil
+from html import escape
 from psutil import virtual_memory, cpu_percent, disk_usage
 from requests import head as rhead
 from urllib.request import urlopen, Request
@@ -11,7 +12,7 @@ from telegram import InlineKeyboardMarkup
 from urllib.parse import quote
 
 from bot.helper.telegram_helper.bot_commands import BotCommands
-from bot import download_dict, download_dict_lock, STATUS_LIMIT, botStartTime
+from bot import download_dict, download_dict_lock, STATUS_LIMIT, botStartTime, DOWNLOAD_DIR
 from bot.helper.telegram_helper.button_build import ButtonMaker
 
 MAGNET_REGEX = r"magnet:\?xt=urn:btih:[a-zA-Z0-9]*"
@@ -160,7 +161,7 @@ def get_readable_message():
                 if reply_to is not None:
                     link = f"https://t.me/c/{str(pemirror.chat.id)[4:]}/{reply_to.message_id}"
             # sampai sini custom statusnya
-            msg += f"💽 <code>{str(download.name()).replace('<', '')}</code>"
+            msg += f"💽 <code>{escape(str(download.name()))}</code>"
             msg += f"\n<a href=\"{link}\"><b>{download.status()}</b></a>"
             if download.status() not in [
                 MirrorStatus.STATUS_ARCHIVING,
@@ -196,7 +197,7 @@ def get_readable_message():
             msg += "\n\n"
             if STATUS_LIMIT is not None and index == STATUS_LIMIT:
                 break
-        total, used, free, _ = disk_usage('.')
+        total, used, free, _ = disk_usage(DOWNLOAD_DIR)
         free = get_readable_file_size(free)
         currentTime = get_readable_time(time() - botStartTime)
         bmsg = f"🖥️ <b>CPU:</b> {cpu_percent()}% | 💿 <b>FREE:</b> {free}"
@@ -217,7 +218,7 @@ def get_readable_message():
         bmsg += f"\n💾 <b>RAM:</b> {virtual_memory().percent}% | 🕒 <b>UPTIME:</b> {currentTime}"
         bmsg += f"\n🔻 <b>DL:</b> {dlspeed}/s | 🔺 <b>UL:</b> {ulspeed}/s"
         if STATUS_LIMIT is not None and tasks > STATUS_LIMIT:
-            msg += f"📑 {PAGE_NO}/{pages} Pages | 🎯 {tasks} Tasks\n"
+            msg += f"📑 {PAGE_NO}/{pages} <b>Pages</b> | 🎯 {tasks} <b>Tasks</b>\n"
             buttons = ButtonMaker()
             buttons.sbutton("Previous", "status pre")
             buttons.sbutton("Next", "status nex")
@@ -273,7 +274,7 @@ def is_gdrive_link(url: str):
     return "drive.google.com" in url
 
 def is_gdtot_link(url: str):
-    url = match(r'https?://.*\.gdtot\.\S+', url)
+    url = match(r'https?://.+\.gdtot\.\S+', url)
     return bool(url)
 
 def is_mega_link(url: str):

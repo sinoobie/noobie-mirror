@@ -35,7 +35,7 @@ def direct_link_generator(link: str, host):
         raise DirectDownloadLinkException(f"ERROR: Use /{BotCommands.WatchCommand} to mirror Youtube link\nUse /{BotCommands.ZipWatchCommand} to make zip of Youtube playlist")
     elif 'zippyshare.com' in host:
         return zippy_share(link)
-    elif 'yadi.sk' in host or 'disk.yandex.com' in host:
+    elif 'yadi.sk' in host or 'disk.yandex.com' in host or 'disk.yandex.ru' in host:
         return yandex_disk(link)
     elif 'mediafire.com' in host:
         return mediafire(link)
@@ -73,7 +73,6 @@ def direct_link_generator(link: str, host):
         return krakenfiles(link)
     elif 'sourceforge.net' in host:
         return link.rstrip('/download')
-#        return sourceforge(link)
     elif is_gdtot_link(link):
         return gdtot(link)
     elif any(x in host for x in fmed_list):
@@ -82,17 +81,6 @@ def direct_link_generator(link: str, host):
         return sbembed(link)
     else:
         raise DirectDownloadLinkException(f'No Direct link function found for {link}')
-
-def sourceforge(url: str) -> str:
-    header = {'user-agent':'Mozilla/5.0 (Linux; Android 11; SAMSUNG SM-G973U) AppleWebKit/537.36 (KHTML, like Gecko) SamsungBrowser/14.2 Chrome/87.0.4280.141 Mobile Safari/537.36'}
-    req = requests.get(url, headers=header)
-    bs = BeautifulSoup(req.text, 'html.parser')
-    try:
-        dlb = bs.find('a', {'class':'button green'})
-        return dlb.get('href')
-    except Exception as e:
-        LOGGER.error(e)
-        raise DirectDownloadLinkException("ERROR: Can't find download link")
 
 def uploadhaven(url: str) -> str:
     ses = requests.Session()
@@ -162,7 +150,7 @@ def yandex_disk(url: str) -> str:
     """ Yandex.Disk direct link generator
     Based on https://github.com/wldhx/yadisk-direct """
     try:
-        link = re.findall(r'\b(https?://(yadi.sk|disk.yandex.com)\S+)', url)[0][0]
+        link = re.findall(r'\b(https?://(yadi.sk|disk.yandex.com|disk.yandex.ru)\S+)', url)[0][0]
     except IndexError:
         return "No Yandex.Disk links found\n"
     api = 'https://cloud-api.yandex.net/v1/disk/public/resources/download?public_key={}'
@@ -252,7 +240,22 @@ def sbembed(link: str) -> str:
     """ Sbembed direct link generator
     Based on https://github.com/zevtyardt/lk21
     """
-    dl_url= Bypass().bypass_sbembed(link)
+    session = requests.Session()
+    raw = session.get(url)
+    soup = BeautifulSoup(raw)
+
+    dl_url = {}
+    for a in soup.findAll("a", onclick=re.compile(r"^download_video[^>]+")):
+        data = dict(zip(["id", "mode", "hash"], re.findall(
+            r"[\"']([^\"']+)[\"']", a["onclick"])))
+        data["op"] = "download_orig"
+
+        raw = session.get("https://sbembed.com/dl", params=data)
+        soup = BeautifulSoup(raw)
+
+        if (direct := soup.find("a", text=re.compile("(?i)^direct"))):
+            dl_url[a.text] = direct["href"]
+
     count = len(dl_url)
     lst_link = [dl_url[i] for i in dl_url]
     return lst_link[count-1]
@@ -430,14 +433,16 @@ def gdtot(url: str) -> str:
     if CRYPT is None:
         raise DirectDownloadLinkException("ERROR: CRYPT cookie not provided")
 
+    match = re.findall(r'https?://(.+)\.gdtot\.(.+)\/\S+\/\S+', url)[0]
+
     with requests.Session() as client:
         client.cookies.update({'crypt': CRYPT})
         res = client.get(url)
-        res = client.get(f"https://new.gdtot.eu/dld?id={url.split('/')[-1]}")
+        res = client.get(f"https://{match[0]}.gdtot.{match[1]}/dld?id={url.split('/')[-1]}")
     matches = re.findall('gd=(.*?)&', res.text)
     try:
         decoded_id = b64decode(str(matches[0])).decode('utf-8')
     except:
-        raise DirectDownloadLinkException("ERROR: Try in your broswer, mostly file not found!")
+        raise DirectDownloadLinkException("ERROR: Try in your broswer, mostly file not found! or user limit exceeded!")
     return f'https://drive.google.com/open?id={decoded_id}'
 

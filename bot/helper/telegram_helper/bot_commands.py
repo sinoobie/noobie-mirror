@@ -1,3 +1,6 @@
+#from bot import CMD_INDEX
+
+
 class _BotCommands:
     def __init__(self):
         self.StartCommand = 'start'

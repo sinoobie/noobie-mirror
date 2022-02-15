@@ -7,6 +7,7 @@ from shutil import rmtree
 from threading import Thread
 from subprocess import run as srun
 from pathlib import PurePath
+from html import escape
 from urllib.parse import quote, urlparse
 from telegram.ext import CommandHandler
 from telegram import InlineKeyboardMarkup
@@ -199,7 +200,7 @@ class MirrorListener:
             update_all_messages()
 
     def onUploadComplete(self, link: str, size, files, folders, typ, name: str):
-        msg = f'📁 <b>Name: </b><code>{name.replace("<", "")}</code>\n'
+        msg = f'📁 <b>Name: </b><code>{escape(name)}</code>\n'
         msg += f'📦 <b>Size: </b>{size}\n'
         if self.isLeech:
             count = len(files)
@@ -208,14 +209,14 @@ class MirrorListener:
                 msg += f'🧩 <b>Corrupted Files: </b>{typ}\n'
             msg += f'\n👤 <b>Leecher: </b>{self.tag}\n'
             if self.message.reply_to_message is not None:
-                msg += f'#️⃣ <b>UID: </b><code>{self.message.reply_to_message.from_user.id}</code>'
+                msg += f'#️⃣ <b>UID: </b><code>{self.message.reply_to_message.from_user.id}</code>\n\n'
             else:
-                msg += f'#️⃣ <b>UID: </b><code>{self.message.from_user.id}</code>'
+                msg += f'#️⃣ <b>UID: </b><code>{self.message.from_user.id}</code>\n\n'
             if self.message.chat.type == 'private':
                 sendMessage(msg, self.bot, self.update)
             else:
                 chat_id = str(self.message.chat.id)[4:]
-                fmsg = '\n\n'
+                fmsg = ''
                 for index, item in enumerate(list(files), start=1):
                     msg_id = files[item]
                     link = f"https://t.me/c/{chat_id}/{msg_id}"
@@ -319,7 +320,7 @@ def _mirror(bot, update, isZip=False, extract=False, isQbit=False, isLeech=False
             qbitsel = True
             message_args = mesg[0].split(' ', maxsplit=2)
             link = message_args[2].strip()
-        if link.startswith("|") or link.startswith("pswd: "):
+        if link.startswith(("|", "pswd: ")):
             link = ''
     except IndexError:
         link = ''
