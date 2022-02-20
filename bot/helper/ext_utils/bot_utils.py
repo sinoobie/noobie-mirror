@@ -172,6 +172,18 @@ def get_readable_message():
                 msg += f"\n🌀 {get_progress_bar_string(download)} {download.progress()}"
                 msg += f"\n📦 {get_readable_file_size(download.processed_bytes())} / {download.size()}"
                 msg += f"\n⚡️ {download.speed()} | ⏳ {download.eta()}"
+                if download.status() == MirrorStatus.STATUS_UPLOADING:
+                    spd = download.speed()
+                    if 'KB/s' in spd:
+                        uldl_bytes += float(spd.split('K')[0]) * 1024
+                    elif 'MB/s' in spd:
+                        uldl_bytes += float(spd.split('M')[0]) * 1048576
+                else download.status() == MirrorStatus.STATUS_DOWNLOADING:
+                    spd = download.speed()
+                    if 'K' in spd:
+                        dlspeed_bytes += float(spd.split('K')[0]) * 1024
+                    elif 'M' in spd:
+                        dlspeed_bytes += float(spd.split('M')[0]) * 1048576
                 try:
                     msg += f"\n🧲 <b>Seeders:</b> {download.aria_download().num_seeders}" \
                            f" | <b>Peers:</b> {download.aria_download().connections}"
@@ -201,18 +213,6 @@ def get_readable_message():
         free = get_readable_file_size(free)
         currentTime = get_readable_time(time() - botStartTime)
         bmsg = f"🖥️ <b>CPU:</b> {cpu_percent()}% | 💿 <b>FREE:</b> {free}"
-        for download in list(download_dict.values()):
-            speedy = download.speed()
-            if download.status() == MirrorStatus.STATUS_DOWNLOADING:
-                if 'K' in speedy:
-                    dlspeed_bytes += float(speedy.split('K')[0]) * 1024
-                elif 'M' in speedy:
-                    dlspeed_bytes += float(speedy.split('M')[0]) * 1048576
-            if download.status() == MirrorStatus.STATUS_UPLOADING:
-                if 'KB/s' in speedy:
-                    uldl_bytes += float(speedy.split('K')[0]) * 1024
-                elif 'MB/s' in speedy:
-                    uldl_bytes += float(speedy.split('M')[0]) * 1048576
         dlspeed = get_readable_file_size(dlspeed_bytes)
         ulspeed = get_readable_file_size(uldl_bytes)
         bmsg += f"\n💾 <b>RAM:</b> {virtual_memory().percent}% | 🕒 <b>UPTIME:</b> {currentTime}"
