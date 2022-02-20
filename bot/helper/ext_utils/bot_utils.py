@@ -178,7 +178,7 @@ def get_readable_message():
                         uldl_bytes += float(spd.split('K')[0]) * 1024
                     elif 'MB/s' in spd:
                         uldl_bytes += float(spd.split('M')[0]) * 1048576
-                else download.status() == MirrorStatus.STATUS_DOWNLOADING:
+                elif download.status() == MirrorStatus.STATUS_DOWNLOADING:
                     spd = download.speed()
                     if 'K' in spd:
                         dlspeed_bytes += float(spd.split('K')[0]) * 1024
