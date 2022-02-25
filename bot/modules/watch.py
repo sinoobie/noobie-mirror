@@ -90,7 +90,7 @@ def _watch(bot, update, isZip=False, isLeech=False):
     best_audio = "ba/b"
     ydl = YoutubeDLHelper(listener)
     try:
-        result = ydl.extractMetaData(link, name, True)
+        result = ydl.extractMetaData(link, name, args, True)
         deleteMessage(bot, check_)
     except Exception as e:
         deleteMessage(bot, check_)

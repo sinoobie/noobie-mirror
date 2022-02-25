@@ -82,26 +82,26 @@ def getDownloadByGid(gid):
                 and dl.gid() == gid
             ):
                 return dl
-    return None
+    return False
 
-def getAllDownload():
+def getAllDownload(req_status: str):
     with download_dict_lock:
-        for dlDetails in list(download_dict.values()):
-            status = dlDetails.status()
-            if (
-                status
-                not in [
-                    MirrorStatus.STATUS_ARCHIVING,
-                    MirrorStatus.STATUS_EXTRACTING,
-                    MirrorStatus.STATUS_SPLITTING,
-                    MirrorStatus.STATUS_CLONING,
-                    MirrorStatus.STATUS_UPLOADING,
-                    MirrorStatus.STATUS_CHECKING,
-                ]
-                and dlDetails
-            ):
-                return dlDetails
-    return None
+        for dl in list(download_dict.values()):
+            status = dl.status()
+            if status not in [MirrorStatus.STATUS_ARCHIVING, MirrorStatus.STATUS_EXTRACTING, MirrorStatus.STATUS_SPLITTING] and dl:
+                if req_status == 'down' and (status not in [MirrorStatus.STATUS_SEEDING,
+                                                            MirrorStatus.STATUS_UPLOADING,
+                                                            MirrorStatus.STATUS_CLONING]):
+                    return dl
+                elif req_status == 'up' and status == MirrorStatus.STATUS_UPLOADING:
+                    return dl
+                elif req_status == 'clone' and status == MirrorStatus.STATUS_CLONING:
+                    return dl
+                elif req_status == 'seed' and status == MirrorStatus.STATUS_SEEDING:
+                    return dl
+                elif req_status == 'all':
+                    return dl
+    return False
 
 def get_progress_bar_string(status):
     completed = status.processed_bytes() / 8
@@ -172,18 +172,6 @@ def get_readable_message():
                 msg += f"\n🌀 {get_progress_bar_string(download)} {download.progress()}"
                 msg += f"\n📦 {get_readable_file_size(download.processed_bytes())} / {download.size()}"
                 msg += f"\n⚡️ {download.speed()} | ⏳ {download.eta()}"
-                if download.status() == MirrorStatus.STATUS_UPLOADING:
-                    spd = download.speed()
-                    if 'KB/s' in spd:
-                        uldl_bytes += float(spd.split('K')[0]) * 1024
-                    elif 'MB/s' in spd:
-                        uldl_bytes += float(spd.split('M')[0]) * 1048576
-                elif download.status() == MirrorStatus.STATUS_DOWNLOADING:
-                    spd = download.speed()
-                    if 'K' in spd:
-                        dlspeed_bytes += float(spd.split('K')[0]) * 1024
-                    elif 'M' in spd:
-                        dlspeed_bytes += float(spd.split('M')[0]) * 1048576
                 try:
                     msg += f"\n🧲 <b>Seeders:</b> {download.aria_download().num_seeders}" \
                            f" | <b>Peers:</b> {download.aria_download().connections}"
@@ -209,14 +197,25 @@ def get_readable_message():
             msg += "\n\n"
             if STATUS_LIMIT is not None and index == STATUS_LIMIT:
                 break
-        total, used, free, _ = disk_usage(DOWNLOAD_DIR)
-        free = get_readable_file_size(free)
+        free = get_readable_file_size(disk_usage(DOWNLOAD_DIR).free)
         currentTime = get_readable_time(time() - botStartTime)
         bmsg = f"🖥️ <b>CPU:</b> {cpu_percent()}% | 💿 <b>FREE:</b> {free}"
+        for download in list(download_dict.values()):
+            spd = download.speed()
+            if download.status() == MirrorStatus.STATUS_DOWNLOADING:
+                if 'K' in spd:
+                    dlspeed_bytes += float(spd.split('K')[0]) * 1024
+                elif 'M' in spd:
+                    dlspeed_bytes += float(spd.split('M')[0]) * 1048576
+            elif download.status() == MirrorStatus.STATUS_UPLOADING:
+                if 'KB/s' in spd:
+                    upspeed_bytes += float(spd.split('K')[0]) * 1024
+                elif 'MB/s' in spd:
+                    upspeed_bytes += float(spd.split('M')[0]) * 1048576
         dlspeed = get_readable_file_size(dlspeed_bytes)
-        ulspeed = get_readable_file_size(uldl_bytes)
+        upspeed = get_readable_file_size(upspeed_bytes)
         bmsg += f"\n💾 <b>RAM:</b> {virtual_memory().percent}% | 🕒 <b>UPTIME:</b> {currentTime}"
-        bmsg += f"\n🔻 <b>DL:</b> {dlspeed}/s | 🔺 <b>UL:</b> {ulspeed}/s"
+        bmsg += f"\n🔻 <b>DL:</b> {dlspeed}/s | 🔺 <b>UL:</b> {upspeed}/s"
         if STATUS_LIMIT is not None and tasks > STATUS_LIMIT:
             msg += f"📑 {PAGE_NO}/{pages} <b>Pages</b> | 🎯 {tasks} <b>Tasks</b>\n"
             buttons = ButtonMaker()
