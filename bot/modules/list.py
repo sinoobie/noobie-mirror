@@ -15,7 +15,7 @@ def list_buttons(update, context):
         smsg = sendMessage('ℹ️ Ketik sebuah keyword untuk memulai pencarian!', context.bot, update.message)
         Thread(target=auto_delete_message, args=(context.bot, update.message, smsg)).start()
         return
-    key = msg.reply_to_message.text.split(" ", maxsplit=1)[1]
+    key = update.message.text.split(" ", maxsplit=1)[1]
     buttons = button_build.ButtonMaker()
 #    buttons.sbutton("Drive Root", f"types {user_id} root")
 #    buttons.sbutton("Recursive", f"types {user_id} recu")
