@@ -55,7 +55,7 @@ def stats(update, context):
 #            f'<b>Memory Free:</b> {mem_a}\n'\
 #            f'<b>Memory Used:</b> {mem_u}\n'\
     stats += '<b>Bot Version:</b> 2022.03.03'
-    sendMessage(stats, context.bot, update)
+    sendMessage(stats, context.bot, update.message)
 
 
 def start(update, context):
