@@ -18,7 +18,7 @@ def mirror_status(update, context):
             message = '💤 Tidak Ada Proses Mirror Yang Sedang Berjalan\n'
             message += f"\n🖥️ <b>CPU:</b> {cpu_percent()}% | 💿 <b>FREE:</b> {free}" \
                        f"\n💾 <b>RAM:</b> {virtual_memory().percent}% | 🕒 <b>UPTIME:</b> {currentTime}"
-            reply_message = sendMessage(message, context.bot, update)
+            reply_message = sendMessage(message, context.bot, update.message)
             Thread(target=auto_delete_message, args=(context.bot, update.message, reply_message)).start()
             return
     index = update.effective_chat.id
@@ -26,7 +26,7 @@ def mirror_status(update, context):
         if index in status_reply_dict.keys():
             deleteMessage(context.bot, status_reply_dict[index])
             del status_reply_dict[index]
-    sendStatusMessage(update, context.bot)
+    sendStatusMessage(update.message, context.bot)
     deleteMessage(context.bot, update.message)
 
 def status_pages(update, context):

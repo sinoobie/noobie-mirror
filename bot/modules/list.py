@@ -11,10 +11,8 @@ from bot.helper.telegram_helper import button_build
 
 def list_buttons(update, context):
     user_id = update.message.from_user.id
-    try:
-        key = update.message.text.split(" ", maxsplit=1)[1]
-    except IndexError:
-        smsg = sendMessage('ℹ️ Ketik sebuah keyword untuk memulai pencarian!', context.bot, update)
+    if len(update.message.text.split(" ", maxsplit=1)) < 2:
+        smsg = sendMessage('ℹ️ Ketik sebuah keyword untuk memulai pencarian!', context.bot, update.message)
         Thread(target=auto_delete_message, args=(context.bot, update.message, smsg)).start()
         return
     buttons = button_build.ButtonMaker()
@@ -26,7 +24,7 @@ def list_buttons(update, context):
     buttons.sbutton("Keduanya", f"types {user_id} both root")
     buttons.sbutton("Cancel", f"types {user_id} cancel")
     button = InlineKeyboardMarkup(buttons.build_menu(2))
-    sendMarkup(f'Pilih Opsi untuk memulai pencarian <code>{key}</code>', context.bot, update, button)
+    sendMarkup(f'Pilih Opsi untuk memulai pencarian <code>{key}</code>', context.bot, update.message, button)
 
 def select_type(update, context):
     query = update.callback_query

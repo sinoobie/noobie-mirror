@@ -55,7 +55,7 @@ def torser(update, context):
     try:
         key = update.message.text.split(" ", maxsplit=1)[1]
     except IndexError:
-        smsg = sendMessage("ℹ️ Ketik sebuah keyword untuk memulai pencarian!", context.bot, update)
+        smsg = sendMessage("ℹ️ Ketik sebuah keyword untuk memulai pencarian!", context.bot, update.message)
         Thread(target=auto_delete_message, args=(context.bot, update.message, smsg)).start()
         return
     if SEARCH_API_LINK is not None and SEARCH_PLUGINS is not None:
@@ -64,15 +64,15 @@ def torser(update, context):
         buttons.sbutton('Plugins', f"torser {user_id} plugin")
         buttons.sbutton("Cancel", f"torser {user_id} cancel")
         button = InlineKeyboardMarkup(buttons.build_menu(2))
-        sendMarkup('Pilih opsi pencarian:', context.bot, update, button)
+        sendMarkup('Pilih opsi pencarian:', context.bot, update.message, button)
     elif SEARCH_API_LINK is not None and SEARCH_PLUGINS is None:
         button = _api_buttons(user_id)
-        sendMarkup('Pilih website pencarian:', context.bot, update, button)
+        sendMarkup('Pilih website pencarian:', context.bot, update.message, button)
     elif SEARCH_API_LINK is None and SEARCH_PLUGINS is not None:
         button = _plugin_buttons(user_id)
-        sendMarkup('Pilih website pencarian:', context.bot, update, button)
+        sendMarkup('Pilih website pencarian:', context.bot, update.message, button)
     else:
-        return sendMessage("No API link or search PLUGINS added for this function", context.bot, update)
+        return sendMessage("No API link or search PLUGINS added for this function", context.bot, update.message)
 
 def torserbut(update, context):
     query = update.callback_query
@@ -99,12 +99,12 @@ def torserbut(update, context):
             editMessage(f"<b>Sedang mencari torrent <code>{key}</code>\nTorrent Site:- <i>{SITES.get(site)}</i></b>", message)
         else:
             editMessage(f"<b>Sedang mencari torrent <code>{key}</code>\nTorrent Site:- <i>{site.capitalize()}</i></b>", message)
-        Thread(target=_search, args=(key, site, message, tool, context.bot)).start()
+        Thread(target=_search, args=(key, site, message, tool)).start()
     else:
         query.answer()
         editMessage(f"ℹ️ <b>Pencarian torrent <code>{key}</code> dibatalkan!</b>", message)
 
-def _search(key, site, message, tool, bot):
+def _search(key, site, message, tool):
     LOGGER.info(f"Searching: {key} from {site}")
     if tool == 'api':
         api = f"{SEARCH_API_LINK}/api/{site}/{key}"

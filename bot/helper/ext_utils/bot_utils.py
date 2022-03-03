@@ -217,7 +217,7 @@ def get_readable_message():
         bmsg += f"\n💾 <b>RAM:</b> {virtual_memory().percent}% | 🕒 <b>UPTIME:</b> {currentTime}"
         bmsg += f"\n🔻 <b>DL:</b> {dlspeed}/s | 🔺 <b>UL:</b> {upspeed}/s"
         if STATUS_LIMIT is not None and tasks > STATUS_LIMIT:
-            msg += f"📑 {PAGE_NO}/{pages} <b>Pages</b> | 🎯 {tasks} <b>Tasks</b>\n"
+            msg += f"📑 <b>Page:</b> {PAGE_NO}/{pages} | 🎯 <b>Tasks:</b> {tasks}\n"
             buttons = ButtonMaker()
             buttons.sbutton("Previous", "status pre")
             buttons.sbutton("Next", "status nex")
