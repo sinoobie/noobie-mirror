@@ -85,14 +85,18 @@ def direct_link_generator(link: str, host):
 def romsget(url: str) -> str:
     try:
         req = requests.get(url)
-        bs1 = BS(req.text, 'html.parser')
+        bs1 = BeautifulSoup(req.text, 'html.parser')
+#        LOGGER.info(req.text)
 
         upos = bs1.find('form', {'id':'download-form'}).get('action')
         meid = bs1.find('input', {'id':'mediaId'}).get('name')
-        dlid = bs1.find('button', {'data-callback':'onDLSubmit'}).get('dlid')
+        try:
+            dlid = bs1.find('button', {'data-callback':'onDLSubmit'}).get('dlid')
+        except:
+            dlid = bs1.find('div', {'data-callback':'onDLSubmit'}).get('dlid')
 
         pos = requests.post("https://www.romsget.io"+upos, data={meid:dlid})
-        bs2 = BS(pos.text, 'html.parser')
+        bs2 = BeautifulSoup(pos.text, 'html.parser')
         udl = bs2.find('form', {'name':'redirected'}).get('action')
         prm = bs2.find('input', {'name':'attach'}).get('value')
         return f"{udl}?attach={prm}"
