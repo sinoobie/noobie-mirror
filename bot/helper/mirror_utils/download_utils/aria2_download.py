@@ -109,7 +109,10 @@ def add_aria2c_download(link: str, path, listener, filename):
     if is_magnet(link):
         download = aria2.add_magnet(link, {'dir': path, 'out': filename})
     else:
-        download = aria2.add_uris([link], {'dir': path, 'out': filename})
+        if 'static.romsget.io' in link:
+            download = aria2.add_uris([link], {'dir': path, 'out': filename, 'header':'Referer: https://www.romsget.io/'})
+        else:
+            download = aria2.add_uris([link], {'dir': path, 'out': filename})
     if download.error_message:
         error = str(download.error_message).replace('<', ' ').replace('>', ' ')
         LOGGER.info(f"Download Error: {error}")

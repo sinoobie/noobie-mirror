@@ -71,6 +71,8 @@ def direct_link_generator(link: str, host):
         return solidfiles(link)
     elif 'krakenfiles.com' in host:
         return krakenfiles(link)
+    elif 'romsget.io' in host:
+        return link if host == 'static.romsget.io' else romsget(link)
     elif is_gdtot_link(link):
         return gdtot(link)
     elif any(x in host for x in fmed_list):
@@ -79,6 +81,24 @@ def direct_link_generator(link: str, host):
         return sbembed(link)
     else:
         raise DirectDownloadLinkException(f'No Direct link function found for {link}')
+
+def romsget(url: str) -> str:
+    try:
+        req = requests.get(url)
+        bs1 = BS(req.text, 'html.parser')
+
+        upos = bs1.find('form', {'id':'download-form'}).get('action')
+        meid = bs1.find('input', {'id':'mediaId'}).get('name')
+        dlid = bs1.find('button', {'data-callback':'onDLSubmit'}).get('dlid')
+
+        pos = requests.post("https://www.romsget.io"+upos, data={meid:dlid})
+        bs2 = BS(pos.text, 'html.parser')
+        udl = bs2.find('form', {'name':'redirected'}).get('action')
+        prm = bs2.find('input', {'name':'attach'}).get('value')
+        return f"{udl}?attach={prm}"
+    except Exception as e:
+        LOGGER.error(e)
+        raise DirectDownloadLinkException("ERROR: Can't extract the link")
 
 def uploadhaven(url: str) -> str:
     ses = requests.Session()
