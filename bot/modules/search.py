@@ -169,7 +169,7 @@ def _getResult(search_results, key, message, tool):
                 except:
                     pass
                 if 'torrent' in result.keys():
-                    msg += f"<b>Share Url to</b> <a href='http://t.me/share/url?url={subres['torrent']}'>Telegram</a><br>"
+                    msg += f"<b>Share Url to</b> <a href='http://t.me/share/url?url={result['torrent']}'>Telegram</a><br>"
                 elif 'magnet' in result.keys():
                     msg += f"<b>Share Magnet to</b> <a href='http://t.me/share/url?url={quote(result['magnet'])}'>Telegram</a><br><br>"
         else:
