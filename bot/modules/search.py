@@ -1,5 +1,3 @@
-import itertools
-
 from requests import get as rget
 from time import sleep
 from threading import Thread
@@ -8,7 +6,7 @@ from urllib.parse import quote
 from telegram import InlineKeyboardMarkup
 from telegram.ext import CommandHandler, CallbackQueryHandler
 
-from bot import dispatcher, LOGGER, SEARCH_API_LINK, SEARCH_PLUGINS, get_client
+from bot import dispatcher, LOGGER, SEARCH_API_LINK, SEARCH_PLUGINS, get_client, SEARCH_LIMIT
 from bot.helper.ext_utils.telegraph_helper import telegraph
 from bot.helper.telegram_helper.message_utils import editMessage, sendMessage, sendMarkup, auto_delete_message
 from bot.helper.telegram_helper.filters import CustomFilters
@@ -29,13 +27,10 @@ if SEARCH_PLUGINS is not None:
 SITES = {
     "1337x": "1337x",
     "yts": "YTS",
-    "eztv": "EzTv",
     "tgx": "TorrentGalaxy",
     "torlock": "Torlock",
     "piratebay": "PirateBay",
     "nyaasi": "NyaaSi",
-    "rarbg": "Rarbg",
-    "ettv": "Ettv",
     "zooqle": "Zooqle",
     "kickass": "KickAss",
     "bitsearch": "Bitsearch",
@@ -44,10 +39,11 @@ SITES = {
     "limetorrent": "LimeTorrent",
     "torrentfunk": "TorrentFunk",
     "torrentproject": "TorrentProject",
+    "libgen": "Libgen",
     "all": "All"
 }
 
-SEARCH_LIMIT = 300
+TELEGRAPH_LIMIT = 300
 
 
 def torser(update, context):
@@ -107,19 +103,21 @@ def torserbut(update, context):
 def _search(key, site, message, tool):
     LOGGER.info(f"Searching: {key} from {site}")
     if tool == 'api':
-        api = f"{SEARCH_API_LINK}/api/{site}/{key}"
+        if site == 'all':
+            api = f"{SEARCH_API_LINK}/api/v1/all/search?query={key}&limit={SEARCH_LIMIT}"
+        else:
+            api = f"{SEARCH_API_LINK}/api/v1/search?site={site}&query={key}&limit={SEARCH_LIMIT}"
         try:
             resp = rget(api)
             search_results = resp.json()
-            if site == "all":
-                search_results = list(itertools.chain.from_iterable(search_results))
-            if isinstance(search_results, list):
+            if "error" not in search_results.keys():
                 msg = f"<b>Hasil pencarian:</b> <code>{key}</code>\n"
-                msg += f"<b>Ditemukan: <u>{min(len(search_results), SEARCH_LIMIT)} hasil</u>\nTorrent Site:- <i>{SITES.get(site)}</i></b>"
+                msg += f"<b>Ditemukan: <u>{min(search_results['total'], TELEGRAPH_LIMIT)} hasil</u>\nTorrent Site:- <i>{SITES.get(site)}</i></b>"
+                search_results = search_results['data']
             else:
                 return editMessage(f"ℹ️ Tidak ada torrent yang cocok dengan <code>{key}</code>\nTorrent Site:- <i>{SITES.get(site)}</i>", message)
         except Exception as e:
-            editMessage(f"⚠️ {e}", message)
+            return editMessage(f"⚠️ {e}", message)
     else:
         client = get_client()
         search = client.search_start(pattern=str(key), plugins=str(site), category='all')
@@ -134,7 +132,7 @@ def _search(key, site, message, tool):
         total_results = dict_search_results.total
         if total_results != 0:
             msg = f"<b>Hasil pencarian:</b> <code>{key}</code>\n"
-            msg += f"<b>Ditemukan: <u>{min(len(search_results), SEARCH_LIMIT)} hasil</u>\nTorrent Site:- <i>{site.capitalize()}</i></b>"
+            msg += f"<b>Ditemukan: <u>{min(total_results, TELEGRAPH_LIMIT)} hasil</u>\nTorrent Site:- <i>{site.capitalize()}</i></b>"
         else:
             return editMessage(f"ℹ️ Tidak ada torrent yang cocok dengan <code>{key}</code>\nTorrent Site:- <i>{site.capitalize()}</i>", message)
     link = _getResult(search_results, key, message, tool)
@@ -147,49 +145,48 @@ def _search(key, site, message, tool):
 
 def _getResult(search_results, key, message, tool):
     telegraph_content = []
-    msg = f"<h4>Search Result For {key}</h4>"
+    msg = f"<h4>Search Result(s) For {key}</h4>"
     for index, result in enumerate(search_results, start=1):
-        msg += "<br>"
         if tool == 'api':
-            try:
-                msg += f"<code><a href='{result['Url']}'>{escape(result['Name'])}</a></code><br>"
-                if "Category" in result.keys():
-                    msg += f"<b>Category: </b><code>{result['Category']}</code><br>"
-                if "Files" in result.keys():
-                    for subres in result['Files']:
-                        msg += f"<b>Quality: </b>{subres['Quality']} | <b>Size: </b>{subres['Size']}<br>"
-                        try:
-                            msg += f"<b>Share Direct Link to</b> <a href='http://t.me/share/url?url={quote(subres['Torrent'])}'>Telegram</a><br>"
-                        except KeyError:
-                            msg += f"<b>Share Magnet to</b> <a href='http://t.me/share/url?url={subres['Magnet']}'>Telegram</a><br>"
-                else:
-                    msg += f"<b>Size: </b>{result['Size']}<br>"
-                    msg += f"<b>Seeders: </b>{result['Seeders']} | <b>Leechers: </b>{result['Leechers']}<br>"
-            except KeyError:
-                pass
-            try:
-                msg += f"<b>Share Magnet to</b> <a href='http://t.me/share/url?url={quote(result['Magnet'])}'>Telegram</a><br>"
-            except KeyError:
-                pass
-            try:
-                msg += f"<b>Share Direct Link to</b> <a href='http://t.me/share/url?url={quote(result['Torrent'])}'>Telegram</a><br>"
-            except KeyError:
-                pass
+            if 'name' in result.keys():
+                msg += f"<code><a href='{result['url']}'>{escape(result['name'])}</a></code><br>"
+            elif 'title' in result.keys():
+                msg += f"<code><a href='{result['url']}'>{escape(result['title'])}</a></code><br>"
+            if "category" in result.keys():
+                msg += f"<b>Category: </b><code>{escape(result['category'])}</code><br>"
+            if 'torrents' in result.keys():
+                for subres in result['torrents']:
+                    msg += f"<b>Quality: </b>{subres['quality']} | <b>Type: </b>{subres['type']} | <b>Size: </b>{subres['size']}<br>"
+                    if 'torrent' in subres.keys():
+                        msg += f"<b>Share Magnet to</b> <a href='http://t.me/share/url?url={subres['torrent']}'>Telegram</a><br>"
+                    elif 'magnet' in subres.keys():
+                        msg += f"<b>Share Magnet to</b> <a href='http://t.me/share/url?url={subres['magnet']}'>Telegram</a><br>"
+                msg += '<br>'
+            else:
+                msg += f"<b>Size: </b>{result['size']}<br>"
+                try:
+                    msg += f"<b>Seeders: </b>{result['seeders']} | <b>Leechers: </b>{result['leechers']}<br>"
+                except:
+                    pass
+                if 'torrent' in result.keys():
+                    msg += f"<a href='{result['torrent']}'>Direct Link</a><br><br>"
+                elif 'magnet' in result.keys():
+                    msg += f"<b>Share Magnet to</b> <a href='http://t.me/share/url?url={quote(result['magnet'])}'>Telegram</a><br><br>"
         else:
-            msg += f"<code><a href='{result.descrLink}'>{escape(result.fileName)}</a></code><br>"
+            msg += f"<a href='{result.descrLink}'>{escape(result.fileName)}</a><br>"
             msg += f"<b>Size: </b>{get_readable_file_size(result.fileSize)}<br>"
             msg += f"<b>Seeders: </b>{result.nbSeeders} | <b>Leechers: </b>{result.nbLeechers}<br>"
             link = result.fileUrl
             if link.startswith('magnet:'):
-                msg += f"<b>Share Magnet to</b> <a href='http://t.me/share/url?url={quote(link)}'>Telegram</a><br>"
+                msg += f"<b>Share Magnet to</b> <a href='http://t.me/share/url?url={quote(link)}'>Telegram</a><br><br>"
             else:
-                msg += f"<b>Share Url to</b> <a href='http://t.me/share/url?url={link}'>Telegram</a><br>"
+                msg += f"<b>Share Url to</b> <a href='http://t.me/share/url?url={link}'>Telegram</a><br><br>"
 
         if len(msg.encode('utf-8')) > 39000:
            telegraph_content.append(msg)
            msg = ""
 
-        if index == SEARCH_LIMIT:
+        if index == TELEGRAPH_LIMIT:
             break
 
     if msg != "":
@@ -211,7 +208,6 @@ def _edit_telegraph(path, telegraph_content):
     prev_page = 0
     num_of_path = len(path)
     for content in telegraph_content :
-        content += "<br>"
         if nxt_page == 1 :
             content += f'<b><a href="https://telegra.ph/{path[nxt_page]}">Next</a></b>'
             nxt_page += 1

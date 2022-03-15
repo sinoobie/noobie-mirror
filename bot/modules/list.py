@@ -17,12 +17,9 @@ def list_buttons(update, context):
         return
     key = update.message.text.split(" ", maxsplit=1)[1]
     buttons = button_build.ButtonMaker()
-#    buttons.sbutton("Drive Root", f"types {user_id} root")
-#    buttons.sbutton("Recursive", f"types {user_id} recu")
-#    buttons.sbutton("Cancel", f"types {user_id} cancel")
-    buttons.sbutton("Folder", f"types {user_id} folders root")
-    buttons.sbutton("File", f"types {user_id} files root")
-    buttons.sbutton("Keduanya", f"types {user_id} both root")
+    buttons.sbutton("Folder", f"types {user_id} folders")
+    buttons.sbutton("File", f"types {user_id} files")
+    buttons.sbutton("Keduanya", f"types {user_id} both")
     buttons.sbutton("Cancel", f"types {user_id} cancel")
     button = InlineKeyboardMarkup(buttons.build_menu(2))
     sendMarkup(f'Pilih Opsi untuk memulai pencarian <code>{key}</code>', context.bot, update.message, button)
@@ -36,30 +33,19 @@ def select_type(update, context):
     data = data.split(" ")
     if user_id != int(data[1]):
         query.answer(text="Bukan buat elu!", show_alert=True)
-#    elif data[2] in ["root", "recu"]:
-#        query.answer()
-#        buttons = button_build.ButtonMaker()
-#        buttons.sbutton("Folder", f"types {user_id} folders {data[2]}")
-#        buttons.sbutton("File", f"types {user_id} files {data[2]}")
-#        buttons.sbutton("Keduanya", f"types {user_id} both {data[2]}")
-#        buttons.sbutton("Cancel", f"types {user_id} cancel")
-#        button = InlineKeyboardMarkup(buttons.build_menu(2))
-#        editMessage(f'Pilih Opsi untuk memulai pencarian {key}.', msg, button)
-    elif data[2] in ["files", "folders", "both"]:
+    elif data[2] == 'cancel':
         query.answer()
-        list_method = data[3]
-        item_type = data[2]
-        editMessage(f"<b>Sedang mencari file </b><code>{key}</code>", msg)
-        Thread(target=_list_drive, args=(key, msg, list_method, item_type)).start()
-    else:
-        query.answer()
-        editMessage(f"<b>ℹ️ Pencarian file <code>{key}</code> dibatalkan!</b>", msg)
+        return editMessage(f"<b>ℹ️ Pencarian file <code>{key}</code> dibatalkan!</b>", msg)
+    query.answer()
+    list_method = data[3]
+    item_type = data[2]
+    editMessage(f"<b>Sedang mencari file </b><code>{key}</code>", msg)
+    Thread(target=_list_drive, args=(key, msg, list_method, item_type)).start()
 
 def _list_drive(key, bmsg, list_method, item_type):
     LOGGER.info(f"listing: {key}")
-    list_method = list_method == "recu"
     gdrive = GoogleDriveHelper()
-    msg, button = gdrive.drive_list(key, isRecursive=list_method, itemType=item_type)
+    msg, button = gdrive.drive_list(key, isRecursive=True, itemType=item_type)
     if button:
         editMessage(msg, bmsg, button)
     else:

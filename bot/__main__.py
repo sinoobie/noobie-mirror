@@ -54,7 +54,7 @@ def stats(update, context):
 #            f'<b>Memory Total:</b> {mem_t}\n'\
 #            f'<b>Memory Free:</b> {mem_a}\n'\
 #            f'<b>Memory Used:</b> {mem_u}\n'\
-    stats += '<b>Bot Version:</b> 2022.03.03'
+    stats += '<b>Bot Version:</b> 2022.03.15 (v2.6.6)'
     sendMessage(stats, context.bot, update.message)
 
 

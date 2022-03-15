@@ -47,6 +47,6 @@ class _BotCommands:
         self.RssGetCommand = 'rssget'
         self.RssSubCommand = 'rsssub'
         self.RssUnSubCommand = 'rssunsub'
-        self.RssUnSubAllCommand = 'rssunsuball'
+        self.RssSettingsCommand = 'rssset'
 
 BotCommands = _BotCommands()
