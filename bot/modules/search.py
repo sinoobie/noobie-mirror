@@ -158,7 +158,7 @@ def _getResult(search_results, key, message, tool):
                 for subres in result['torrents']:
                     msg += f"<b>Quality: </b>{subres['quality']} | <b>Type: </b>{subres['type']} | <b>Size: </b>{subres['size']}<br>"
                     if 'torrent' in subres.keys():
-                        msg += f"<b>Share Magnet to</b> <a href='http://t.me/share/url?url={subres['torrent']}'>Telegram</a><br>"
+                        msg += f"<b>Share Url to</b> <a href='http://t.me/share/url?url={subres['torrent']}'>Telegram</a><br>"
                     elif 'magnet' in subres.keys():
                         msg += f"<b>Share Magnet to</b> <a href='http://t.me/share/url?url={subres['magnet']}'>Telegram</a><br>"
                 msg += '<br>'
@@ -169,7 +169,7 @@ def _getResult(search_results, key, message, tool):
                 except:
                     pass
                 if 'torrent' in result.keys():
-                    msg += f"<a href='{result['torrent']}'>Direct Link</a><br><br>"
+                    msg += f"<b>Share Url to</b> <a href='http://t.me/share/url?url={subres['torrent']}'>Telegram</a><br>"
                 elif 'magnet' in result.keys():
                     msg += f"<b>Share Magnet to</b> <a href='http://t.me/share/url?url={quote(result['magnet'])}'>Telegram</a><br><br>"
         else:
