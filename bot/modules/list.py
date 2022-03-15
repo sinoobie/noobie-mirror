@@ -37,12 +37,11 @@ def select_type(update, context):
         query.answer()
         return editMessage(f"<b>ℹ️ Pencarian file <code>{key}</code> dibatalkan!</b>", msg)
     query.answer()
-    list_method = data[3]
     item_type = data[2]
     editMessage(f"<b>Sedang mencari file </b><code>{key}</code>", msg)
-    Thread(target=_list_drive, args=(key, msg, list_method, item_type)).start()
+    Thread(target=_list_drive, args=(key, msg, item_type)).start()
 
-def _list_drive(key, bmsg, list_method, item_type):
+def _list_drive(key, bmsg, item_type):
     LOGGER.info(f"listing: {key}")
     gdrive = GoogleDriveHelper()
     msg, button = gdrive.drive_list(key, isRecursive=True, itemType=item_type)
