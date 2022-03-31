@@ -82,7 +82,8 @@ def __onDownloadStopped(api, gid):
     sleep(4)
     dl = getDownloadByGid(gid)
     if dl:
-        dl.getListener().onDownloadError('Dead torrent!')
+        download = api.get_download(gid)
+        dl.getListener().onDownloadError(f'<code>{download.name}</code> adalah <i>Dead torrent</i>')
 
 @new_thread
 def __onDownloadError(api, gid):

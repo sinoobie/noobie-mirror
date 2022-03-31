@@ -35,17 +35,20 @@ def cloneNode(update, context):
     is_gdtot = is_gdtot_link(link)
     if is_gdtot:
         try:
-            msg = sendMessage(f"ℹ️ Processing: <code>{link}</code>", context.bot, update.message)
+            _msg = sendMessage(f"ℹ️ {tag} Processing: <code>{link}</code>", context.bot, update.message)
             link = gdtot(link)
-            deleteMessage(context.bot, msg)
+            deleteMessage(context.bot, _msg)
         except DirectDownloadLinkException as e:
-            deleteMessage(context.bot, msg)
+            deleteMessage(context.bot, _msg)
             return sendMessage(f"⚠️ {tag} {e}", context.bot, update.message)
     if is_gdrive_link(link):
+        _msg = sendMessage(f"ℹ️ {tag} Cloning: <code>{link}</code>", context.bot, update.message)
         gd = GoogleDriveHelper()
         res, size, name, files = gd.helper(link)
         if res != "":
-            return sendMessage(res, context.bot, update.message)
+            deleteMessage(context.bot, update.message)
+            deleteMessage(context.bot, _msg)
+            return sendMessage(f"⚠️ {tag} {res}", context.bot, update.message)
         if STOP_DUPLICATE:
             LOGGER.info('Checking File/Folder if already in Drive...')
             smsg, button = gd.drive_list(name, True, True)
@@ -58,9 +61,7 @@ def cloneNode(update, context):
                 msg2 = f'⚠️ {tag} Gagal, Clone limit adalah {CLONE_LIMIT}GB.\nUkuran File/Folder kamu adalah {get_readable_file_size(size)}.'
                 return sendMessage(msg2, context.bot, update.message)
         if files <= 20:
-            msg = sendMessage(f"ℹ️ Cloning: <code>{link}</code>", context.bot, update.message)
             result, button = gd.clone(link)
-            deleteMessage(context.bot, msg)
         else:
             drive = GoogleDriveHelper(name)
             gid = ''.join(random.SystemRandom().choices(string.ascii_letters + string.digits, k=12))
@@ -81,6 +82,7 @@ def cloneNode(update, context):
                     update_all_messages()
             except IndexError:
                 pass
+        deleteMessage(context.bot, _msg)
         cc = f'\n\n👤 <b>Pemirror: </b>{tag}'
         if reply_to is not None:
             cc += f'\n#️⃣ <b>UID: </b><code>{reply_to.from_user.id}</code>'

@@ -128,9 +128,9 @@ class GoogleDriveHelper:
             LOGGER.info(f"Delete Result: {msg}")
         except HttpError as err:
             if "File not found" in str(err):
-                msg = f"ℹ️ {link}: File not found."
+                msg = f"File not found."
             elif "insufficientFilePermissions" in str(err):
-                msg = f"⚠️ {link}: Insufficient File Permissions."
+                msg = f"Insufficient File Permissions."
                 token_service = self.__alt_authorize()
                 if token_service is not None:
                     self.__service = token_service
@@ -408,15 +408,15 @@ class GoogleDriveHelper:
             err = str(err).replace('>', '').replace('<', '')
             LOGGER.error(err)
             if "User rate limit exceeded" in str(err):
-                msg = f"ℹ️ {link}: Link tersebut sudah mencapai limit harian, coba besok lagi."
+                msg = f"Link tersebut sudah mencapai limit harian, coba besok lagi."
             elif "File not found" in str(err):
                 token_service = self.__alt_authorize()
                 if token_service is not None:
                     self.__service = token_service
                     return self.clone(link)
-                msg = f"ℹ️ {link}: File not found."
+                msg = f"File not found."
             else:
-                msg = f"⚠️ {link} Error.\n{err}"
+                msg = f"Error.\n{err}"
             return msg, ""
         return msg, InlineKeyboardMarkup(buttons.build_menu(2))
 
@@ -787,9 +787,9 @@ class GoogleDriveHelper:
                 if token_service is not None:
                     self.__service = token_service
                     return self.count(link)
-                msg = f"ℹ️ {link}: File not found."
+                msg = f"File not found."
             else:
-                msg = f"⚠️ {link} Error.\n{err}"
+                msg = f"Error.\n{err}"
         return msg
 
     def __gDrive_file(self, filee):
@@ -844,9 +844,9 @@ class GoogleDriveHelper:
                 if token_service is not None:
                     self.__service = token_service
                     return self.helper(link)
-                msg = f"ℹ️ {link}: File not found."
+                msg = f"File not found."
             else:
-                msg = f"⚠️ {link} Error.\n{err}"
+                msg = f"Error.\n{err}"
             return msg, "", "", ""
         return "", size, name, files
 
