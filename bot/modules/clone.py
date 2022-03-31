@@ -46,7 +46,6 @@ def cloneNode(update, context):
         gd = GoogleDriveHelper()
         res, size, name, files = gd.helper(link)
         if res != "":
-            deleteMessage(context.bot, update.message)
             deleteMessage(context.bot, _msg)
             return sendMessage(f"⚠️ {tag} {res}", context.bot, update.message)
         if STOP_DUPLICATE:
