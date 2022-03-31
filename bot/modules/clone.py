@@ -52,12 +52,14 @@ def cloneNode(update, context):
             LOGGER.info('Checking File/Folder if already in Drive...')
             smsg, button = gd.drive_list(name, True, True)
             if smsg:
-                msg3 = f"⚠️ {tag} File/Folder sudah ada di Drive."
+                msg3 = f"⚠️ {tag} <code>{name}</code> sudah ada di Drive."
+                deleteMessage(context.bot, _msg)
                 return sendMarkup(msg3, context.bot, update.message, button)
         if CLONE_LIMIT is not None:
             LOGGER.info('Checking File/Folder Size...')
             if size > CLONE_LIMIT * 1024**3:
                 msg2 = f'⚠️ {tag} Gagal, Clone limit adalah {CLONE_LIMIT}GB.\nUkuran File/Folder kamu adalah {get_readable_file_size(size)}.'
+                deleteMessage(context.bot, _msg)
                 return sendMessage(msg2, context.bot, update.message)
         if files <= 20:
             result, button = gd.clone(link)

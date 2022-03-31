@@ -31,7 +31,7 @@ def __onDownloadStarted(api, gid):
                 if sname is not None:
                     smsg, button = GoogleDriveHelper().drive_list(sname, True)
                     if smsg:
-                        dl.getListener().onDownloadError('File/Folder sudah ada di Drive.', markup=True, button=button)
+                        dl.getListener().onDownloadError(f'<code>{sname}</code> sudah ada di Drive.', markup=True, button=button)
                         api.remove([download], force=True, files=True)
                         return #sendMarkup("Here are the search results:", dl.getListener().bot, dl.getListener().message, button)
             if any([ZIP_UNZIP_LIMIT, TORRENT_DIRECT_LIMIT, STORAGE_THRESHOLD]):

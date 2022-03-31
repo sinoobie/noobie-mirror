@@ -28,7 +28,7 @@ def add_qb_torrent(link, path, listener, select):
             ext_hash = _get_hash_magnet(link)
         tor_info = client.torrents_info(torrent_hashes=ext_hash)
         if len(tor_info) > 0:
-            sendMessage(f"ℹ️ {listener.tag} Torrent ini sudah ada di task.", listener.bot, listener.message)
+            sendMessage(f"ℹ️ {listener.tag} Torrent <code>{tor_info.name}</code> sudah ada di task.", listener.bot, listener.message)
             client.auth_log_out()
             return
         if is_file:
@@ -141,7 +141,7 @@ def _qb_listener(listener, client, ext_hash, select, path):
                     if qbname is not None:
                         qbmsg, button = GoogleDriveHelper().drive_list(qbname, True)
                         if qbmsg:
-                            msg = "File/Folder sudah ada di Drive."
+                            msg = f"<code>{qbname}</code> sudah ada di Drive."
                             _onDownloadError(msg, client, ext_hash, listener, markup=True, button=button)
                             # sendMarkup("Hasil pencariannya:", listener.bot, listener.update, button)
                             break

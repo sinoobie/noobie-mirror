@@ -108,7 +108,7 @@ class TelegramDownloadHelper:
                     LOGGER.info('Checking File/Folder if already in Drive...')
                     smsg, button = GoogleDriveHelper().drive_list(name, True, True)
                     if smsg:
-                        msg = f"⚠️ {self.__listener.tag} File/Folder sudah ada di Drive."
+                        msg = f"⚠️ {self.__listener.tag} <code>{name}</code> sudah ada di Drive."
                         return sendMarkup(msg, self.__listener.bot, self.__listener.message, button)
                 if STORAGE_THRESHOLD is not None:
                     arch = any([self.__listener.isZip, self.__listener.extract])
