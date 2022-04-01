@@ -25,7 +25,7 @@ def add_gd_download(link, listener, is_gdtot):
         if gname is not None:
             gmsg, button = GoogleDriveHelper().drive_list(gname, True)
             if gmsg:
-                msg = f"⚠️ {listener.tag} Download kamu dihentikan karena: <code>{gname}</code> sudah ada di Drive."
+                msg = f"⚠️ {listener.tag} Download kamu dihentikan karena: <code>{gname}</code> <b><u>sudah ada di Drive</u></b>"
                 return sendMarkup(msg, listener.bot, listener.message, button)
     if any([ZIP_UNZIP_LIMIT, STORAGE_THRESHOLD, TORRENT_DIRECT_LIMIT]):
         arch = any([listener.extract, listener.isZip])
