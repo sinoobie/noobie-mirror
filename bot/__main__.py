@@ -2,7 +2,7 @@ import signal
 
 from os import path as ospath, remove as osremove, execl as osexecl
 from subprocess import run as srun
-from psutil import disk_usage, cpu_percent, swap_memory, cpu_count, virtual_memory, net_io_counters, Process as psprocess
+from psutil import disk_usage, cpu_percent, swap_memory, cpu_count, virtual_memory, net_io_counters, boot_time, Process as psprocess
 from time import time
 from pyrogram import idle
 from sys import executable
@@ -17,11 +17,12 @@ from .helper.ext_utils.telegraph_helper import telegraph
 from .helper.ext_utils.bot_utils import get_readable_file_size, get_readable_time
 from .helper.telegram_helper.filters import CustomFilters
 from .helper.telegram_helper.button_build import ButtonMaker
-from .modules import authorize, list, cancel_mirror, mirror_status, mirror, clone, watch, shell, eval, delete, speedtest, count, leech_settings, search, rss
+from .modules import authorize, list, cancel_mirror, mirror_status, mirror, clone, watch, shell, eval, delete, count, leech_settings, search, rss
 
 
 def stats(update, context):
     currentTime = get_readable_time(time() - botStartTime)
+    osUptime = get_readable_time(time() - boot_time())
     total, used, free, disk= disk_usage('/')
     total = get_readable_file_size(total)
     used = get_readable_file_size(used)
@@ -40,7 +41,8 @@ def stats(update, context):
 #    mem_t = get_readable_file_size(memory.total)
 #    mem_a = get_readable_file_size(memory.available)
 #    mem_u = get_readable_file_size(memory.used)
-    stats = f'🕒 <b>Bot Uptime:</b> {currentTime}\n\n'\
+    stats = f'🕒 <b>Bot Uptime:</b> {currentTime}\n'\
+            f'🕘 <b>OS Uptime:</b> {osUptime}\n\n'\
             f'💽 <b>Total Disk Space:</b> {total}\n'\
             f'📀 <b>Used:</b> {used}\n'\
             f'💿 <b>Free:</b> {free}\n\n'\
@@ -55,7 +57,7 @@ def stats(update, context):
 #            f'<b>Memory Total:</b> {mem_t}\n'\
 #            f'<b>Memory Free:</b> {mem_a}\n'\
 #            f'<b>Memory Used:</b> {mem_u}\n'\
-    stats += '🤖 <b>Bot Version:</b> 2022.03.31 (v273)'
+    stats += '🤖 <b>Bot Version:</b> 2022.04.02 (v272)'
     sendMessage(stats, context.bot, update.message)
 
 
@@ -208,8 +210,6 @@ help_string = f'''
 /{BotCommands.RestartCommand}: Restart bot (Hanya untuk Owner)
 
 /{BotCommands.LogCommand}: Mendapatkan log debuging dari bot (Hanya untuk Owner)
-
-/{BotCommands.SpeedCommand}: Check Internet Speed (Hanya untuk Owner)
 
 /{BotCommands.ShellCommand}: Menjalankan commands di Shell (Hanya untuk Owner)
 

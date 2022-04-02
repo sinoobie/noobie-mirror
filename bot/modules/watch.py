@@ -63,15 +63,13 @@ def _watch(bot, message, isZip=False, isLeech=False):
             tag = reply_to.from_user.mention_html(reply_to.from_user.first_name)
 
     if not is_url(link):
-        help_msg = f"ℹ️ {tag} Tidak ada link video yang mau di-mirror."
-#        help_msg += "\n<code>/command</code> {link} |newname pswd: mypassword [𝚣𝚒𝚙]"
-#        help_msg += "\n\n<b>Atau reply sebuah link:</b>"
-#        help_msg += "\n<code>/command</code> |newname pswd: mypassword [𝚣𝚒𝚙]"
-#        help_msg += "\n\n<b>Args Example:</b> args: playliststart:^10|match_filter:season_number=18|matchtitle:S1"
-#        help_msg += "\n\n<b>NOTE:</b> Add `^` before integer, some values must be integer and some string."
-#        help_msg += " Like playlist_items:10 works with string so no need to add `^` before the number"
-#        help_msg += " but playlistend works only with integer so you must add `^` before the number like example above."
-#        help_msg += "\n\nCheck all arguments from this <a href='https://github.com/yt-dlp/yt-dlp/blob/a3125791c7a5cdf2c8c025b99788bf686edd1a8a/yt_dlp/YoutubeDL.py#L194'>FILE</a>."
+        help_msg = f"ℹ️ {tag} Tidak ada link video yang mau di-mirror. Lihat format dibawah!"
+        help_msg += "\n<code>/command</code> {link} |newname pswd: mypassword [𝚣𝚒𝚙]"
+        help_msg += "\n\n<b>Args Example:</b> args: playliststart:^10|match_filter:season_number=18|matchtitle:S1"
+        help_msg += "\n\n<b>NOTE:</b> Add `^` before integer, some values must be integer and some string."
+        help_msg += " Like playlist_items:10 works with string so no need to add `^` before the number"
+        help_msg += " but playlistend works only with integer so you must add `^` before the number like example above."
+        help_msg += "\n\nCheck all arguments from this <a href='https://github.com/yt-dlp/yt-dlp/blob/a3125791c7a5cdf2c8c025b99788bf686edd1a8a/yt_dlp/YoutubeDL.py#L194'>FILE</a>."
         smsg = sendMessage(help_msg, bot, message)
         Thread(target=auto_delete_message, args=(bot, message, smsg)).start()
         return

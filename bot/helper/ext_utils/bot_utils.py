@@ -82,7 +82,7 @@ def getDownloadByGid(gid):
                 and dl.gid() == gid
             ):
                 return dl
-    return False
+    return None
 
 def getAllDownload(req_status: str):
     with download_dict_lock:
@@ -101,7 +101,7 @@ def getAllDownload(req_status: str):
                     return dl
                 elif req_status == 'all':
                     return dl
-    return False
+    return None
 
 def get_progress_bar_string(status):
     completed = status.processed_bytes() / 8
@@ -309,7 +309,7 @@ def get_content_type(link: str) -> str:
         'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/36.0.1985.125 Safari/537.36'
     }
     try:
-        res = rhead(link, allow_redirects=True, timeout=5)
+        res = rhead(link, allow_redirects=True, timeout=5, headers = {'user-agent': 'Wget/1.12'})
         content_type = res.headers.get('content-type')
     except:
         try:

@@ -83,7 +83,7 @@ def __onDownloadStopped(api, gid):
     dl = getDownloadByGid(gid)
     if dl:
         download = api.get_download(gid)
-        dl.getListener().onDownloadError(f'<code>{download.name}</code> adalah <i>Dead torrent</i>')
+        dl.getListener().onDownloadError(f'<code>{download.name.replace("[METADATA]","")}</code> adalah <b><u>Dead torrent</u></b>')
 
 @new_thread
 def __onDownloadError(api, gid):
