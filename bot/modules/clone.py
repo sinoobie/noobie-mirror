@@ -28,10 +28,11 @@ def cloneNode(update, context):
     if reply_to is not None:
         if len(link) == 0:
             link = reply_to.text
-        if reply_to.from_user.username:
-            tag = f"@{reply_to.from_user.username}"
-        else:
-            tag = reply_to.from_user.mention_html(reply_to.from_user.first_name)
+        if not reply_to.from_user.is_bot:
+            if reply_to.from_user.username:
+                tag = f"@{reply_to.from_user.username}"
+            else:
+                tag = reply_to.from_user.mention_html(reply_to.from_user.first_name)
     is_gdtot = is_gdtot_link(link)
     if is_gdtot:
         try:

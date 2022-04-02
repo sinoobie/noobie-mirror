@@ -57,10 +57,11 @@ def _watch(bot, message, isZip=False, isLeech=False):
     if reply_to is not None:
         if len(link) == 0:
             link = reply_to.text.strip()
-        if reply_to.from_user.username:
-            tag = f"@{reply_to.from_user.username}"
-        else:
-            tag = reply_to.from_user.mention_html(reply_to.from_user.first_name)
+        if not reply_to.from_user.is_bot:
+            if reply_to.from_user.username:
+                tag = f"@{reply_to.from_user.username}"
+            else:
+                tag = reply_to.from_user.mention_html(reply_to.from_user.first_name)
 
     if not is_url(link):
         help_msg = f"ℹ️ {tag} Tidak ada link video yang mau di-mirror. Lihat format dibawah!"
