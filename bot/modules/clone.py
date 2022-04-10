@@ -3,6 +3,7 @@ import string
 
 from telegram.ext import CommandHandler
 from threading import Thread
+from time import sleep
 
 from bot.helper.mirror_utils.upload_utils.gdriveTools import GoogleDriveHelper
 from bot.helper.telegram_helper.message_utils import sendMessage, sendMarkup, deleteMessage, delete_all_messages, update_all_messages, sendStatusMessage, auto_delete_message
@@ -14,66 +15,79 @@ from bot.helper.ext_utils.bot_utils import get_readable_file_size, is_gdrive_lin
 from bot.helper.mirror_utils.download_utils.direct_link_generator import gdtot
 from bot.helper.ext_utils.exceptions import DirectDownloadLinkException
 
-@new_thread
-def cloneNode(update, context):
-    args = update.message.text.split(" ", maxsplit=1)
-    reply_to = update.message.reply_to_message
+
+def _clone(message, bot, multi=0):
+    args = message.text.split(" ", maxsplit=1)
+    reply_to = message.reply_to_message
     link = ''
     if len(args) > 1:
         link = args[1]
-        if update.message.from_user.username:
-            tag = f"@{update.message.from_user.username}"
+        if link.isdigit():
+            multi = int(link)
+            link = ''
+        elif message.from_user.username:
+            tag = f"@{message.from_user.username}"
         else:
-            tag = update.message.from_user.mention_html(update.message.from_user.first_name)
+            tag = message.from_user.mention_html(message.from_user.first_name)
     if reply_to is not None:
         if len(link) == 0:
             link = reply_to.text
-        if not reply_to.from_user.is_bot:
-            if reply_to.from_user.username:
-                tag = f"@{reply_to.from_user.username}"
-            else:
-                tag = reply_to.from_user.mention_html(reply_to.from_user.first_name)
+        if reply_to.from_user.username:
+            tag = f"@{reply_to.from_user.username}"
+        else:
+            tag = reply_to.from_user.mention_html(reply_to.from_user.first_name)
     is_gdtot = is_gdtot_link(link)
     if is_gdtot:
         try:
-            _msg = sendMessage(f"ℹ️ {tag} Processing: <code>{link}</code>", context.bot, update.message)
+            _msg = sendMessage(f"ℹ️ {tag} Processing: <code>{link}</code>", bot, message)
             link = gdtot(link)
-            deleteMessage(context.bot, _msg)
+            deleteMessage(bot, msg)
         except DirectDownloadLinkException as e:
-            deleteMessage(context.bot, _msg)
-            return sendMessage(f"⚠️ {tag} {e}", context.bot, update.message)
+            deleteMessage(bot, _msg)
+            return sendMessage(f"⚠️ {tag} {e}", bot, message)
     if is_gdrive_link(link):
-        _msg = sendMessage(f"ℹ️ {tag} Cloning: <code>{link}</code>", context.bot, update.message)
+        if multi == 0:
+            _msg = sendMessage(f"ℹ️ {tag} Cloning: <code>{link}</code>", bot, message)
         gd = GoogleDriveHelper()
         res, size, name, files = gd.helper(link)
         if res != "":
-            deleteMessage(context.bot, _msg)
-            return sendMessage(f"⚠️ {tag} {res}", context.bot, update.message)
+            if multi == 0:
+                deleteMessage(bot, _msg)
+            return sendMessage(f"⚠️ {tag} {res}", bot, message)
         if STOP_DUPLICATE:
             LOGGER.info('Checking File/Folder if already in Drive...')
             smsg, button = gd.drive_list(name, True, True)
             if smsg:
+                if multi == 0:
+                    deleteMessage(bot, _msg)
                 msg3 = f"⚠️ {tag} Download kamu dihentikan karena: <code>{name}</code> <b><u>sudah ada di Drive</u></b>"
-                deleteMessage(context.bot, _msg)
-                return sendMarkup(msg3, context.bot, update.message, button)
+                return sendMarkup(msg3, bot, message, button)
         if CLONE_LIMIT is not None:
             LOGGER.info('Checking File/Folder Size...')
             if size > CLONE_LIMIT * 1024**3:
+                if multi == 0:
+                    deleteMessage(bot, _msg)
                 msg2 = f'⚠️ {tag} Gagal, Clone limit adalah {CLONE_LIMIT}GB.\nUkuran File/Folder kamu adalah {get_readable_file_size(size)}.'
-                deleteMessage(context.bot, _msg)
-                return sendMessage(msg2, context.bot, update.message)
+                return sendMessage(msg2, bot, message)
+        if multi > 1:
+            sleep(1)
+            nextmsg = type('nextmsg', (object, ), {'chat_id': message.chat_id, 'message_id': message.reply_to_message.message_id + 1})
+            nextmsg = sendMessage(args[0], bot, nextmsg)
+            multi -= 1
+            sleep(1)
+            Thread(target=_clone, args=(nextmsg, bot, multi)).start()
         if files <= 20:
             result, button = gd.clone(link)
         else:
             drive = GoogleDriveHelper(name)
             gid = ''.join(random.SystemRandom().choices(string.ascii_letters + string.digits, k=12))
-            clone_status = CloneStatus(drive, size, update.message, gid)
+            clone_status = CloneStatus(drive, size, message, gid)
             with download_dict_lock:
-                download_dict[update.message.message_id] = clone_status
-            sendStatusMessage(update.message, context.bot)
+                download_dict[message.message_id] = clone_status
+            sendStatusMessage(message, bot)
             result, button = drive.clone(link)
             with download_dict_lock:
-                del download_dict[update.message.message_id]
+                del download_dict[message.message_id]
                 count = len(download_dict)
             try:
                 if count == 0:
@@ -84,21 +98,27 @@ def cloneNode(update, context):
                     update_all_messages()
             except IndexError:
                 pass
-        deleteMessage(context.bot, _msg)
+        if multi == 0:
+            deleteMessage(bot, _msg)
         cc = f'\n\n👤 <b>Pemirror: </b>{tag}'
         if reply_to is not None:
             cc += f'\n#️⃣ <b>UID: </b><code>{reply_to.from_user.id}</code>'
-        else: cc += f'\n#️⃣ <b>UID: </b><code>{update.message.from_user.id}</code>'
+        else: cc += f'\n#️⃣ <b>UID: </b><code>{message.from_user.id}</code>'
         if button in ["cancelled", ""]:
-            sendMessage(f"⚠️ {tag} {result}", context.bot, update.message)
+            sendMessage(f"⚠️ {tag} {result}", bot, message)
         else:
-            sendMarkup(result + cc, context.bot, update.message, button)
+            sendMarkup(result + cc, bot, message, button)
         if is_gdtot:
             gd.deletefile(link)
-        deleteMessage(context.bot, update.message)
+        if reply_to is None:
+            deleteMessage(bot, message)
     else:
         smsg = sendMessage(f'ℹ️ {tag} Ketik Gdrive atau gdtot link yang mau di-mirror.', context.bot, update.message)
-        Thread(target=auto_delete_message, args=(context.bot, update.message, smsg)).start()
+        Thread(target=auto_delete_message, args=(bot, message, smsg)).start()
+
+@new_thread
+def cloneNode(update, context):
+    _clone(update.message, context.bot)
 
 clone_handler = CommandHandler(BotCommands.CloneCommand, cloneNode, filters=CustomFilters.authorized_chat | CustomFilters.authorized_user, run_async=True)
 dispatcher.add_handler(clone_handler)

@@ -300,8 +300,12 @@ def pixeldrain(url: str) -> str:
     """ Based on https://github.com/yash-dk/TorToolkit-Telegram """
     url = url.strip("/ ")
     file_id = url.split("/")[-1]
-    info_link = f"https://pixeldrain.com/api/file/{file_id}/info"
-    dl_link = f"https://pixeldrain.com/api/file/{file_id}"
+    if url.split("/")[-2] == "l":
+        info_link = f"https://pixeldrain.com/api/list/{file_id}"
+        dl_link = f"https://pixeldrain.com/api/list/{file_id}/zip"
+    else:
+        info_link = f"https://pixeldrain.com/api/file/{file_id}/info"
+        dl_link = f"https://pixeldrain.com/api/file/{file_id}"
     resp = requests.get(info_link).json()
     if resp["success"]:
         return dl_link
@@ -465,6 +469,6 @@ def gdtot(url: str) -> str:
     try:
         decoded_id = b64decode(str(matches[0])).decode('utf-8')
     except:
-        raise DirectDownloadLinkException("ERROR: Try in your broswer, mostly file not found! or user limit exceeded!")
+        raise DirectDownloadLinkException("ERROR: Try in your broswer, mostly file not found or user limit exceeded!")
     return f'https://drive.google.com/open?id={decoded_id}'
 
