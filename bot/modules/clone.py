@@ -51,21 +51,21 @@ def _clone(message, bot, multi=0):
         gd = GoogleDriveHelper()
         res, size, name, files = gd.helper(link)
         if res != "":
-            if multi == 0:
+            if _msg:
                 deleteMessage(bot, _msg)
             return sendMessage(f"⚠️ {tag} {res}", bot, message)
         if STOP_DUPLICATE:
             LOGGER.info('Checking File/Folder if already in Drive...')
             smsg, button = gd.drive_list(name, True, True)
             if smsg:
-                if multi == 0:
+                if _msg:
                     deleteMessage(bot, _msg)
                 msg3 = f"⚠️ {tag} Download kamu dihentikan karena: <code>{name}</code> <b><u>sudah ada di Drive</u></b>"
                 return sendMarkup(msg3, bot, message, button)
         if CLONE_LIMIT is not None:
             LOGGER.info('Checking File/Folder Size...')
             if size > CLONE_LIMIT * 1024**3:
-                if multi == 0:
+                if _msg:
                     deleteMessage(bot, _msg)
                 msg2 = f'⚠️ {tag} Gagal, Clone limit adalah {CLONE_LIMIT}GB.\nUkuran File/Folder kamu adalah {get_readable_file_size(size)}.'
                 return sendMessage(msg2, bot, message)
@@ -98,7 +98,7 @@ def _clone(message, bot, multi=0):
                     update_all_messages()
             except IndexError:
                 pass
-        if multi == 0:
+        if _msg:
             deleteMessage(bot, _msg)
         cc = f'\n\n👤 <b>Pemirror: </b>{tag}'
         if reply_to is not None:

@@ -415,12 +415,12 @@ def _mirror(bot, message, isZip=False, extract=False, isQbit=False, isLeech=Fals
                 else:
                     link = direct_link_generator(link, host)
                 LOGGER.info(f"Generated link: {link}")
-                if check_ != None
+                if check_ != None:
                     deleteMessage(bot, check_)
                     check_ = None
             except DirectDownloadLinkException as e:
                 LOGGER.info(str(e))
-                if check_ != None
+                if check_ != None:
                     deleteMessage(bot, check_)
                     check_ = None
                 if str(e).startswith('ERROR:'):
@@ -433,7 +433,7 @@ def _mirror(bot, message, isZip=False, extract=False, isQbit=False, isLeech=Fals
         if content_type is None or match(r'application/x-bittorrent|application/octet-stream', content_type):
             try:
                 resp = requests.get(link, timeout=10, headers = {'user-agent': 'Wget/1.12'})
-                if check_ != None
+                if check_ != None:
                     deleteMessage(bot, check_)
                     check_ = None
                 if resp.status_code == 200:
@@ -444,7 +444,7 @@ def _mirror(bot, message, isZip=False, extract=False, isQbit=False, isLeech=Fals
                 else:
                     return sendMessage(f"⚠️ {tag} ERROR: Link got {resp.status_code} HTTP response", bot, message)
             except Exception as e:
-                if check_ != None
+                if check_ != None:
                     deleteMessage(bot, check_)
                     check_ = None
                 error = str(e).replace('<', ' ').replace('>', ' ')
