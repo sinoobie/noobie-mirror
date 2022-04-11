@@ -77,12 +77,12 @@ def _watch(bot, message, isZip=False, isLeech=False, multi=0):
         Thread(target=auto_delete_message, args=(bot, message, smsg)).start()
         return
 
-    if 'tiktok.com' in link:
+    """if 'tiktok.com' in link:
         try:
             res = rhead(link, allow_redirects=True, timeout=5)
             link = res.url
         except:
-            link = link
+            link = link"""
 
     listener = MirrorListener(bot, message, isZip, isLeech=isLeech, pswd=pswd, tag=tag)
     buttons = button_build.ButtonMaker()
