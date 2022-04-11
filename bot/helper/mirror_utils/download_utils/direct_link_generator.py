@@ -165,8 +165,43 @@ def uptobox(url: str) -> str:
 def zippy_share(url: str) -> str:
     """ Zippyshare direct link generator
     Based on https://github.com/zevtyardt/lk21
-    """
+    
     return Bypass().bypass_zippyshare(url)
+    """
+    try:
+        raw = requests.get(url)
+        dlbutton = re.search(r'href = "([^"]+)" \+ \(([^)]+)\) \+ "([^"]+)', raw.text)
+        if dlbutton:
+            folder, math_chall, filename = dlbutton.groups()
+            math_chall = eval(math_chall)
+            return "%s%s%s%s" % (
+                re.search(r"https?://[^/]+", raw.url).group(0), folder, math_chall, filename)
+        else:
+            soup = BeautifulSoup(raw.text, "html.parser")
+            script = soup.find("script", text=re.compile("(?si)\s*var a = \d+;"))
+            if script:
+                sc = str(script)
+                var = re.findall(r"var [ab] = (\d+)", sc)
+                omg = re.findall(r"\.omg (!?=) [\"']([^\"']+)", sc)
+                file = re.findall(r'"(/[^"]+)', sc)
+                if var and omg:
+                    a, b = var
+                    if eval(f"{omg[0][1]!r} {omg[1][0]} {omg[1][1]!r}") or 1:
+                        a = math.ceil(int(a) // 3)
+                    else:
+                        a = math.floor(int(a) // 3)
+                    divider = int(re.findall(f"(\d+)%b", sc)[0])
+                    return re.search(r"(^https://www\d+.zippyshare.com)", raw.url).group(1) + \
+                        "".join([
+                            file[0],
+                            str(a + (divider % int(b))),
+                            file[1]
+                        ])
+            else:
+                raise DirectDownloadLinkException("ERROR: File does not exist on this server")
+    except Exception as e:
+        LOGGER.error(e)
+        raise DirectDownloadLinkException("ERROR: Can't extract the link")
 
 def yandex_disk(url: str) -> str:
     """ Yandex.Disk direct link generator
@@ -310,7 +345,7 @@ def pixeldrain(url: str) -> str:
     if resp["success"]:
         return dl_link
     else:
-        raise DirectDownloadLinkException("ERROR: Cant't download due {}.".format(resp["message"]))
+        raise DirectDownloadLinkException("ERROR: Can't download due {}.".format(resp["message"]))
 
 def antfiles(url: str) -> str:
     """ Antfiles direct link generator
