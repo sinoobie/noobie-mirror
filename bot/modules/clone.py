@@ -41,7 +41,7 @@ def _clone(message, bot, multi=0):
         try:
             _msg = sendMessage(f"ℹ️ {tag} Processing: <code>{link}</code>", bot, message)
             link = gdtot(link)
-            deleteMessage(bot, msg)
+            deleteMessage(bot, _msg)
         except DirectDownloadLinkException as e:
             deleteMessage(bot, _msg)
             return sendMessage(f"⚠️ {tag} {e}", bot, message)
