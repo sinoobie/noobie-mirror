@@ -157,8 +157,8 @@ def _qb_listener(listener, client, ext_hash, select, path):
                             _onDownloadError(msg, client, ext_hash, listener)
                             break
                     limit = None
-                    if ZIP_UNZIP_LIMIT is not None and (listener.isZip or listener.extract):
-                        mssg = f'Zip/Unzip limit {ZIP_UNZIP_LIMIT}GB'
+                    if ZIP_UNZIP_LIMIT is not None and arch:
+                        mssg = f'Zip/Unzip limit is {ZIP_UNZIP_LIMIT}GB'
                         limit = ZIP_UNZIP_LIMIT
                     elif TORRENT_DIRECT_LIMIT is not None:
                         mssg = f'Torrent limit {TORRENT_DIRECT_LIMIT}GB'

@@ -22,7 +22,7 @@ class _BotCommands:
         self.StatsCommand = 'stats'
         self.HelpCommand = 'help'
         self.LogCommand = 'log'
-        self.SpeedCommand = 'speedtest'
+        self.SpeedCommand = 'speedtestt'
         self.CloneCommand = 'clone'
         self.CountCommand = 'count'
         self.WatchCommand = 'watch'

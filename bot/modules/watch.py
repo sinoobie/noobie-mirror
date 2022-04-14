@@ -3,7 +3,6 @@ from telegram.ext import CommandHandler, CallbackQueryHandler
 from telegram import InlineKeyboardMarkup
 from time import sleep
 from re import split as resplit
-from requests import head as rhead
 
 from bot import DOWNLOAD_DIR, dispatcher
 from bot.helper.telegram_helper.message_utils import sendMessage, sendMarkup, editMessage, deleteMessage, auto_delete_message
@@ -77,12 +76,6 @@ def _watch(bot, message, isZip=False, isLeech=False, multi=0):
         Thread(target=auto_delete_message, args=(bot, message, smsg)).start()
         return
 
-    """if 'tiktok.com' in link:
-        try:
-            res = rhead(link, allow_redirects=True, timeout=5)
-            link = res.url
-        except:
-            link = link"""
 
     listener = MirrorListener(bot, message, isZip, isLeech=isLeech, pswd=pswd, tag=tag)
     buttons = button_build.ButtonMaker()
@@ -162,6 +155,7 @@ def _watch(bot, message, isZip=False, isLeech=False, multi=0):
         sleep(3)
         nextmsg = type('nextmsg', (object, ), {'chat_id': message.chat_id, 'message_id': message.reply_to_message.message_id + 1})
         nextmsg = sendMessage(mssg.split(' ')[0], bot, nextmsg)
+        nextmsg.from_user.id = message.from_user.id
         multi -= 1
         sleep(3)
         Thread(target=_watch, args=(bot, nextmsg, isZip, pswd, multi)).start()
@@ -226,7 +220,7 @@ def select_format(update, context):
     except:
         return editMessage("Itu adalah task lama", msg)
     uid = task_info[1]
-    if user_id != uid and not msg.reply_to_message.from_user.is_bot and not CustomFilters._owner_query(user_id):
+    if user_id != uid and not CustomFilters._owner_query(user_id):
         return query.answer(text="Bukan buat elu!", show_alert=True)
     elif data[2] == "dict":
         query.answer()
