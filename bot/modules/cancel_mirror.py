@@ -2,8 +2,7 @@ from telegram import InlineKeyboardMarkup
 from telegram.ext import CommandHandler, CallbackQueryHandler
 from time import sleep
 
-from bot import download_dict, dispatcher, download_dict_lock, DOWNLOAD_DIR, QB_SEED, SUDO_USERS, OWNER_ID
-from bot.helper.ext_utils.fs_utils import clean_download
+from bot import download_dict, dispatcher, download_dict_lock, QB_SEED, SUDO_USERS, OWNER_ID
 from bot.helper.telegram_helper.bot_commands import BotCommands
 from bot.helper.telegram_helper.filters import CustomFilters
 from bot.helper.telegram_helper.message_utils import sendMessage, sendMarkup
@@ -33,9 +32,7 @@ def cancel_mirror(update, context):
         msg = f"ℹ️ Ketik <code>/{BotCommands.CancelMirror} Download ID</code> untuk cancel mirror!"
         return sendMessage(msg, context.bot, update.message)
 
-    if OWNER_ID == user_id or dl.message.from_user.id == user_id or user_id in SUDO_USERS:
-        pass
-    else:
+    if OWNER_ID != user_id and dl.message.from_user.id != user_id and user_id not in SUDO_USERS:
         return sendMessage("This task is not for you!", context.bot, update.message)
 
     if dl.status() == MirrorStatus.STATUS_ARCHIVING:

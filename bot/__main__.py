@@ -1,4 +1,4 @@
-import signal
+from signal import signal, SIGINT
 
 from os import path as ospath, remove as osremove, execl as osexecl
 from subprocess import run as srun, check_output
@@ -56,7 +56,7 @@ def stats(update, context):
 #            f'<b>Memory Total:</b> {mem_t}\n'\
 #            f'<b>Memory Free:</b> {mem_a}\n'\
 #            f'<b>Memory Used:</b> {mem_u}\n'\
-    stats += f'🤖 <b>Bot Version:</b> {botVersion} (296)'
+    stats += f'🤖 <b>Bot Version:</b> {botVersion} (300)'
     sendMessage(stats, context.bot, update.message)
 
 
@@ -248,7 +248,7 @@ botcmds = [
     ]
 
 def main():
-    bot.set_my_commands(botcmds)
+    # bot.set_my_commands(botcmds)
     start_cleanup()
     # Check if the bot is restarting
     if ospath.isfile(".restartmsg"):
@@ -282,7 +282,7 @@ def main():
     dispatcher.add_handler(log_handler)
     updater.start_polling(drop_pending_updates=IGNORE_PENDING_REQUESTS)
     LOGGER.info("Bot Started!")
-    signal.signal(signal.SIGINT, exit_clean_up)
+    signal(SIGINT, exit_clean_up)
     if rss_session is not None:
         rss_session.start()
 

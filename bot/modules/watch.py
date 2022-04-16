@@ -158,7 +158,7 @@ def _watch(bot, message, isZip=False, isLeech=False, multi=0):
         nextmsg.from_user.id = message.from_user.id
         multi -= 1
         sleep(3)
-        Thread(target=_watch, args=(bot, nextmsg, isZip, pswd, multi)).start()
+        Thread(target=_watch, args=(bot, nextmsg, isZip, isLeech, multi)).start()
     if isLeech is False and reply_to is None:
         deleteMessage(bot, message)
 

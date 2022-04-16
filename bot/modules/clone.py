@@ -1,5 +1,5 @@
-import random
-import string
+from random import SystemRandom
+from string import ascii_letters, digits
 
 from telegram.ext import CommandHandler
 from threading import Thread
@@ -82,7 +82,7 @@ def _clone(message, bot, multi=0):
             result, button = gd.clone(link)
         else:
             drive = GoogleDriveHelper(name)
-            gid = ''.join(random.SystemRandom().choices(string.ascii_letters + string.digits, k=12))
+            gid = ''.join(SystemRandom().choices(ascii_letters + digits, k=12))
             clone_status = CloneStatus(drive, size, message, gid)
             with download_dict_lock:
                 download_dict[message.message_id] = clone_status
@@ -115,7 +115,7 @@ def _clone(message, bot, multi=0):
         if reply_to is None:
             deleteMessage(bot, message)
     else:
-        smsg = sendMessage(f'ℹ️ {tag} Ketik Gdrive atau gdtot link yang mau di-mirror.', context.bot, update.message)
+        smsg = sendMessage(f'ℹ️ {tag} Ketik Gdrive atau gdtot link yang mau di-mirror.', bot, message)
         Thread(target=auto_delete_message, args=(bot, message, smsg)).start()
 
 @new_thread
