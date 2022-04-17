@@ -235,6 +235,8 @@ class MirrorListener:
             msg += f'\n👤 <b>Pemirror: </b>{self.tag}\n'
             if self.message.reply_to_message is not None:
                 msg += f'#️⃣ <b>UID: </b><code>{self.message.reply_to_message.from_user.id}</code>'
+            elif self.tag == '@cermin_inRSS':
+                msg += '#️⃣ <b>RSS_FEED_CHANNEL</b>'
             else:
                 msg += f'#️⃣ <b>UID: </b><code>{self.message.from_user.id}</code>'
             buttons = ButtonMaker()
@@ -330,6 +332,8 @@ def _mirror(bot, message, isZip=False, extract=False, isQbit=False, isLeech=Fals
 
     if message.from_user.username:
         tag = f"@{message.from_user.username}"
+    elif message.from_user.first_name == 'Telegram': #RSS mirror tag
+        tag = "@cermin_inRSS"
     else:
         tag = message.from_user.mention_html(message.from_user.first_name)
 
