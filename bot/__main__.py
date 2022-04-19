@@ -1,5 +1,4 @@
 from signal import signal, SIGINT
-
 from os import path as ospath, remove as osremove, execl as osexecl
 from subprocess import run as srun, check_output
 from psutil import disk_usage, cpu_percent, swap_memory, cpu_count, virtual_memory, net_io_counters, boot_time
@@ -56,7 +55,7 @@ def stats(update, context):
 #            f'<b>Memory Total:</b> {mem_t}\n'\
 #            f'<b>Memory Free:</b> {mem_a}\n'\
 #            f'<b>Memory Used:</b> {mem_u}\n'\
-    stats += f'🤖 <b>Bot Version:</b> {botVersion} (300)'
+    stats += f'🤖 <b>Bot Version:</b> {botVersion} (303)'
     sendMessage(stats, context.bot, update.message)
 
 
