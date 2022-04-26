@@ -55,7 +55,7 @@ def stats(update, context):
 #            f'<b>Memory Total:</b> {mem_t}\n'\
 #            f'<b>Memory Free:</b> {mem_a}\n'\
 #            f'<b>Memory Used:</b> {mem_u}\n'\
-    stats += f'🤖 <b>Bot Version:</b> {botVersion} (303)'
+    stats += f'🤖 <b>Bot Version:</b> {botVersion} (312)'
     sendMessage(stats, context.bot, update.message)
 
 
@@ -84,6 +84,7 @@ def restart(update, context):
     srun(["pkill", "-f", "gunicorn"])
     clean_all()
     srun(["pkill", "-f", "aria2c"])
+    srun(["pkill", "-f", "megasdkrest"])
     srun(["python3", "update.py"])
     with open(".restartmsg", "w") as f:
         f.truncate(0)

@@ -70,12 +70,12 @@ def _clone(message, bot, multi=0):
                 msg2 = f'⚠️ {tag} Gagal, Clone limit adalah {CLONE_LIMIT}GB.\nUkuran File/Folder kamu adalah {get_readable_file_size(size)}.'
                 return sendMessage(msg2, bot, message)
         if multi > 1:
-            sleep(1)
+            sleep(2)
             nextmsg = type('nextmsg', (object, ), {'chat_id': message.chat_id, 'message_id': message.reply_to_message.message_id + 1})
             nextmsg = sendMessage(args[0], bot, nextmsg)
             nextmsg.from_user.id = message.from_user.id
             multi -= 1
-            sleep(1)
+            sleep(2)
             Thread(target=_clone, args=(nextmsg, bot, multi)).start()
         if files <= 20:
             result, button = gd.clone(link)
@@ -111,6 +111,7 @@ def _clone(message, bot, multi=0):
             sendMarkup(result + cc, bot, message, button)
         if is_gdtot:
             gd.deletefile(link)
+        LOGGER.info(f"Cloning Done: {name}")
         if reply_to is None:
             deleteMessage(bot, message)
     else:
