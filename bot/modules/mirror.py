@@ -418,12 +418,12 @@ def _mirror(bot, message, isZip=False, extract=False, isQbit=False, isLeech=Fals
                 else:
                     link = direct_link_generator(link, host)
                 LOGGER.info(f"Generated link: {link}")
-                if check_:
-                    deleteMessage(bot, check_)
+                if type(check_) != bool:
+                    check_ = deleteMessage(bot, check_)
             except DirectDownloadLinkException as e:
                 LOGGER.info(str(e))
-                if check_:
-                    deleteMessage(bot, check_)
+                if type(check_) != bool:
+                    check_ = deleteMessage(bot, check_)
                 if str(e).startswith('ERROR:'):
                     return sendMessage(f"⚠️ {tag} {e}", bot, message)
     elif isQbit and not is_magnet(link) and not ospath.exists(link):
@@ -434,8 +434,8 @@ def _mirror(bot, message, isZip=False, extract=False, isQbit=False, isLeech=Fals
         if content_type is None or re_match(r'application/x-bittorrent|application/octet-stream', content_type):
             try:
                 resp = rget(link, timeout=10, headers = {'user-agent': 'Wget/1.12'})
-                if check_:
-                    deleteMessage(bot, check_)
+                if type(check_) != bool:
+                    check_ = deleteMessage(bot, check_)
                 if resp.status_code == 200:
                     file_name = str(time()).replace(".", "") + ".torrent"
                     with open(file_name, "wb") as t:
@@ -444,8 +444,8 @@ def _mirror(bot, message, isZip=False, extract=False, isQbit=False, isLeech=Fals
                 else:
                     return sendMessage(f"⚠️ {tag} ERROR: Link got {resp.status_code} HTTP response", bot, message)
             except Exception as e:
-                if check_:
-                    deleteMessage(bot, check_)
+                if type(check_) != bool:
+                    check_ = deleteMessage(bot, check_)
                 error = str(e).replace('<', ' ').replace('>', ' ')
                 if error.startswith('No connection adapters were found for'):
                     link = error.split("'")[1]
@@ -456,8 +456,8 @@ def _mirror(bot, message, isZip=False, extract=False, isQbit=False, isLeech=Fals
             msg = f"ℹ️ {tag} Qb command hanya untuk torrent. Jika link kamu adalah torrent tapi mendapatkan error ini maka laporkan ke admin"
             return editMessage(msg, check_)
 
-    if check_:
-        deleteMessage(bot, check_)
+    if type(check_) != bool:
+        check_ = deleteMessage(bot, check_)
     listener = MirrorListener(bot, message, isZip, extract, isQbit, isLeech, pswd, tag)
 
     if is_gdrive_link(link):
