@@ -10,7 +10,7 @@ from json import loads as jsnloads
 from subprocess import Popen, run as srun, check_output
 from time import sleep, time
 from threading import Thread, Lock
-from pyrogram import Client
+from pyrogram import Client, enums
 from dotenv import load_dotenv
 from megasdkrestclient import MegaSdkRestClient, errors as mega_err
 
@@ -55,7 +55,7 @@ except:
 
 PORT = environ.get('PORT', SERVER_PORT)
 alive = Popen(["python3", "alive.py"])
-Popen([f"gunicorn", "web.wserver:app", "--bind 0.0.0.0:", PORT])
+Popen([f"gunicorn web.wserver:app --bind 0.0.0.0:{PORT}"], shell=True)
 srun(["qbittorrent-nox", "-d", "--profile=."])
 if not ospath.exists('.netrc'):
     srun(["touch", ".netrc"])
@@ -140,8 +140,8 @@ except:
     pass
 try:
     fx = getConfig('EXTENTION_FILTER')
-    fx = fx.split(' ')
-    if bool(fx):
+    if len(fx) > 0:
+        fx = fx.split(' ')
         for x in fx:
             EXTENTION_FILTER.add(x.lower())
 except:
@@ -162,13 +162,13 @@ except:
     exit(1)
 
 LOGGER.info("Generating BOT_STRING_SESSION")
-app = Client(name='pyrogram', api_id=int(TELEGRAM_API), api_hash=TELEGRAM_HASH, bot_token=BOT_TOKEN, no_updates=True)
+app = Client(name='pyrogram', api_id=int(TELEGRAM_API), api_hash=TELEGRAM_HASH, bot_token=BOT_TOKEN, parse_mode=enums.ParseMode.HTML, no_updates=True)
 
 try:
     USER_STRING_SESSION = getConfig('USER_STRING_SESSION')
     if len(USER_STRING_SESSION) == 0:
         raise KeyError
-    rss_session = Client(name='rss_session', api_id=int(TELEGRAM_API), api_hash=TELEGRAM_HASH, session_string=USER_STRING_SESSION)
+    rss_session = Client(name='rss_session', api_id=int(TELEGRAM_API), api_hash=TELEGRAM_HASH, session_string=USER_STRING_SESSION, parse_mode=enums.ParseMode.HTML)
 except:
     USER_STRING_SESSION = None
     rss_session = None
