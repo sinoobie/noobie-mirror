@@ -148,10 +148,10 @@ def get_readable_message():
             link = split(r"pswd:|\|", link)[0]
             link = link.strip()
             # jika link adalah magnet link
-            if findall(MAGNET_REGEX, link):
+            if re_findall(MAGNET_REGEX, link):
                 link = f"https://t.me/share/url?url={quote(link)}"
             # jika user reply ke sebuah link
-            if not findall(URL_REGEX, link):
+            if not re_findall(URL_REGEX, link):
                 if reply_to is not None:
                     link = f"https://t.me/c/{str(pemirror.chat.id)[4:]}/{reply_to.message_id}"
             # sampai sini custom statusnya
