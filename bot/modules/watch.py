@@ -120,7 +120,7 @@ def _watch(bot, message, isZip=False, isLeech=False, multi=0):
                 else:
                     size = 0
 
-                if quality in formats_dict:
+                if quality in list(formats_dict.keys()):
                     formats_dict[quality][frmt['tbr']] = size
                 else:
                     subformat = {}
@@ -152,12 +152,12 @@ def _watch(bot, message, isZip=False, isLeech=False, multi=0):
 
     Thread(target=_auto_cancel, args=(bmsg, msg_id)).start()
     if multi > 1:
-        sleep(3)
+        sleep(4)
         nextmsg = type('nextmsg', (object, ), {'chat_id': message.chat_id, 'message_id': message.reply_to_message.message_id + 1})
         nextmsg = sendMessage(mssg.split(' ')[0], bot, nextmsg)
         nextmsg.from_user.id = message.from_user.id
         multi -= 1
-        sleep(3)
+        sleep(4)
         Thread(target=_watch, args=(bot, nextmsg, isZip, isLeech, multi)).start()
     if isLeech is False and reply_to is None:
         deleteMessage(bot, message)
@@ -225,7 +225,8 @@ def select_format(update, context):
     elif data[2] == "dict":
         query.answer()
         qual = data[3]
-        return _qual_subbuttons(task_id, qual, msg)
+        _qual_subbuttons(task_id, qual, msg)
+        return
     elif data[2] == "back":
         query.answer()
         return editMessage('Pilih Kualitas Video:', msg, task_info[4])
@@ -235,7 +236,8 @@ def select_format(update, context):
             playlist = True
         else:
             playlist = False
-        return _audio_subbuttons(task_id, msg, playlist)
+        _audio_subbuttons(task_id, msg, playlist)
+        return
     elif data[2] == "cancel":
         query.answer()
         editMessage('Task has been cancelled.', msg)

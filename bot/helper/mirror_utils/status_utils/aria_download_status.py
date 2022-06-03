@@ -78,6 +78,7 @@ class AriaDownloadStatus:
         return self.__uid
 
     def gid(self):
+        self.__update()
         return self.__gid
 
     def Pemirror(self):

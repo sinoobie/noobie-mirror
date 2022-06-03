@@ -1,6 +1,5 @@
 from bot import DOWNLOAD_DIR, LOGGER
 from bot.helper.ext_utils.bot_utils import MirrorStatus, get_readable_file_size, get_readable_time
-from time import sleep
 
 def get_download(client, hash_):
     try:
@@ -77,7 +76,7 @@ class QbDownloadStatus:
         return self.__info
 
     def download(self):
-        return self
+        return self.__obj
 
     def gid(self):
         return self.__obj.ext_hash[:12]
@@ -90,16 +89,3 @@ class QbDownloadStatus:
 
     def Pemirror(self):
         return self.message
-
-    def cancel_download(self):
-        self.__update()
-        if self.status() == MirrorStatus.STATUS_SEEDING:
-            LOGGER.info(f"Cancelling Seed: {self.name()}")
-            self.__obj.client.torrents_pause(torrent_hashes=self.__obj.ext_hash)
-        else:
-            LOGGER.info(f"Cancelling Download: {self.name()}")
-            self.__obj.client.torrents_pause(torrent_hashes=self.__obj.ext_hash)
-            sleep(0.3)
-            self.__listener.onDownloadError('Download distop oleh user!')
-            self.__obj.client.torrents_delete(torrent_hashes=self.__obj.ext_hash, delete_files=True)
-            self.__obj.periodic.cancel()
