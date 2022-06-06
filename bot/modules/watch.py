@@ -159,8 +159,8 @@ def _watch(bot, message, isZip=False, isLeech=False, multi=0):
         multi -= 1
         sleep(4)
         Thread(target=_watch, args=(bot, nextmsg, isZip, isLeech, multi)).start()
-    if isLeech is False and reply_to is None:
-        deleteMessage(bot, message)
+    # if isLeech is False and reply_to is None:
+    #     deleteMessage(bot, message)
 
 def _qual_subbuttons(task_id, qual, msg):
     buttons = button_build.ButtonMaker()

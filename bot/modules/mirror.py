@@ -458,8 +458,8 @@ def _mirror(bot, message, isZip=False, extract=False, isQbit=False, isLeech=Fals
         sleep(4)
         Thread(target=_mirror, args=(bot, nextmsg, isZip, extract, isQbit, isLeech, pswd, multi)).start()
 
-    if (isLeech is False) and (reply_to is None):
-        deleteMessage(bot, message)
+    # if (isLeech is False) and (reply_to is None):
+    #     deleteMessage(bot, message)
 
 def mirror(update, context):
     _mirror(context.bot, update.message)

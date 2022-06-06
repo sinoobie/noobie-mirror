@@ -112,8 +112,8 @@ def _clone(message, bot, multi=0):
             LOGGER.info(f'Cloning Done: {name}')
         if is_gdtot:
             gd.deletefile(link)
-        if reply_to is None:
-            deleteMessage(bot, message)
+        # if reply_to is None:
+        #     deleteMessage(bot, message)
     else:
         smsg = sendMessage(f'ℹ️ {tag} Ketik Gdrive atau gdtot link yang mau di-mirror.', bot, message)
         Thread(target=auto_delete_message, args=(bot, message, smsg)).start()
