@@ -105,6 +105,7 @@ class TelegramDownloadHelper:
                     smsg, button = GoogleDriveHelper().drive_list(name, True, True)
                     if smsg:
                         msg = f"⚠️ {self.__listener.tag} Download kamu dihentikan karena: <code>{name}</code> <b><u>sudah ada di Drive</u></b>"
+                        self.__onEventEnd()
                         return sendMarkup(msg, self.__listener.bot, self.__listener.message, button)
                 if STORAGE_THRESHOLD is not None:
                     arch = any([self.__listener.isZip, self.__listener.extract])

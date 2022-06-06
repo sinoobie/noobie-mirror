@@ -7,7 +7,7 @@ from sys import executable
 from telegram import InlineKeyboardMarkup
 from telegram.ext import CommandHandler
 
-from bot import bot, dispatcher, updater, botStartTime, IGNORE_PENDING_REQUESTS, LOGGER, Interval, INCOMPLETE_TASK_NOTIFIER, DB_URI, app, main_loop
+from bot import bot, dispatcher, updater, botStartTime, IGNORE_PENDING_REQUESTS, LOGGER, Interval, INCOMPLETE_TASK_NOTIFIER, DB_URI, alive, app, main_loop
 from .helper.ext_utils.fs_utils import start_cleanup, clean_all, exit_clean_up
 from .helper.ext_utils.telegraph_helper import telegraph
 from .helper.ext_utils.bot_utils import get_readable_file_size, get_readable_time
@@ -56,7 +56,7 @@ def stats(update, context):
 #            f'<b>Memory Total:</b> {mem_t}\n'\
 #            f'<b>Memory Free:</b> {mem_a}\n'\
 #            f'<b>Memory Used:</b> {mem_u}\n'\
-    stats += f'🤖 <b>Bot Version:</b> {botVersion} (reborn?)'
+    stats += f'🤖 <b>Bot Version:</b> {botVersion}'
     sendMessage(stats, context.bot, update.message)
 
 
@@ -81,10 +81,11 @@ def restart(update, context):
     restart_message = sendMessage("♻️ Restarting...", context.bot, update.message)
     if Interval:
         Interval[0].cancel()
+    alive.kill()
     clean_all()
-    srun(["pkill", "-f", "gunicorn|aria2c|qbittorrent-nox"])
+    srun(["pkill", "-9", "-f", "gunicorn|extra-api|last-api|megasdkrest|new-api"])
     srun(["python3", "update.py"])
-    with open(".restartmsg", "w") as f:
+    with open(".restartmsg", "w") as f: 
         f.truncate(0)
         f.write(f"{restart_message.chat.id}\n{restart_message.message_id}\n")
     osexecl(executable, executable, "-m", "bot")
@@ -246,7 +247,7 @@ botcmds = [
     ]
 
 def main():
-    # bot.set_my_commands(botcmds)
+    bot.set_my_commands(botcmds)
     start_cleanup()
     if INCOMPLETE_TASK_NOTIFIER and DB_URI is not None:
         notifier_dict = DbManger().get_incomplete_tasks()

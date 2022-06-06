@@ -14,7 +14,7 @@ from telegram import InlineKeyboardMarkup
 
 from bot import Interval, INDEX_URL, BUTTON_FOUR_NAME, BUTTON_FOUR_URL, BUTTON_FIVE_NAME, BUTTON_FIVE_URL, \
                 BUTTON_SIX_NAME, BUTTON_SIX_URL, VIEW_LINK, aria2, QB_SEED, dispatcher, DOWNLOAD_DIR, \
-                download_dict, download_dict_lock, TG_SPLIT_SIZE, LOGGER, DB_URI, INCOMPLETE_TASK_NOTIFIER
+                download_dict, download_dict_lock, TG_SPLIT_SIZE, LOGGER, MEGA_KEY, DB_URI, INCOMPLETE_TASK_NOTIFIER
 from bot.helper.ext_utils.bot_utils import is_url, is_magnet, is_gdtot_link, is_mega_link, is_gdrive_link, get_content_type
 from bot.helper.ext_utils.fs_utils import get_base_name, get_path_size, split_file, clean_download
 from bot.helper.ext_utils.shortenurl import short_url
@@ -22,7 +22,7 @@ from bot.helper.ext_utils.exceptions import DirectDownloadLinkException, NotSupp
 from bot.helper.mirror_utils.download_utils.aria2_download import add_aria2c_download
 from bot.helper.mirror_utils.download_utils.gd_downloader import add_gd_download
 from bot.helper.mirror_utils.download_utils.qbit_downloader import QbDownloader
-from bot.helper.mirror_utils.download_utils.mega_downloader import add_mega_download
+from bot.helper.mirror_utils.download_utils.mega_downloader import MegaDownloader
 from bot.helper.mirror_utils.download_utils.direct_link_generator import direct_link_generator
 from bot.helper.mirror_utils.download_utils.telegram_downloader import TelegramDownloadHelper
 from bot.helper.mirror_utils.status_utils.extract_status import ExtractStatus
@@ -347,7 +347,12 @@ def _mirror(bot, message, isZip=False, extract=False, isQbit=False, isLeech=Fals
             else:
                 tag = reply_to.from_user.mention_html(reply_to.from_user.first_name)
 
-        if not is_url(link) and not is_magnet(link) or len(link) == 0:
+        if (
+            not is_url(link)
+            and not is_magnet(link)
+            or len(link) == 0
+        ):
+
             if file is None:
                 reply_text = reply_to.text
                 if is_url(reply_text) or is_magnet(reply_text):
@@ -404,35 +409,6 @@ def _mirror(bot, message, isZip=False, extract=False, isQbit=False, isLeech=Fals
                     deleteMessage(bot, check_); check_ = None
                 if str(e).startswith('ERROR:'):
                     return sendMessage(f"⚠️ {tag} {e}", bot, message)
-    elif isQbit and not is_magnet(link) and not ospath.exists(link):
-        if link.endswith('.torrent'):
-            content_type = None
-        else:
-            content_type = get_content_type(link)
-        if content_type is None or re_match(r'application/x-bittorrent|application/octet-stream', content_type):
-            try:
-                resp = rget(link, timeout=10, headers = {'user-agent': 'Wget/1.12'})
-                if check_ != None:
-                    deleteMessage(bot, check_); check_ = None
-                if resp.status_code == 200:
-                    file_name = str(time()).replace(".", "") + ".torrent"
-                    with open(file_name, "wb") as t:
-                        t.write(resp.content)
-                    link = str(file_name)
-                else:
-                    return sendMessage(f"⚠️ {tag} ERROR: Link got {resp.status_code} HTTP response", bot, message)
-            except Exception as e:
-                if check_ != None:
-                    deleteMessage(bot, check_); check_ = None
-                error = str(e).replace('<', ' ').replace('>', ' ')
-                if error.startswith('No connection adapters were found for'):
-                    link = error.split("'")[1]
-                else:
-                    LOGGER.error(str(e))
-                    return sendMessage(f"⚠️ {tag} No connection adapters\n\n<code>qBit_dotTorrent_generator: {error}</code>", bot, message)
-        else:
-            msg = f"ℹ️ {tag} Qb command hanya untuk torrent. Jika link kamu adalah torrent tapi mendapatkan error ini maka laporkan ke admin"
-            return editMessage(msg, check_)
 
     if check_ != None:
         deleteMessage(bot, check_); check_ = None
@@ -448,8 +424,11 @@ def _mirror(bot, message, isZip=False, extract=False, isQbit=False, isLeech=Fals
         else:
             Thread(target=add_gd_download, args=(link, listener, is_gdtot)).start()
     elif is_mega_link(link):
-        Thread(target=add_mega_download, args=(link, f'{DOWNLOAD_DIR}{listener.uid}/', listener)).start()
-    elif isQbit and (is_magnet(link) or ospath.exists(link)):
+        if MEGA_KEY is not None:
+            Thread(target=MegaDownloader(listener).add_download, args=(link, f'{DOWNLOAD_DIR}{listener.uid}/')).start()
+        else:
+            sendMessage('MEGA_API_KEY not Provided!', bot, message)
+    elif isQbit:
         Thread(target=QbDownloader(listener).add_qb_torrent, args=(link, f'{DOWNLOAD_DIR}{listener.uid}', qbitsel)).start()
     else:
         if len(mesg) > 1:
