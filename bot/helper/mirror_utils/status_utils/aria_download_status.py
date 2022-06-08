@@ -1,5 +1,5 @@
 from bot import aria2, DOWNLOAD_DIR, LOGGER
-from bot.helper.ext_utils.bot_utils import MirrorStatus
+from bot.helper.ext_utils.bot_utils import MirrorStatus, get_readable_time
 
 def get_download(gid):
     try:
@@ -54,7 +54,12 @@ class AriaDownloadStatus:
         return self.__download.total_length_string()
 
     def eta(self):
-        return self.__download.eta_string()
+        seconds = self.__download.eta
+        if seconds.total_seconds() >= 86400000000000:
+            return '-'
+        else:
+            return f'{get_readable_time(seconds.total_seconds())}'
+        # return self.__download.eta_string()
 
     def status(self):
         download = self.__download
