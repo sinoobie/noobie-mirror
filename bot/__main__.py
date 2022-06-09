@@ -257,9 +257,9 @@ def main():
         osremove(".restartmsg")
     elif AUTHORIZED_CHATS:
         try:
-            for i in AUTHORIZED_CHATS:
+            for chatId in AUTHORIZED_CHATS:
                 if str(i).startswith('-'):
-                    bot.sendMessage(chat_id=i, text="♻️ <b>Bot Restarted!</b>\n\n⚠️ <b><u>Seluruh proses mirror dihentikan</u></b>", "HTML")
+                    bot.sendMessage(chatId, "♻️ <b>Bot Restarted!</b>\n\n⚠️ <b><u>Seluruh proses mirror dihentikan</u></b>", "HTML")
         except Exception as e:
             LOGGER.error(e)
 
