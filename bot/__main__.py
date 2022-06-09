@@ -247,40 +247,21 @@ botcmds = [
     ]
 
 def main():
-    bot.set_my_commands(botcmds)
+    # bot.set_my_commands(botcmds)
     start_cleanup()
-    if INCOMPLETE_TASK_NOTIFIER and DB_URI is not None:
-        notifier_dict = DbManger().get_incomplete_tasks()
-        if notifier_dict:
-            for cid, data in notifier_dict.items():
-                if ospath.isfile(".restartmsg"):
-                    with open(".restartmsg") as f:
-                        chat_id, msg_id = map(int, f)
-                    msg = 'Restarted successfully!'
-                else:
-                    msg = 'Bot Restarted!'
-                for tag, links in data.items():
-                     msg += f"\n\n{tag}: "
-                     for index, link in enumerate(links, start=1):
-                         msg += f" <a href='{link}'>{index}</a> |"
-                         if len(msg.encode()) > 4000:
-                             if 'Restarted successfully!' in msg and cid == chat_id:
-                                 bot.editMessageText(msg, chat_id, msg_id, parse_mode='HTMl', disable_web_page_preview=True)
-                                 osremove(".restartmsg")
-                             else:
-                                 bot.sendMessage(cid, msg, 'HTML')
-                             msg = ''
-                if 'Restarted successfully!' in msg and cid == chat_id:
-                     bot.editMessageText(msg, chat_id, msg_id, parse_mode='HTMl', disable_web_page_preview=True)
-                     osremove(".restartmsg")
-                else:
-                    bot.sendMessage(cid, msg, 'HTML')
-
+    # Check if the bot is restarting
     if ospath.isfile(".restartmsg"):
         with open(".restartmsg") as f:
             chat_id, msg_id = map(int, f)
         bot.edit_message_text("♻️ Bot Restarted!", chat_id, msg_id)
         osremove(".restartmsg")
+    elif AUTHORIZED_CHATS:
+        try:
+            for i in AUTHORIZED_CHATS:
+                if str(i).startswith('-'):
+                    bot.sendMessage(chat_id=i, text="♻️ <b>Bot Restarted!</b>\n\n⚠️ <b><u>Seluruh proses mirror dihentikan</u></b>", parse_mode=ParseMode.HTML)
+        except Exception as e:
+            LOGGER.error(e)
 
     start_handler = CommandHandler(BotCommands.StartCommand, start, run_async=True)
     ping_handler = CommandHandler(BotCommands.PingCommand, ping,

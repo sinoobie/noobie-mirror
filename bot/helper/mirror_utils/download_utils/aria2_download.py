@@ -22,25 +22,25 @@ def __onDownloadStarted(api, gid):
                 download = api.get_download(gid)
             LOGGER.info(f'onDownloadStarted: {gid}')
             dl = getDownloadByGid(gid)
-            if not dl:
+            if not dl or dl.getListener().isLeech:
                 return
-            if STOP_DUPLICATE and not dl.getListener().isLeech:
-                LOGGER.info('Checking File/Folder if already in Drive...')
-                sname = download.name
-                if dl.getListener().isZip:
-                    sname = sname + ".zip"
-                elif dl.getListener().extract:
-                    try:
-                        sname = get_base_name(sname)
-                    except:
-                        sname = None
-                if sname is not None:
-                    smsg, button = GoogleDriveHelper().drive_list(sname, True)
-                    if smsg:
-                        dl.getListener().onDownloadError(f'<code>{sname}</code> <b><u>sudah ada di Drive</u></b>', markup=True, button=button)
-                        api.remove([download], force=True, files=True)
-                        return #sendMarkup("Here are the search results:", dl.getListener().bot, dl.getListener().message, button)
+            LOGGER.info('Checking File/Folder if already in Drive...')
+            sname = download.name
+            if dl.getListener().isZip:
+                sname = sname + ".zip"
+            elif dl.getListener().extract:
+                try:
+                    sname = get_base_name(sname)
+                except:
+                    sname = None
+            if sname is not None:
+                smsg, button = GoogleDriveHelper().drive_list(sname, True)
+                if smsg:
+                    dl.getListener().onDownloadError(f'<code>{sname}</code> <b><u>sudah ada di Drive</u></b>', markup=True, button=button)
+                    api.remove([download], force=True, files=True)
+                    return #sendMarkup("Here are the search results:", dl.getListener().bot, dl.getListener().message, button)
             if any([ZIP_UNZIP_LIMIT, TORRENT_DIRECT_LIMIT, STORAGE_THRESHOLD]):
+                LOGGER.info('Checking File/Folder Size...')
                 sleep(1)
                 limit = None
                 size = download.total_length
@@ -60,7 +60,6 @@ def __onDownloadStarted(api, gid):
                     mssg = f'Torrent/Direct limit {TORRENT_DIRECT_LIMIT}GB'
                     limit = TORRENT_DIRECT_LIMIT
                 if limit is not None:
-                    LOGGER.info('Checking File/Folder Size...')
                     if size > limit * 1024**3:
                         dl.getListener().onDownloadError(f'{mssg}.\nUkuran file/folder kamu adalah {get_readable_file_size(size)}')
                         return api.remove([download], force=True, files=True)
