@@ -259,7 +259,9 @@ def main():
         try:
             for chatId in AUTHORIZED_CHATS:
                 if str(chatId).startswith('-'):
-                    bot.sendMessage(chatId, "♻️ <b>Bot Restarted!</b>\n\n⚠️ <b><u>Seluruh proses mirror dihentikan</u></b>", "HTML")
+                    try:
+                        bot.sendMessage(chatId, "♻️ <b>Bot Restarted!</b>\n\n⚠️ <b><u>Seluruh proses mirror dihentikan</u></b>", "HTML")
+                    except: pass
         except Exception as e:
             LOGGER.error(e)
 
