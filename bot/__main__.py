@@ -260,9 +260,8 @@ def main():
                 else:
                     msg = '♻️ <b>Bot Restarted!</b>'
                 for tag, links in data.items():
-                     msg += f"\n⚠️ <b><u>Proses Mirror dibawah ini dihentikan!</u></b>\n\n{tag}: "
                      for index, link in enumerate(links, start=1):
-                         msg += f" <a href='{link}'>{index}</a> |"
+                         msg += f"\n\n⚠️ {tag} <b>Proses <a href='{link}'>Mirror Kamu</a> dihentikan!</b>"
                          if len(msg.encode()) > 4000:
                              if '♻️ <b>Restarted successfully!</b>' in msg and cid == chat_id:
                                  bot.editMessageText(msg, chat_id, msg_id, parse_mode='HTMl', disable_web_page_preview=True)
