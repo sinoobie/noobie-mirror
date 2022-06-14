@@ -115,7 +115,7 @@ def _clone(message, bot, multi=0):
         # if reply_to is None:
         #     deleteMessage(bot, message)
     else:
-        smsg = sendMessage(f'ℹ️ {tag} Ketik Gdrive atau gdtot link yang mau di-mirror.', bot, message)
+        smsg = sendMessage(f'ℹ️ Ketik Gdrive atau gdtot link yang mau di-mirror.', bot, message)
         Thread(target=auto_delete_message, args=(bot, message, smsg)).start()
 
 @new_thread
