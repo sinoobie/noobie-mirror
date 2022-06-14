@@ -1,4 +1,4 @@
-from re import match as re_match, findall as re_findall, split
+from re import match as re_match, findall as re_findall, split as re_split
 from threading import Thread, Event
 from time import time
 from math import ceil
@@ -137,15 +137,17 @@ def get_readable_message():
                     else:
                         tag = f"<code>{reply_to.from_user.first_name}</code> (<code>{reply_to.from_user.id}</code>)"
             # link yang di mirror
-            message_args = pemirror.text.split(' ', maxsplit=1)
-            try:
-                link = message_args[1]
+            mesg = pemirror.text.split('\n')
+            message_args = mesg[0].split(maxsplit=1)
+            if len(message_args) > 1:
+                link = message_args[1].strip()
                 if link.startswith("s ") or link == "s":
-                    message_args = pemirror.text.split(' ', maxsplit=2)
-                    link = message_args[2].strip()
-            except IndexError:
+                    message_args = mesg[0].split(maxsplit=2)
+                    if len(message_args) > 2:
+                        link = message_args[2].strip()
+            else:
                 link = ''
-            link = split(r"pswd:|\|", link)[0]
+            link = re_split(r"pswd:|\|", link)[0]
             link = link.strip()
             # jika link adalah magnet link
             if re_findall(MAGNET_REGEX, link):

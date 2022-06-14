@@ -176,6 +176,7 @@ class MirrorListener:
             drive.upload(up_name)
 
     def onDownloadError(self, error, markup=False, button=None):
+        clean_download(f'{DOWNLOAD_DIR}{self.uid}')
         with download_dict_lock:
             try:
                 del download_dict[self.uid]
@@ -196,11 +197,12 @@ class MirrorListener:
             DbManger().rm_complete_task(self.message.link)
 
     def onUploadComplete(self, link: str, size, files, folders, typ, name: str):
+        if not self.isPrivate and INCOMPLETE_TASK_NOTIFIER and DB_URI is not None:
+            DbManger().rm_complete_task(self.message.link)
         msg = f'📁 <b>Name: </b><code>{escape(name)}</code>\n'
         msg += f'📦 <b>Size: </b>{size}\n'
         if self.isLeech:
-            count = len(files)
-            msg += f'📄 <b>Total Files: </b>{count}\n'
+            msg += f'📄 <b>Total Files: </b>{folders}\n'
             if typ != 0:
                 msg += f'🧩 <b>Corrupted Files: </b>{typ}\n'
             msg += f'\n👤 <b>Leecher: </b>{self.tag}\n'
@@ -208,7 +210,7 @@ class MirrorListener:
                 msg += f'#️⃣ <b>UID: </b><code>{self.message.reply_to_message.from_user.id}</code>\n\n'
             else:
                 msg += f'#️⃣ <b>UID: </b><code>{self.message.from_user.id}</code>\n\n'
-            if self.message.chat.type == 'private':
+            if not files:
                 sendMessage(msg, self.bot, self.message)
             else:
                 fmsg = ''
@@ -228,8 +230,6 @@ class MirrorListener:
             msg += f'\n👤 <b>Pemirror: </b>{self.tag}\n'
             if self.message.reply_to_message is not None:
                 msg += f'#️⃣ <b>UID: </b><code>{self.message.reply_to_message.from_user.id}</code>'
-            elif self.tag == '@cermin_inRSS':
-                msg += '#️⃣ <b>RSS_FEED_CHANNEL</b>'
             else:
                 msg += f'#️⃣ <b>UID: </b><code>{self.message.from_user.id}</code>'
             buttons = ButtonMaker()
@@ -296,39 +296,44 @@ class MirrorListener:
 
 def _mirror(bot, message, isZip=False, extract=False, isQbit=False, isLeech=False, pswd=None, multi=0):
     mesg = message.text.split('\n')
-    message_args = mesg[0].split(' ', maxsplit=1)
+    message_args = mesg[0].split(maxsplit=1)
     name_args = mesg[0].split('|', maxsplit=1)
     qbitsel = False
     is_gdtot = False
-    try:
-        link = message_args[1]
+
+    if len(message_args) > 1:
+        link = message_args[1].strip()
         if link.startswith("s ") or link == "s":
             qbitsel = True
-            message_args = mesg[0].split(' ', maxsplit=2)
-            link = message_args[2].strip()
+            message_args = mesg[0].split(maxsplit=2)
+            if len(message_args) > 2:
+                link = message_args[2].strip()
+            else:
+                link = ''
         elif link.isdigit():
             multi = int(link)
-            raise IndexError
-        if link.startswith(("|", "pswd: ")):
-            raise IndexError
-    except:
+            link = ''
+        if link.startswith(("|", "pswd:")):
+            link = ''
+    else:
         link = ''
-    try:
+
+    if len(name_args) > 1:
         name = name_args[1]
-        name = name.split(' pswd: ')[0]
+        name = name.split(' pswd:')[0]
         name = name.strip()
-    except:
+    else:
         name = ''
-    link = re_split(r"pswd:| \|", link)[0]
+
+    link = re_split(r"pswd:|\|", link)[0]
     link = link.strip()
-    pswdMsg = mesg[0].split(' pswd: ')
-    if len(pswdMsg) > 1:
-        pswd = pswdMsg[1]
+
+    pswd_arg = mesg[0].split(' pswd: ')
+    if len(pswd_arg) > 1:
+        pswd = pswd_arg[1]
 
     if message.from_user.username:
         tag = f"@{message.from_user.username}"
-    elif message.from_user.first_name == 'Telegram': #RSS mirror tag
-        tag = "@cermin_inRSS"
     else:
         tag = message.from_user.mention_html(message.from_user.first_name)
 

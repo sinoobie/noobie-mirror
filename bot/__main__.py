@@ -285,7 +285,7 @@ def main():
     LOGGER.info("Bot Started!")
     signal(SIGINT, exit_clean_up)
 
-main()
 app.start()
+main()
 
 main_loop.run_forever()

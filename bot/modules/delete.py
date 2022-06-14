@@ -10,11 +10,10 @@ from bot.helper.ext_utils.bot_utils import is_gdrive_link
 
 
 def deletefile(update, context):
-    args = update.message.text.split(" ", maxsplit=1)
     reply_to = update.message.reply_to_message
-    if len(args) > 1:
-        link = args[1]
-    elif reply_to is not None:
+    if len(context.args) == 1:
+        link = context.args[0]
+    elif reply_to:
         link = reply_to.text
     else:
         link = ''
@@ -23,7 +22,7 @@ def deletefile(update, context):
         drive = gdriveTools.GoogleDriveHelper()
         msg = drive.deletefile(link)
     else:
-        msg = 'ℹ️ Send Gdrive link along with command or by replying to the link by command'
+        msg = 'Send Gdrive link along with command or by replying to the link by command'
     reply_message = sendMessage(msg, context.bot, update.message)
     Thread(target=auto_delete_message, args=(context.bot, update.message, reply_message)).start()
 

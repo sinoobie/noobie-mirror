@@ -11,7 +11,7 @@ from bot.helper.telegram_helper import button_build
 
 def list_buttons(update, context):
     user_id = update.message.from_user.id
-    if len(update.message.text.split(" ", maxsplit=1)) < 2:
+    if len(context.args) == 0:
         smsg = sendMessage('ℹ️ Ketik sebuah keyword untuk memulai pencarian!', context.bot, update.message)
         Thread(target=auto_delete_message, args=(context.bot, update.message, smsg)).start()
         return
@@ -30,7 +30,7 @@ def select_type(update, context):
     msg = query.message
     key = msg.reply_to_message.text.split(" ", maxsplit=1)[1]
     data = query.data
-    data = data.split(" ")
+    data = data.split()
     if user_id != int(data[1]):
         query.answer(text="Bukan buat elu!", show_alert=True)
     elif data[2] == 'cancel':
