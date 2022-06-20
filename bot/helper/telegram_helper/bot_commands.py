@@ -27,7 +27,7 @@ class _BotCommands:
         self.WatchCommand = f'watch{CMD_INDEX}'
         self.ZipWatchCommand = f'zipwatch{CMD_INDEX}'
         self.QbMirrorCommand = f'qb{CMD_INDEX}'
-        self.QbUnzipMirrorCommand = f'qbunzi{CMD_INDEX}'
+        self.QbUnzipMirrorCommand = f'qbunzip{CMD_INDEX}'
         self.QbZipMirrorCommand = f'qbzip{CMD_INDEX}'
         self.DeleteCommand = f'del{CMD_INDEX}'
         self.ShellCommand = f'shell{CMD_INDEX}'
