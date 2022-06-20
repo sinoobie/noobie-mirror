@@ -247,7 +247,7 @@ botcmds = [
     ]
 
 def main():
-    # bot.set_my_commands(botcmds)
+    bot.set_my_commands(botcmds)
     start_cleanup()
     if INCOMPLETE_TASK_NOTIFIER and DB_URI is not None:
         notifier_dict = DbManger().get_incomplete_tasks()
