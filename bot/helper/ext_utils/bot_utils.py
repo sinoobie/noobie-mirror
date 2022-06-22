@@ -3,7 +3,7 @@ from threading import Thread, Event
 from time import time
 from math import ceil
 from html import escape
-from psutil import virtual_memory, cpu_percent, disk_usage
+from psutil import cpu_percent, disk_usage
 from requests import head as rhead
 from urllib.request import urlopen
 from telegram import InlineKeyboardMarkup
@@ -178,6 +178,7 @@ def get_readable_message():
                            f" | <b>Leechers:</b> {download.torrent_info().num_leechs}"
                 except:
                     pass
+                msg += f"\n⏱ {get_readable_time(time() - download.message.date.timestamp())}"
                 msg += f"\n👤 {tag}"
                 msg += f"\n❌ <code>/{BotCommands.CancelMirror} {download.gid()}</code>"
             elif download.status() == MirrorStatus.STATUS_SEEDING:
@@ -193,8 +194,8 @@ def get_readable_message():
             msg += "\n\n"
             if STATUS_LIMIT is not None and index == STATUS_LIMIT:
                 break
-        bmsg = f"🖥️ <b>CPU:</b> {cpu_percent()}% | 💿 <b>FREE:</b> {get_readable_file_size(disk_usage(DOWNLOAD_DIR).free)}"
-        bmsg += f"\n💾 <b>RAM:</b> {virtual_memory().percent}% | 🕒 <b>UPTIME:</b> {get_readable_time(time() - botStartTime)}"
+        bmsg = f"🎯 <b>Tasks:</b> {tasks} | 💿 <b>FREE:</b> {get_readable_file_size(disk_usage(DOWNLOAD_DIR).free)}"
+        bmsg += f"\n🖥️ <b>CPU:</b> {cpu_percent()}% | 🕒 <b>UPTIME:</b> {get_readable_time(time() - botStartTime)}"
         dlspeed_bytes = 0
         upspeed_bytes = 0
         for download in list(download_dict.values()):
@@ -211,7 +212,7 @@ def get_readable_message():
                     upspeed_bytes += float(spd.split('M')[0]) * 1048576
         bmsg += f"\n🔻 <b>DL:</b> {get_readable_file_size(dlspeed_bytes)}/s | 🔺 <b>UL:</b> {get_readable_file_size(upspeed_bytes)}/s"
         if STATUS_LIMIT is not None and tasks > STATUS_LIMIT:
-            msg += f"📑 <b>Page:</b> {PAGE_NO}/{pages} | 🎯 <b>Tasks:</b> {tasks}\n"
+            msg += f"📑 <b>Page:</b> {PAGE_NO}/{pages}\n"
             buttons = ButtonMaker()
             buttons.sbutton("⏪ Previous", "status pre")
             buttons.sbutton("Next ⏩", "status nex")
@@ -268,6 +269,10 @@ def is_gdrive_link(url: str):
 
 def is_gdtot_link(url: str):
     url = re_match(r'https?://.+\.gdtot\.\S+', url)
+    return bool(url)
+
+def is_appdrive_link(url: str):
+    url = re_match(r'https?://(?:\S*\.)?(?:appdrive|driveapp)\.in/\S+', url)
     return bool(url)
 
 def is_mega_link(url: str):

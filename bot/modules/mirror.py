@@ -205,6 +205,7 @@ class MirrorListener:
             msg += f'📄 <b>Total Files: </b>{folders}\n'
             if typ != 0:
                 msg += f'🧩 <b>Corrupted Files: </b>{typ}\n'
+            msg += f'⏱ <b>ElapsedTime: </b>{get_readable_time(time() - self.message.date.timestamp())}\n'
             msg += f'\n👤 <b>Leecher: </b>{self.tag}\n'
             if self.message.reply_to_message is not None:
                 msg += f'#️⃣ <b>UID: </b><code>{self.message.reply_to_message.from_user.id}</code>\n\n'
@@ -227,6 +228,7 @@ class MirrorListener:
             if ospath.isdir(f'{DOWNLOAD_DIR}{self.uid}/{name}'):
                 msg += f'📂 <b>SubFolders: </b>{folders}\n'
                 msg += f'📄 <b>Files: </b>{files}\n'
+            msg += f'⏱ <b>ElapsedTime: </b>{get_readable_time(time() - self.message.date.timestamp())}\n'
             msg += f'\n👤 <b>Pemirror: </b>{self.tag}\n'
             if self.message.reply_to_message is not None:
                 msg += f'#️⃣ <b>UID: </b><code>{self.message.reply_to_message.from_user.id}</code>'
