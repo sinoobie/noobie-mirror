@@ -111,7 +111,7 @@ def _clone(message, bot, multi=0):
                 pass
         if _msg:
             deleteMessage(bot, _msg)
-        cc = f'\n⏱ <b>ElapsedTime: </b>{get_readable_time(time() - message.date.timestamp())}'
+        cc = f'\n⏱ <b>Selesai Dalam: </b>{get_readable_time(time() - message.date.timestamp())}'
         cc += f'\n\n👤 <b>Pemirror: </b>{tag}'
         if reply_to is not None:
             cc += f'\n#️⃣ <b>UID: </b><code>{reply_to.from_user.id}</code>'
