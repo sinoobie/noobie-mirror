@@ -166,6 +166,7 @@ def get_readable_message():
                 MirrorStatus.STATUS_SEEDING,
             ]:
                 msg += f"\n🌀 {get_progress_bar_string(download)} {download.progress()}"
+                msg += f"\n⏱ {get_readable_time(time() - download.message.date.timestamp())}"
                 msg += f"\n📦 {get_readable_file_size(download.processed_bytes())} / {download.size()}"
                 msg += f"\n⚡️ {download.speed()} | ⏳ {download.eta()}"
                 try:
@@ -178,7 +179,6 @@ def get_readable_message():
                            f" | <b>Leechers:</b> {download.torrent_info().num_leechs}"
                 except:
                     pass
-                msg += f"\n⏱ {get_readable_time(time() - download.message.date.timestamp())}"
                 msg += f"\n👤 {tag}"
                 msg += f"\n❌ <code>/{BotCommands.CancelMirror} {download.gid()}</code>"
             elif download.status() == MirrorStatus.STATUS_SEEDING:
@@ -191,11 +191,10 @@ def get_readable_message():
             else:
                 msg += f"\n📦 {download.size()}"
                 msg += f"\n👤 {tag}"
-            msg += "\n\n"
+            msg += f"\n\n🎯 <b>Tasks:</b> {tasks}"
             if STATUS_LIMIT is not None and index == STATUS_LIMIT:
                 break
-        bmsg = f"🎯 <b>Tasks:</b> {tasks} | 💿 <b>FREE:</b> {get_readable_file_size(disk_usage(DOWNLOAD_DIR).free)}"
-        bmsg += f"\n🖥️ <b>CPU:</b> {cpu_percent()}% | 🕒 <b>UPTIME:</b> {get_readable_time(time() - botStartTime)}"
+        bmsg = f"\n🖥️ <b>CPU:</b> {cpu_percent()}% | 💿 <b>FREE:</b> {get_readable_file_size(disk_usage(DOWNLOAD_DIR).free)}"
         dlspeed_bytes = 0
         upspeed_bytes = 0
         for download in list(download_dict.values()):
@@ -212,7 +211,7 @@ def get_readable_message():
                     upspeed_bytes += float(spd.split('M')[0]) * 1048576
         bmsg += f"\n🔻 <b>DL:</b> {get_readable_file_size(dlspeed_bytes)}/s | 🔺 <b>UL:</b> {get_readable_file_size(upspeed_bytes)}/s"
         if STATUS_LIMIT is not None and tasks > STATUS_LIMIT:
-            msg += f"📑 <b>Page:</b> {PAGE_NO}/{pages}\n"
+            msg += f" | 📑 <b>Page:</b> {PAGE_NO}/{pages}"
             buttons = ButtonMaker()
             buttons.sbutton("⏪ Previous", "status pre")
             buttons.sbutton("Next ⏩", "status nex")
