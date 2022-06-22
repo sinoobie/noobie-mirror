@@ -423,9 +423,9 @@ def _mirror(bot, message, isZip=False, extract=False, isQbit=False, isLeech=Fals
 
     if is_gdrive_link(link):
         if not isZip and not extract and not isLeech:
-            gmsg = f"Gunakan /{BotCommands.CloneCommand} untuk clone Google Drive file/folder\n\n"
-            gmsg += f"Gunakan /{BotCommands.ZipMirrorCommand} untuk membuat zip dari Google Drive folder\n\n"
-            gmsg += f"Gunakan /{BotCommands.UnzipMirrorCommand} untuk mengekstraks file Google Drive archive"
+            gmsg = f"Gunakan /{BotCommands.CloneCommand} untuk menyalin Gdrive/gdtot/appdrive file\n\n"
+            gmsg += f"Gunakan /{BotCommands.ZipMirrorCommand} untuk mengarsip file Gdrive/gdtot/appdrive\n\n"
+            gmsg += f"Gunakan /{BotCommands.UnzipMirrorCommand} untuk mengekstraks file Gdrive/gdtot/appdrive"
             smsg = sendMessage(gmsg, bot, message)
             Thread(target=auto_delete_message, args=(bot, message, smsg)).start()
         else:
