@@ -191,9 +191,10 @@ def get_readable_message():
             else:
                 msg += f"\n📦 {download.size()}"
                 msg += f"\n👤 {tag}"
-            msg += f"\n\n🎯 <b>Tasks:</b> {tasks}"
+            msg += "\n\n"
             if STATUS_LIMIT is not None and index == STATUS_LIMIT:
                 break
+        msg += f"🎯 <b>Tasks:</b> {tasks}"
         bmsg = f"\n🖥️ <b>CPU:</b> {cpu_percent()}% | 💿 <b>FREE:</b> {get_readable_file_size(disk_usage(DOWNLOAD_DIR).free)}"
         dlspeed_bytes = 0
         upspeed_bytes = 0
