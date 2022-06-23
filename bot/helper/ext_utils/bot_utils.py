@@ -166,7 +166,6 @@ def get_readable_message():
                 MirrorStatus.STATUS_SEEDING,
             ]:
                 msg += f"\n🌀 {get_progress_bar_string(download)} {download.progress()}"
-                msg += f"\n⏱ {get_readable_time(time() - download.message.date.timestamp())}"
                 msg += f"\n📦 {get_readable_file_size(download.processed_bytes())} / {download.size()}"
                 msg += f"\n⚡️ {download.speed()} | ⏳ {download.eta()}"
                 try:
@@ -180,6 +179,7 @@ def get_readable_message():
                 except:
                     pass
                 msg += f"\n👤 {tag}"
+                msg += f"\n⏱ {get_readable_time(time() - download.message.date.timestamp())}"
                 msg += f"\n❌ <code>/{BotCommands.CancelMirror} {download.gid()}</code>"
             elif download.status() == MirrorStatus.STATUS_SEEDING:
                 msg += f"\n📦 <b>Size: </b>{download.size()}"
