@@ -178,8 +178,8 @@ def get_readable_message():
                            f" | <b>Leechers:</b> {download.torrent_info().num_leechs}"
                 except:
                     pass
-                msg += f"\n👤 {tag}"
                 msg += f"\n⏱ {get_readable_time(time() - download.message.date.timestamp())}"
+                msg += f"\n👤 {tag}"
                 msg += f"\n❌ <code>/{BotCommands.CancelMirror} {download.gid()}</code>"
             elif download.status() == MirrorStatus.STATUS_SEEDING:
                 msg += f"\n📦 <b>Size: </b>{download.size()}"
