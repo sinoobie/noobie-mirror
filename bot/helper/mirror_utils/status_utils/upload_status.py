@@ -8,6 +8,7 @@ class UploadStatus:
         self.__size = size
         self.__uid = listener.uid
         self.__gid = gid
+        self.__listener = listener
         self.message = listener.message
 
     def path(self):
@@ -58,6 +59,9 @@ class UploadStatus:
 
     def download(self):
         return self.__obj
+
+    def getListener(self):
+        return self.__listener
 
     def Pemirror(self):
         return self.message

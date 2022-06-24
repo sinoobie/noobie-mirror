@@ -214,7 +214,7 @@ def github(url: str) -> str:
         re.findall(r'\bhttps?://.*github\.com.*releases\S+', url)[0]
     except IndexError:
         raise DirectDownloadLinkException("No GitHub Releases links found\n")
-    download = requests.get(url, stream=True, allow_redirects=False)
+    download = requests.get(url, allow_redirects=True)
     try:
         return download.headers["location"]
     except KeyError:
