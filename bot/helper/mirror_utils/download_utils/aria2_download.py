@@ -1,4 +1,3 @@
-import threading
 from time import sleep
 
 from bot import aria2, download_dict_lock, download_dict, STOP_DUPLICATE, TORRENT_DIRECT_LIMIT, ZIP_UNZIP_LIMIT, LOGGER, STORAGE_THRESHOLD
@@ -65,21 +64,17 @@ def __onDownloadStarted(api, gid):
                         return api.remove([download], force=True, files=True)
     except Exception as e:
         LOGGER.error(f"{e} onDownloadStart: {gid} stop duplicate and size check didn't pass")
+
+@new_thread
 def __onDownloadComplete(api, gid):
     LOGGER.info(f"onDownloadComplete: {gid}")
     dl = getDownloadByGid(gid)
     download = api.get_download(gid)
     if download.followed_by_ids:
         new_gid = download.followed_by_ids[0]
-        new_download = api.get_download(new_gid)
-        with download_dict_lock:
-            download_dict[dl.uid()] = AriaDownloadStatus(new_gid, dl.getListener())
-            if new_download.is_torrent:
-                download_dict[dl.uid()].is_torrent = True
-        update_all_messages()
         LOGGER.info(f'Changed gid from {gid} to {new_gid}')
     elif dl:
-        threading.Thread(target=dl.getListener().onDownloadComplete).start()
+        dl.getListener().onDownloadComplete()
 
 @new_thread
 def __onDownloadStopped(api, gid):
