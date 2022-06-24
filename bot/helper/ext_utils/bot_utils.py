@@ -168,6 +168,7 @@ def get_readable_message():
                 msg += f"\n🌀 {get_progress_bar_string(download)} {download.progress()}"
                 msg += f"\n📦 {get_readable_file_size(download.processed_bytes())} / {download.size()}"
                 msg += f"\n⚡️ {download.speed()} | ⏳ {download.eta()}"
+                msg += f"\n⏱ {get_readable_time(time() - download.message.date.timestamp())}"
                 try:
                     msg += f"\n🧲 <b>Seeders:</b> {download.aria_download().num_seeders}" \
                            f" | <b>Peers:</b> {download.aria_download().connections}"
@@ -178,7 +179,6 @@ def get_readable_message():
                            f" | <b>Leechers:</b> {download.torrent_info().num_leechs}"
                 except:
                     pass
-                msg += f"\n⏱ {get_readable_time(time() - download.message.date.timestamp())}"
                 msg += f"\n👤 {tag}"
                 msg += f"\n❌ <code>/{BotCommands.CancelMirror} {download.gid()}</code>"
             elif download.status() == MirrorStatus.STATUS_SEEDING:
