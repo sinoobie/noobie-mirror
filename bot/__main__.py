@@ -6,6 +6,7 @@ from time import time
 from sys import executable
 from telegram import InlineKeyboardMarkup
 from telegram.ext import CommandHandler
+from threading import Thread
 
 from bot import bot, dispatcher, updater, botStartTime, IGNORE_PENDING_REQUESTS, LOGGER, Interval, INCOMPLETE_TASK_NOTIFIER, DB_URI, alive, app, main_loop, AUTHORIZED_CHATS
 from .helper.ext_utils.fs_utils import start_cleanup, clean_all, exit_clean_up
@@ -13,7 +14,7 @@ from .helper.ext_utils.telegraph_helper import telegraph
 from .helper.ext_utils.bot_utils import get_readable_file_size, get_readable_time
 from .helper.ext_utils.db_handler import DbManger
 from .helper.telegram_helper.bot_commands import BotCommands
-from .helper.telegram_helper.message_utils import sendMessage, sendMarkup, editMessage, sendLogFile
+from .helper.telegram_helper.message_utils import sendMessage, sendMarkup, editMessage, sendLogFile, auto_delete_message
 from .helper.telegram_helper.filters import CustomFilters
 from .helper.telegram_helper.button_build import ButtonMaker
 
@@ -57,7 +58,8 @@ def stats(update, context):
 #            f'<b>Memory Free:</b> {mem_a}\n'\
 #            f'<b>Memory Used:</b> {mem_u}\n'\
     stats += f'🤖 <b>Bot Version:</b> {botVersion}'
-    sendMessage(stats, context.bot, update.message)
+    smsg = sendMessage(stats, context.bot, update.message)
+    Thread(target=auto_delete_message, args=(context.bot, update.message, smsg)).start()
 
 
 def start(update, context):
