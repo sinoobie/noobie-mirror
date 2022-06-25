@@ -523,7 +523,7 @@ class GoogleDriveHelper:
         rtnlist.reverse()
         return rtnlist
 
-    def __drive_query(self, parent_id, fileName, stopDup, isRecursive, itemType):
+    def __drive_query(self, parent_id, fileName, stopDup, isRecursive):
         try:
             if isRecursive:
                 if stopDup:
@@ -535,10 +535,6 @@ class GoogleDriveHelper:
                         for name in fileName
                         if name != ''
                     )
-                    if itemType == "files":
-                        query += "mimeType != 'application/vnd.google-apps.folder' and "
-                    elif itemType == "folders":
-                        query += "mimeType = 'application/vnd.google-apps.folder' and "
                 query += "trashed = false"
                 if parent_id == "root":
                     return (
@@ -575,10 +571,6 @@ class GoogleDriveHelper:
                     for name in fileName:
                         if name != '':
                             query += f"name contains '{name}' and "
-                    if itemType == "files":
-                        query += "mimeType != 'application/vnd.google-apps.folder' and "
-                    elif itemType == "folders":
-                        query += "mimeType = 'application/vnd.google-apps.folder' and "
                 query += "trashed = false"
                 return (
                     self.__service.files()
@@ -599,7 +591,7 @@ class GoogleDriveHelper:
             LOGGER.error(f"{err}. Exception Name: {exception_name}")
             return {'files': []}
 
-    def drive_list(self, fileName, stopDup=False, noMulti=False, isRecursive=True, itemType=""):
+    def drive_list(self, fileName, stopDup=False, noMulti=False, isRecursive=True):
         msg = ""
         fileName = self.__escapes(str(fileName))
         contents_count = 0
@@ -689,11 +681,8 @@ class GoogleDriveHelper:
         if len(path) > 1:
             telegraph.edit_telegraph(path, telegraph_content)
 
-        _tipe = itemType
-        if _tipe == "both":
-            _tipe = "folders & files"
         msg = f"<b>Hasil pencarian:</b> <code>{fileName}</code>\n"
-        msg += f"<b>Ditemukan: <u>{contents_count} hasil</u>\nList Mode:- <i>{_tipe}</i></b>"
+        msg += f"<b>Ditemukan:</b> <u>{contents_count} hasil</u>"
         buttons = ButtonMaker()
         buttons.buildbutton("🔎 Hasil Pencarian", f"https://telegra.ph/{path[0]}")
 

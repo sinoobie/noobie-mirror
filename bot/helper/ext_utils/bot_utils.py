@@ -123,40 +123,22 @@ def get_readable_message():
                 globals()['COUNT'] -= STATUS_LIMIT
                 globals()['PAGE_NO'] -= 1
         for index, download in enumerate(list(download_dict.values())[COUNT:], start=1):
-            # user yang mirror
+            ### AWAL CUSTOM STATUS ###
             pemirror = download.Pemirror()
+            link = f"https://t.me/c/{str(pemirror.chat.id)[4:]}/{pemirror.message_id}"
             if pemirror.from_user.username:
                 tag = f"<code>@{pemirror.from_user.username}</code> (<code>{pemirror.from_user.id}</code>)"
             else:
                 tag = f"<code>{pemirror.from_user.first_name}</code> (<code>{pemirror.from_user.id}</code>)"
             reply_to = pemirror.reply_to_message
-            if reply_to is not None:
+            if reply_to:
+                link = f"https://t.me/c/{str(pemirror.chat.id)[4:]}/{reply_to.message_id}"
                 if not reply_to.from_user.is_bot:
                     if reply_to.from_user.username:
                         tag = f"<code>@{reply_to.from_user.username}</code> (<code>{reply_to.from_user.id}</code>)"
                     else:
                         tag = f"<code>{reply_to.from_user.first_name}</code> (<code>{reply_to.from_user.id}</code>)"
-            # link yang di mirror
-            mesg = pemirror.text.split('\n')
-            message_args = mesg[0].split(maxsplit=1)
-            if len(message_args) > 1:
-                link = message_args[1].strip()
-                if link.startswith("s ") or link == "s":
-                    message_args = mesg[0].split(maxsplit=2)
-                    if len(message_args) > 2:
-                        link = message_args[2].strip()
-            else:
-                link = ''
-            link = re_split(r"pswd:|\|", link)[0]
-            link = link.strip()
-            # jika link adalah magnet link
-            if re_findall(MAGNET_REGEX, link):
-                link = f"https://t.me/share/url?url={quote(link)}"
-            # jika user reply ke sebuah link
-            if not re_findall(URL_REGEX, link):
-                if reply_to is not None:
-                    link = f"https://t.me/c/{str(pemirror.chat.id)[4:]}/{reply_to.message_id}"
-            # sampai sini custom statusnya
+            ### AKHIR CUSTOM STATUS ###
             msg += f"💽 <code>{escape(str(download.name()))}</code>"
             msg += f"\n<a href=\"{link}\"><b>{download.status()}</b></a>"
             if download.status() not in [
