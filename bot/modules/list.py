@@ -15,12 +15,13 @@ def list_drives(update, context):
         LOGGER.info(f"listing: {key}")
         smsg = sendMessage(f"ℹ️ <b>Sedang mencari file</b> <code>{key}</code>", context.bot, update.message)
         gdrive = GoogleDriveHelper()
-        msg, button = gdrive.drive_list(key, isRecursive=True)
+        msg, button = gdrive.drive_list(key, isRecursive=True, itemType="both")
         if button:
             editMessage(msg, smsg, button)
         else:
             editMessage(f'ℹ️ <b>Tidak ada file yang cocok dengan</b> <code>{key}</code>', smsg)
-    except:
+    except Exception as err:
+        LOGGER.error(f"listing error: {err}")
         smsg = sendMessage('⚠️ <b>Ketik sebuah keyword untuk memulai pencarian!</b>', context.bot, update.message)
         Thread(target=auto_delete_message, args=(context.bot, update.message, smsg)).start()
 
