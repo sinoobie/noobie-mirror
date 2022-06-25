@@ -690,7 +690,7 @@ class GoogleDriveHelper:
             telegraph.edit_telegraph(path, telegraph_content)
 
         msg = f"<b>Hasil pencarian:</b> <code>{fileName}</code>\n"
-        msg += f"<b>Ditemukan:</b> <u>{contents_count} hasil</u>"
+        msg += f"<b>Ditemukan: <u>{contents_count} hasil</u></b>"
         buttons = ButtonMaker()
         buttons.buildbutton("🔎 Hasil Pencarian", f"https://telegra.ph/{path[0]}")
 
