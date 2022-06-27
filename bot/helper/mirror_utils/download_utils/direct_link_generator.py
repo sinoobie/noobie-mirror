@@ -257,7 +257,7 @@ def sbembed(link: str) -> str:
     Based on https://github.com/zevtyardt/lk21
     """
     session = requests.Session()
-    raw = session.get(url)
+    raw = session.get(link)
     soup = BeautifulSoup(raw)
 
     dl_url = {}
