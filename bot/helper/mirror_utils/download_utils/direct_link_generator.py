@@ -258,7 +258,7 @@ def sbembed(link: str) -> str:
     """
     session = requests.Session()
     raw = session.get(link)
-    soup = BeautifulSoup(raw)
+    soup = BeautifulSoup(raw.text, 'html.parser')
 
     dl_url = {}
     for a in soup.findAll("a", onclick=re.compile(r"^download_video[^>]+")):
@@ -267,7 +267,7 @@ def sbembed(link: str) -> str:
         data["op"] = "download_orig"
 
         raw = session.get("https://sbembed.com/dl", params=data)
-        soup = BeautifulSoup(raw)
+        soup = BeautifulSoup(raw.text, 'html.parser')
 
         if (direct := soup.find("a", text=re.compile("(?i)^direct"))):
             dl_url[a.text] = direct["href"]
