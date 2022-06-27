@@ -256,22 +256,7 @@ def sbembed(link: str) -> str:
     """ Sbembed direct link generator
     Based on https://github.com/zevtyardt/lk21
     """
-    session = requests.Session()
-    raw = session.get(link)
-    soup = BeautifulSoup(raw.text, 'html.parser')
-
-    dl_url = {}
-    for a in soup.findAll("a", onclick=re.compile(r"^download_video[^>]+")):
-        data = dict(zip(["id", "mode", "hash"], re.findall(
-            r"[\"']([^\"']+)[\"']", a["onclick"])))
-        data["op"] = "download_orig"
-
-        raw = session.get("https://sbembed.com/dl", params=data)
-        soup = BeautifulSoup(raw.text, 'html.parser')
-
-        if (direct := soup.find("a", text=re.compile("(?i)^direct"))):
-            dl_url[a.text] = direct["href"]
-
+    dl_url= Bypass().bypass_sbembed(link)
     count = len(dl_url)
     lst_link = [dl_url[i] for i in dl_url]
     return lst_link[count-1]
