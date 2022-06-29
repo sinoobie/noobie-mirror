@@ -41,7 +41,7 @@ def stats(update, context):
             f'🔻 <b>Download:</b> {recv}\n'\
             f'🖥️ <b>CPU:</b> {cpuUsage}%\n'\
             f'💾 <b>RAM:</b> {mem_p}%\n\n'\
-    stats += f'🤖 <b>Bot Version:</b> {botVersion}'
+            f'🤖 <b>Bot Version:</b> {botVersion}'
     smsg = sendMessage(stats, context.bot, update.message)
     Thread(target=auto_delete_message, args=(context.bot, update.message, smsg)).start()
 
