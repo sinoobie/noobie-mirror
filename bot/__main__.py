@@ -215,10 +215,10 @@ botcmds = [
         (f'{BotCommands.CancelAllCommand}','Cancel semua downloading tasks'),
         (f'{BotCommands.LeechSetCommand}','Leech settings'),
         (f'{BotCommands.SetThumbCommand}','Set Leech thumbnail'),
+        (f'{BotCommands.ListCommand}', 'Mencari file yang sudah ada di Drive'),
         (f'{BotCommands.StatusCommand}','Menampilkan status mirror'),
         (f'{BotCommands.StatsCommand}','Statistik penggunaan bot'),
         (f'{BotCommands.PingCommand}','Ping bot'),
-        (f'{BotCommands.RestartCommand}','Restart bot'),
         (f'{BotCommands.HelpCommand}','Mendapatkan detail perintah bot')
     ]
 
