@@ -31,17 +31,8 @@ def stats(update, context):
     sent = get_readable_file_size(net_io_counters().bytes_sent)
     recv = get_readable_file_size(net_io_counters().bytes_recv)
     cpuUsage = cpu_percent(interval=0.5)
-#    p_core = cpu_count(logical=False)
-#    t_core = cpu_count(logical=True)
-#    swap = swap_memory()
-#    swap_p = swap.percent
-#    swap_t = get_readable_file_size(swap.total)
-#    swap_u = get_readable_file_size(swap.used)
     memory = virtual_memory()
     mem_p = memory.percent
-#    mem_t = get_readable_file_size(memory.total)
-#    mem_a = get_readable_file_size(memory.available)
-#    mem_u = get_readable_file_size(memory.used)
     stats = f'🕒 <b>Bot Uptime:</b> {currentTime}\n\n'\
             f'💽 <b>Total Disk Space:</b> {total}\n'\
             f'📀 <b>Used:</b> {used}\n'\
@@ -50,13 +41,6 @@ def stats(update, context):
             f'🔻 <b>Download:</b> {recv}\n'\
             f'🖥️ <b>CPU:</b> {cpuUsage}%\n'\
             f'💾 <b>RAM:</b> {mem_p}%\n\n'\
-#            f'<b>DISK:</b> {disk}%\n'\
-#            f'<b>Physical Cores:</b> {p_core}\n'\
-#            f'<b>Total Cores:</b> {t_core}\n\n'\
-#            f'<b>SWAP:</b> {swap_t} | <b>Used:</b> {swap_p}%\n'\
-#            f'<b>Memory Total:</b> {mem_t}\n'\
-#            f'<b>Memory Free:</b> {mem_a}\n'\
-#            f'<b>Memory Used:</b> {mem_u}\n'\
     stats += f'🤖 <b>Bot Version:</b> {botVersion}'
     smsg = sendMessage(stats, context.bot, update.message)
     Thread(target=auto_delete_message, args=(context.bot, update.message, smsg)).start()
@@ -65,19 +49,9 @@ def stats(update, context):
 def start(update, context):
     buttons = ButtonMaker()
     buttons.buildbutton("Owner", "@SiNoobie")
-    buttons.buildbutton("Group", "tg://openmessage?chat_id=1501822053")
+    buttons.buildbutton("Group", "@cermin_in")
     reply_markup = InlineKeyboardMarkup(buttons.build_menu(2))
-    sendMarkup('Silahkan ke Grup untuk menggunakan bot!', context.bot, update, reply_markup)
-    """
-    if CustomFilters.authorized_user(update) or CustomFilters.authorized_chat(update):
-        start_string = f'''
-This bot can mirror all your links to Google Drive!
-Type /{BotCommands.HelpCommand} to get a list of available commands
-'''
-        sendMarkup(start_string, context.bot, update.message, reply_markup)
-    else:
-        sendMarkup('Not Authorized user, go to Group', context.bot, update.message, reply_markup)
-    """
+    sendMarkup('Silahkan gabung @cermin_in untuk menggunakan bot!', context.bot, update, reply_markup)
 
 def restart(update, context):
     restart_message = sendMessage("♻️ Restarting...", context.bot, update.message)
@@ -270,7 +244,7 @@ def main():
                                  osremove(".restartmsg")
                              else:
                                  try:
-                                     bot.sendMessage(cid, msg, 'HTML')
+                                     bot.sendMessage(cid, msg, 'HTML', disable_web_page_preview=True)
                                  except Exception as e:
                                      LOGGER.error(e)
                              msg = ''
@@ -279,31 +253,15 @@ def main():
                      osremove(".restartmsg")
                 else:
                     try:
-                        bot.sendMessage(cid, msg, 'HTML')
+                        bot.sendMessage(cid, msg, 'HTML', disable_web_page_preview=True)
                     except Exception as e:
                         LOGGER.error(e)
 
     if ospath.isfile(".restartmsg"):
         with open(".restartmsg") as f:
             chat_id, msg_id = map(int, f)
-        bot.edit_message_text("♻️ <b>Restarted successfully!</b>", chat_id, msg_id, parse_mode='HTMl', disable_web_page_preview=True)
+        bot.editMessageText("♻️ <b>Restarted successfully!</b>", chat_id, msg_id, parse_mode='HTMl', disable_web_page_preview=True)
         osremove(".restartmsg")
-
-    # OLD NOTIF
-    # if ospath.isfile(".restartmsg"):
-    #     with open(".restartmsg") as f:
-    #         chat_id, msg_id = map(int, f)
-    #     bot.edit_message_text("♻️ <b>Bot Restarted!</b>\n\n⚠️ <b><u>Seluruh proses mirror dihentikan</u></b>", chat_id, msg_id, parse_mode='HTMl', disable_web_page_preview=True)
-    #     osremove(".restartmsg")
-    # elif AUTHORIZED_CHATS:
-    #     try:
-    #         for chatId in AUTHORIZED_CHATS:
-    #             if str(chatId).startswith('-'):
-    #                 try:
-    #                     bot.sendMessage(chatId, "♻️ <b>Bot Restarted!</b>\n\n⚠️ <b><u>Seluruh proses mirror dihentikan</u></b>", "HTML")
-    #                 except: pass
-    #     except Exception as e:
-    #         LOGGER.error(e)
 
     start_handler = CommandHandler(BotCommands.StartCommand, start, run_async=True)
     ping_handler = CommandHandler(BotCommands.PingCommand, ping,

@@ -18,6 +18,7 @@ from bot import Interval, INDEX_URL, BUTTON_FOUR_NAME, BUTTON_FOUR_URL, BUTTON_F
 from bot.helper.ext_utils.bot_utils import is_url, is_magnet, is_gdtot_link, is_mega_link, is_gdrive_link, get_content_type, get_readable_time
 from bot.helper.ext_utils.fs_utils import get_base_name, get_path_size, split_file, clean_download
 from bot.helper.ext_utils.shortenurl import short_url
+from bot.helper.ext_utils.db_handler import DbManger
 from bot.helper.ext_utils.exceptions import DirectDownloadLinkException, NotSupportedExtractionArchive
 from bot.helper.mirror_utils.download_utils.aria2_download import add_aria2c_download
 from bot.helper.mirror_utils.download_utils.gd_downloader import add_gd_download
@@ -34,10 +35,9 @@ from bot.helper.mirror_utils.upload_utils.gdriveTools import GoogleDriveHelper
 from bot.helper.mirror_utils.upload_utils.pyrogramEngine import TgUploader
 from bot.helper.telegram_helper.bot_commands import BotCommands
 from bot.helper.telegram_helper.filters import CustomFilters
+from bot.helper.telegram_helper.button_build import ButtonMaker
 from bot.helper.telegram_helper.message_utils import sendMessage, sendMarkup, delete_all_messages, update_all_messages, \
                                                      deleteMessage, auto_delete_message, editMessage
-from bot.helper.telegram_helper.button_build import ButtonMaker
-from bot.helper.ext_utils.db_handler import DbManger
 
 
 class MirrorListener:
@@ -397,12 +397,12 @@ def _mirror(bot, message, isZip=False, extract=False, isQbit=False, isLeech=Fals
 
     if not is_mega_link(link) and not isQbit and not is_magnet(link) \
         and not is_gdrive_link(link) and not link.endswith('.torrent'):
+        host = urlparse(link).netloc
+        is_gdtot = is_gdtot_link(link)
         content_type = get_content_type(link)
-        if content_type is None or re_match(r'text/html|text/plain', content_type):
-            host = urlparse(link).netloc
+        if host == "github.com" or content_type is None or re_match(r'text/html|text/plain', content_type):
             try:
-                is_gdtot = is_gdtot_link(link)
-                if "uptobox.com" in host or "uploadhaven.com" in host:
+                if host == "uptobox.com" or host == "uploadhaven.com":
                     editMessage(f"ℹ️ {tag} Generating {host} direct link. Tunggu sebentar...", check_)
                     link = direct_link_generator(link, host)
                 else:
