@@ -83,6 +83,9 @@ def _watch(bot, message, isZip=False, isLeech=False, multi=0):
         return
 
 
+    if multi == 0:
+        check_ = sendMessage(f"ℹ️ {tag} Sedang memeriksa link, Tunggu sebentar...", bot, message)
+
     listener = MirrorListener(bot, message, isZip, isLeech=isLeech, pswd=pswd, tag=tag)
     buttons = button_build.ButtonMaker()
     best_video = "bv*+ba/b"
@@ -90,7 +93,11 @@ def _watch(bot, message, isZip=False, isLeech=False, multi=0):
     ydl = YoutubeDLHelper(listener)
     try:
         result = ydl.extractMetaData(link, name, args, True)
+        if multi == 0:
+            deleteMessage(bot, check_)
     except Exception as e:
+        if multi == 0:
+            deleteMessage(bot, check_)
         msg = str(e).replace('<', ' ').replace('>', ' ').replace(';','').split('please report this issue on')[0]
         return sendMessage(f"⚠️ {tag} {msg.strip()}", bot, message)
     if 'entries' in result:
