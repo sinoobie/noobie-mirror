@@ -91,7 +91,7 @@ help_string_telegraph = f'''<br>
 <b>/{BotCommands.UnzipMirrorCommand} [download_url] atau [magnet_link]</b>
 <br>Untuk mengekstraks file atau folder
 <br><br>
-<b>/{BotCommands.QbMirrorCommand}</b> [magnet_link] atau [torrent_file] atau [torrent_file_url]</b>
+<b>/{BotCommands.QbMirrorCommand} [magnet_link] atau [torrent_file] atau [torrent_file_url]</b>
 <br>Untuk mirror torrent dengan qBittorrent, Ketik <b>/{BotCommands.QbMirrorCommand} s</b> untuk memilih file sebelum download atau ketik <b>/{BotCommands.QbMirrorCommand} d</b> untuk seed spesifik torrent
 <br><br>
 <b>/{BotCommands.QbZipMirrorCommand} [magnet_link] atau [torrent_file] atau [torrent_file_url]</b>
