@@ -41,7 +41,7 @@ from bot.helper.telegram_helper.message_utils import sendMessage, sendMarkup, de
 
 
 class MirrorListener:
-    def __init__(self, bot, message, isZip=False, extract=False, isQbit=False, isLeech=False, pswd=None, tag=None):
+    def __init__(self, bot, message, isZip=False, extract=False, isQbit=False, isLeech=False, pswd=None, tag=None, seed=False):
         self.bot = bot
         self.message = message
         self.uid = self.message.message_id
@@ -51,15 +51,16 @@ class MirrorListener:
         self.isLeech = isLeech
         self.pswd = pswd
         self.tag = tag
+        self.seed = any([seed, QB_SEED])
         self.isPrivate = self.message.chat.type in ['private', 'group']
 
     def clean(self):
         try:
-            aria2.purge()
             Interval[0].cancel()
-            del Interval[0]
+            Interval.clear()
+            aria2.purge()
             delete_all_messages()
-        except IndexError:
+        except:
             pass
 
     def onDownloadStart(self):
@@ -95,7 +96,7 @@ class MirrorListener:
                 LOGGER.info('File to archive not found!')
                 self.onUploadError('Internal error occurred!!')
                 return
-            if not self.isQbit or not QB_SEED or self.isLeech:
+            if not self.isQbit or not self.seed or self.isLeech:
                 try:
                     rmtree(m_path)
                 except:
@@ -259,7 +260,7 @@ class MirrorListener:
             if BUTTON_SIX_NAME is not None and BUTTON_SIX_URL is not None:
                 buttons.buildbutton(f"{BUTTON_SIX_NAME}", f"{BUTTON_SIX_URL}")
             sendMarkup(msg, self.bot, self.message, InlineKeyboardMarkup(buttons.build_menu(2)))
-            if self.isQbit and QB_SEED and not self.extract:
+            if self.isQbit and self.seed and not self.extract:
                 if self.isZip:
                     try:
                         osremove(f'{DOWNLOAD_DIR}{self.uid}/{name}')
@@ -296,26 +297,31 @@ class MirrorListener:
         if not self.isPrivate and INCOMPLETE_TASK_NOTIFIER and DB_URI is not None:
             DbManger().rm_complete_task(self.message.link)
 
-def _mirror(bot, message, isZip=False, extract=False, isQbit=False, isLeech=False, pswd=None, multi=0):
+def _mirror(bot, message, isZip=False, extract=False, isQbit=False, isLeech=False, pswd=None, multi=0, qbsd=False):
     mesg = message.text.split('\n')
     message_args = mesg[0].split(maxsplit=1)
     name_args = mesg[0].split('|', maxsplit=1)
-    qbitsel = False
+    qbsel = False
+    index = 1
     is_gdtot = False
 
     if len(message_args) > 1:
-        link = message_args[1].strip()
-        if link.startswith("s ") or link == "s":
-            qbitsel = True
-            message_args = mesg[0].split(maxsplit=2)
-            if len(message_args) > 2:
-                link = message_args[2].strip()
-            else:
+        args = mesg[0].split(maxsplit=3)
+        if "s" in [x.strip() for x in args]:
+            qbsel = True
+            index += 1
+        if "d" in [x.strip() for x in args]:
+            qbsd = True
+            index += 1
+        message_args = mesg[0].split(maxsplit=index)
+        if len(message_args) > index:
+            link = message_args[index].strip()
+            if link.isdigit():
+                multi = int(link)
                 link = ''
-        elif link.isdigit():
-            multi = int(link)
-            link = ''
-        if link.startswith(("|", "pswd:")):
+            elif link.startswith(("|", "pswd:")):
+                link = ''
+        else:
             link = ''
     else:
         link = ''
@@ -361,9 +367,9 @@ def _mirror(bot, message, isZip=False, extract=False, isQbit=False, isLeech=Fals
         ):
 
             if file is None:
-                reply_text = reply_to.text
+                reply_text = reply_to.text.split(maxsplit=1)[0].strip()
                 if is_url(reply_text) or is_magnet(reply_text):
-                    link = reply_text.strip()
+                    link = reply_text
             elif file.mime_type != "application/x-bittorrent" and not isQbit:
                 listener = MirrorListener(bot, message, isZip, extract, isQbit, isLeech, pswd, tag)
                 Thread(target=TelegramDownloadHelper(listener).add_download, args=(message, f'{DOWNLOAD_DIR}{listener.uid}/', name)).start()
@@ -384,8 +390,8 @@ def _mirror(bot, message, isZip=False, extract=False, isQbit=False, isLeech=Fals
         help_msg += "\n<code>/command</code> {link} |newname pswd: mypassword [𝚣𝚒𝚙/𝚞𝚗𝚣𝚒𝚙]"
         help_msg += "\n\n<b>Direct link authorization:</b>"
         help_msg += "\n<code>/command</code> {link} |newname pswd: xx\nusername\npassword"
-        help_msg += "\n\n<b>Qbittorrent selection:</b>"
-        help_msg += "\n<code>/qbcommand</code> <b>s</b> {link}"
+        help_msg += "\n\n<b>Qbittorrent selection and seed:</b>"
+        help_msg += "\n<code>/qbcommand</code> <b>s</b>(for selection) <b>d</b>(for seeding) {link} or by replying to {file/link}"
         smsg = sendMessage(help_msg, bot, message)
         Thread(target=auto_delete_message, args=(bot, message, smsg)).start()
         return
@@ -400,7 +406,7 @@ def _mirror(bot, message, isZip=False, extract=False, isQbit=False, isLeech=Fals
         host = urlparse(link).netloc
         is_gdtot = is_gdtot_link(link)
         content_type = get_content_type(link)
-        if host == "github.com" or content_type is None or re_match(r'text/html|text/plain', content_type):
+        if content_type is None or re_match(r'text/html|text/plain', content_type):
             try:
                 if host == "uptobox.com" or host == "uploadhaven.com":
                     editMessage(f"ℹ️ {tag} Generating {host} direct link. Tunggu sebentar...", check_)
@@ -419,7 +425,7 @@ def _mirror(bot, message, isZip=False, extract=False, isQbit=False, isLeech=Fals
 
     if check_ != None:
         deleteMessage(bot, check_); check_ = None
-    listener = MirrorListener(bot, message, isZip, extract, isQbit, isLeech, pswd, tag)
+    listener = MirrorListener(bot, message, isZip, extract, isQbit, isLeech, pswd, tag, qbsd)
 
     if is_gdrive_link(link):
         if not isZip and not extract and not isLeech:
@@ -436,7 +442,7 @@ def _mirror(bot, message, isZip=False, extract=False, isQbit=False, isLeech=Fals
         else:
             sendMessage('MEGA_API_KEY not Provided!', bot, message)
     elif isQbit:
-        Thread(target=QbDownloader(listener).add_qb_torrent, args=(link, f'{DOWNLOAD_DIR}{listener.uid}', qbitsel)).start()
+        Thread(target=QbDownloader(listener).add_qb_torrent, args=(link, f'{DOWNLOAD_DIR}{listener.uid}', qbsel)).start()
     else:
         if len(mesg) > 1:
             try:

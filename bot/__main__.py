@@ -57,11 +57,12 @@ def restart(update, context):
     restart_message = sendMessage("♻️ Restarting...", context.bot, update.message)
     if Interval:
         Interval[0].cancel()
+        Interval.clear()
     alive.kill()
     clean_all()
     srun(["pkill", "-9", "-f", "gunicorn|extra-api|last-api|megasdkrest|new-api"])
     srun(["python3", "update.py"])
-    with open(".restartmsg", "w") as f: 
+    with open(".restartmsg", "w") as f:
         f.truncate(0)
         f.write(f"{restart_message.chat.id}\n{restart_message.message_id}\n")
     osexecl(executable, executable, "-m", "bot")
@@ -90,8 +91,8 @@ help_string_telegraph = f'''<br>
 <b>/{BotCommands.UnzipMirrorCommand} [download_url] atau [magnet_link]</b>
 <br>Untuk mengekstraks file atau folder
 <br><br>
-<b>/{BotCommands.QbMirrorCommand} [magnet_link] atau [torrent_file] atau [torrent_file_url]</b>
-<br>Untuk mirror torrent dengan qBittorrent, Ketik <b>/{BotCommands.QbMirrorCommand} s [magnet_link] atau [torrent_file] atau [torrent_file_url]</b> untuk memilih file sebelum mulai mirror
+<b>/{BotCommands.QbMirrorCommand}</b> [magnet_link] atau [torrent_file] atau [torrent_file_url]</b>
+<br>Untuk mirror torrent dengan qBittorrent, Ketik <b>/{BotCommands.QbMirrorCommand} s</b> untuk memilih file sebelum download atau ketik <b>/{BotCommands.QbMirrorCommand} d</b> untuk seed spesifik torrent
 <br><br>
 <b>/{BotCommands.QbZipMirrorCommand} [magnet_link] atau [torrent_file] atau [torrent_file_url]</b>
 <br>Untuk mirror torrent dengan qBittorrent lalu kemudian mengarsip file atau folder ke zip
