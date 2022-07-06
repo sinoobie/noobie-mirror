@@ -18,7 +18,7 @@ class QbDownloadStatus:
         self.message = listener.message
 
     def __update(self):
-        self.__info = get_download(self.__obj.client, self.__self.__uid)
+        self.__info = get_download(self.__obj.client, self.__uid)
 
     def progress(self):
         """
