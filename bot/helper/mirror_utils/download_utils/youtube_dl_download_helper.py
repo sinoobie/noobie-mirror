@@ -65,7 +65,7 @@ class YoutubeDLHelper:
                      'allow_multiple_video_streams': True,
                      'allow_multiple_audio_streams': True,
                      'trim_file_name': 200,
-                     'extract_flat': True,
+                     'extract_flat': 'in_palylist',
                      'ffmpeg_location': '/bin/new-api'}
 
     @property
@@ -141,7 +141,7 @@ class YoutubeDLHelper:
         else:
             ext = realName.split('.')[-1]
             if name == "":
-                newname = str(realName).split(f" [{result['id'].replace('*', '_')}]")
+                newname = realName.split(f" [{result['id'].replace('*', '_')}]")
                 if len(newname) > 1:
                     self.name = newname[0] + '.' + ext
                 else:
@@ -167,6 +167,7 @@ class YoutubeDLHelper:
     def add_download(self, link, path, name, qual, playlist, args):
         if playlist:
             self.opts['ignoreerrors'] = True
+            self.is_playlist = True
         self.__gid = ''.join(SystemRandom().choices(ascii_letters + digits, k=10))
         self.__onDownloadStart()
         if qual.startswith('ba/b'):
