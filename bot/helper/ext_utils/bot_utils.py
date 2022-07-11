@@ -115,8 +115,8 @@ def get_progress_bar_string(status):
 def get_readable_message():
     with download_dict_lock:
         msg = ""
-        if STATUS_LIMIT is not None:
-            tasks = len(download_dict)
+        tasks = len(download_dict)
+        if STATUS_LIMIT:
             global pages
             pages = ceil(tasks/STATUS_LIMIT)
             if PAGE_NO > pages and pages != 0:
@@ -193,7 +193,7 @@ def get_readable_message():
                 elif 'MB/s' in spd:
                     upspeed_bytes += float(spd.split('M')[0]) * 1048576
         bmsg += f"\n🔻 <b>DL:</b> {get_readable_file_size(dlspeed_bytes)}/s | 🔺 <b>UL:</b> {get_readable_file_size(upspeed_bytes)}/s"
-        if STATUS_LIMIT is not None and tasks > STATUS_LIMIT:
+        if STATUS_LIMIT:
             msg += f" | 📑 <b>Page:</b> {PAGE_NO}/{pages}"
             buttons = ButtonMaker()
             buttons.sbutton("⏪ Previous", "status pre")
