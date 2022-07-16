@@ -4,6 +4,7 @@ from bot import DOWNLOAD_DIR, LOGGER
 from bot.helper.ext_utils.bot_utils import get_readable_file_size, MirrorStatus, get_readable_time
 from bot.helper.ext_utils.fs_utils import get_path_size
 
+
 class ExtractStatus:
     def __init__(self, name, size, gid, listener):
         self.__name = name
@@ -37,6 +38,9 @@ class ExtractStatus:
 
     def size_raw(self):
         return self.__size
+
+    def size(self):
+        return get_readable_file_size(self.__size)
 
     def eta(self):
         try:

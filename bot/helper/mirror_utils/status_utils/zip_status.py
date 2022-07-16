@@ -4,11 +4,11 @@ from bot import DOWNLOAD_DIR, LOGGER
 from bot.helper.ext_utils.bot_utils import get_readable_file_size, MirrorStatus, get_readable_time
 from bot.helper.ext_utils.fs_utils import get_path_size
 
+
 class ZipStatus:
     def __init__(self, name, size, gid, listener):
         self.__name = name
         self.__size = size
-        self.message = message
         self.__gid = gid
         self.__listener = listener
         self.__uid = listener.uid
