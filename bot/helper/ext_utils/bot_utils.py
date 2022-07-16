@@ -137,7 +137,7 @@ def get_readable_message():
             ### AKHIR CUSTOM STATUS ###
             msg += f"💽 <code>{escape(str(download.name()))}</code>"
             msg += f"\n<a href=\"{link}\"><b>{download.status()}</b></a>"
-            if download.status() not in [MirrorStatus.STATUS_SPLITTING, MirrorStatus.STATUS_SEEDING]:
+            if download.status() not in [MirrorStatus.STATUS_SEEDING]:
                 msg += f"\n🌀 {get_progress_bar_string(download)} {download.progress()}"
                 msg += f"\n📦 {get_readable_file_size(download.processed_bytes())} / {download.size()}"
                 msg += f"\n⚡️ {download.speed()} | ⏳ {download.eta()}"
