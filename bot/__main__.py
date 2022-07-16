@@ -18,7 +18,7 @@ from .helper.telegram_helper.message_utils import sendMessage, sendMarkup, editM
 from .helper.telegram_helper.filters import CustomFilters
 from .helper.telegram_helper.button_build import ButtonMaker
 
-from .modules import authorize, list, cancel_mirror, mirror_status, mirror, clone, watch, shell, eval, delete, count, leech_settings, search, rss
+from .modules import authorize, list, cancel_mirror, mirror_status, mirror, clone, watch, shell, eval, delete, count, leech_settings, search, rss, qbselect
 
 
 def stats(update, context):
@@ -138,6 +138,9 @@ help_string_telegraph = f'''<br>
 <br><br>
 <b>/{BotCommands.LeechZipWatchCommand} [YouTube link]</b>
 <br>Leech (upload ke telegram) YouTube link as zip
+<br><br>
+<b>/{BotCommands.QbSelectCommand}</b>
+<br>Perintah ini terutama untuk pemilihan jika Anda memutuskan untuk memilih file dari qb-torrent yang sudah ditambahkan, Tetapi kamu juga dapat menggunakan perintah /qb dengan arg `s` untuk memilih file sebelum pengunduhan dimulai. Cara penggunaan: Balas perintah aktif /qb yang digunakan untuk memulai qb-download atau menambahkan id download bersama dengan perintah ini.
 <br><br>
 <b>/{BotCommands.LeechSetCommand}</b>: Leech settings
 <br><br>

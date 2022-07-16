@@ -6,12 +6,8 @@ class TgUploadStatus:
     def __init__(self, obj, size, gid, listener):
         self.__obj = obj
         self.__size = size
-        self.__uid = listener.uid
         self.__gid = gid
         self.message = listener.message
-
-    def path(self):
-        return f"{DOWNLOAD_DIR}{self.__uid}"
 
     def processed_bytes(self):
         return self.__obj.uploaded_bytes
@@ -31,7 +27,7 @@ class TgUploadStatus:
     def progress_raw(self):
         try:
             return self.__obj.uploaded_bytes / self.__size * 100
-        except ZeroDivisionError:
+        except:
             return 0
 
     def progress(self):
@@ -50,7 +46,7 @@ class TgUploadStatus:
         try:
             seconds = (self.__size - self.__obj.uploaded_bytes) / self.speed_raw()
             return f'{get_readable_time(seconds)}'
-        except ZeroDivisionError:
+        except:
             return '-'
 
     def gid(self) -> str:
