@@ -112,8 +112,8 @@ class MirrorListener:
                 with download_dict_lock:
                     download_dict[self.uid] = ExtractStatus(name, size, gid, self)
                 if ospath.isdir(m_path):
-                    for dirpath, subdir, files in walk(m_path, topdown=False):
-                        try:
+                    try:
+                        for dirpath, subdir, files in walk(m_path, topdown=False):
                             for file_ in files:
                                 if file_.endswith((".zip", ".7z")) or re_search(r'\.part0*1\.rar$|\.7z\.0*1$|\.zip\.0*1$', file_) \
                                    or (file_.endswith(".rar") and not re_search(r'\.part\d+\.rar$', file_)):
@@ -133,8 +133,8 @@ class MirrorListener:
                                         re_search(r'\.r\d+$|\.7z\.\d+$|\.z\d+$|\.zip\.\d+$', file_):
                                         del_path = ospath.join(dirpath, file_)
                                         osremove(del_path)
-                        except Exception as err:
-                            LOGGER.error(f'An error ({err}) occurred while extracting! Uploading anyway')
+                    except Exception as err:
+                        LOGGER.error(f'An error ({err}) occurred while extracting! Uploading anyway')
                     path = f'{DOWNLOAD_DIR}{self.uid}/{name}'
                 else:
                     if self.pswd is not None:
