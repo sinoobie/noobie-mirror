@@ -147,7 +147,7 @@ class MirrorListener:
                     else:
                         LOGGER.error('Unable to extract archive! Uploading anyway')
                         path = f'{DOWNLOAD_DIR}{self.uid}/{name}'
-            except NotSupportedExtractionArchive:
+            except:
                 LOGGER.info("Not any valid archive, uploading file as it is.")
                 path = f'{DOWNLOAD_DIR}{self.uid}/{name}'
         else:
