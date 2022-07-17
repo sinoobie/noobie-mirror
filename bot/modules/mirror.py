@@ -113,25 +113,28 @@ class MirrorListener:
                     download_dict[self.uid] = ExtractStatus(name, size, gid, self)
                 if ospath.isdir(m_path):
                     for dirpath, subdir, files in walk(m_path, topdown=False):
-                        for file_ in files:
-                            if file_.endswith((".zip", ".7z")) or re_search(r'\.part0*1\.rar$|\.7z\.0*1$|\.zip\.0*1$', file_) \
-                               or (file_.endswith(".rar") and not re_search(r'\.part\d+\.rar$', file_)):
-                                m_path = ospath.join(dirpath, file_)
-                                if self.pswd is not None:
-                                    self.ext_proc = Popen(["7z", "x", f"-p{self.pswd}", m_path, f"-o{dirpath}", "-aot"])
-                                else:
-                                    self.ext_proc = Popen(["7z", "x", m_path, f"-o{dirpath}", "-aot"])
-                                self.arch_proc.wait()
-                                if self.ext_proc.returncode == -9:
-                                    return
-                                elif self.ext_proc.returncode != 0:
-                                    LOGGER.error('Unable to extract archive splits! Uploading anyway')
-                        if self.ext_proc.returncode == 0:
+                        try:
                             for file_ in files:
-                                if file_.endswith((".rar", ".zip", ".7z")) or \
-                                    re_search(r'\.r\d+$|\.7z\.\d+$|\.z\d+$|\.zip\.\d+$', file_):
-                                    del_path = ospath.join(dirpath, file_)
-                                    osremove(del_path)
+                                if file_.endswith((".zip", ".7z")) or re_search(r'\.part0*1\.rar$|\.7z\.0*1$|\.zip\.0*1$', file_) \
+                                   or (file_.endswith(".rar") and not re_search(r'\.part\d+\.rar$', file_)):
+                                    m_path = ospath.join(dirpath, file_)
+                                    if self.pswd is not None:
+                                        self.ext_proc = Popen(["7z", "x", f"-p{self.pswd}", m_path, f"-o{dirpath}", "-aot"])
+                                    else:
+                                        self.ext_proc = Popen(["7z", "x", m_path, f"-o{dirpath}", "-aot"])
+                                    self.arch_proc.wait()
+                                    if self.ext_proc.returncode == -9:
+                                        return
+                                    elif self.ext_proc.returncode != 0:
+                                        LOGGER.error('Unable to extract archive splits! Uploading anyway')
+                            if self.ext_proc.returncode == 0:
+                                for file_ in files:
+                                    if file_.endswith((".rar", ".zip", ".7z")) or \
+                                        re_search(r'\.r\d+$|\.7z\.\d+$|\.z\d+$|\.zip\.\d+$', file_):
+                                        del_path = ospath.join(dirpath, file_)
+                                        osremove(del_path)
+                        except Exception as err:
+                            LOGGER.error(f'An error ({err}) occurred while extracting! Uploading anyway')
                     path = f'{DOWNLOAD_DIR}{self.uid}/{name}'
                 else:
                     if self.pswd is not None:
@@ -147,7 +150,7 @@ class MirrorListener:
                     else:
                         LOGGER.error('Unable to extract archive! Uploading anyway')
                         path = f'{DOWNLOAD_DIR}{self.uid}/{name}'
-            except:
+            except NotSupportedExtractionArchive:
                 LOGGER.info("Not any valid archive, uploading file as it is.")
                 path = f'{DOWNLOAD_DIR}{self.uid}/{name}'
         else:
