@@ -121,19 +121,19 @@ def get_readable_message():
         for index, download in enumerate(list(download_dict.values())[COUNT:], start=1):
             ### AWAL CUSTOM STATUS ###
             pemirror = download.Pemirror()
-            link = f"https://t.me/c/{str(pemirror.chat.id)[4:]}/{pemirror.message_id}"
-            if pemirror.from_user.username:
-                tag = f"<code>@{pemirror.from_user.username}</code> (<code>{pemirror.from_user.id}</code>)"
-            else:
-                tag = f"<code>{pemirror.from_user.first_name}</code> (<code>{pemirror.from_user.id}</code>)"
             reply_to = pemirror.reply_to_message
-            if reply_to:
+            if not reply_to or reply_to.from_user.is_bot:
+                link = f"https://t.me/c/{str(pemirror.chat.id)[4:]}/{pemirror.message_id}"
+                if pemirror.from_user.username:
+                    tag = f"<code>@{pemirror.from_user.username}</code> (<code>{pemirror.from_user.id}</code>)"
+                else:
+                    tag = f"<code>{pemirror.from_user.first_name}</code> (<code>{pemirror.from_user.id}</code>)"
+            else:
                 link = f"https://t.me/c/{str(pemirror.chat.id)[4:]}/{reply_to.message_id}"
-                if not reply_to.from_user.is_bot:
-                    if reply_to.from_user.username:
-                        tag = f"<code>@{reply_to.from_user.username}</code> (<code>{reply_to.from_user.id}</code>)"
-                    else:
-                        tag = f"<code>{reply_to.from_user.first_name}</code> (<code>{reply_to.from_user.id}</code>)"
+                if reply_to.from_user.username:
+                    tag = f"<code>@{reply_to.from_user.username}</code> (<code>{reply_to.from_user.id}</code>)"
+                else:
+                    tag = f"<code>{reply_to.from_user.first_name}</code> (<code>{reply_to.from_user.id}</code>)"
             ### AKHIR CUSTOM STATUS ###
             msg += f"💽 <code>{escape(str(download.name()))}</code>"
             msg += f"\n<a href=\"{link}\"><b>{download.status()}</b></a>"

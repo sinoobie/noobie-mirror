@@ -216,6 +216,7 @@ class MirrorListener:
     def onUploadComplete(self, link: str, size, files, folders, typ, name: str):
         if not self.isPrivate and INCOMPLETE_TASK_NOTIFIER and DB_URI is not None:
             DbManger().rm_complete_task(self.message.link)
+        reply_to = self.message.reply_to_message
         msg = f'📁 <b>Nama: </b><code>{escape(name)}</code>\n'
         msg += f'📦 <b>Ukuran: </b>{size}\n'
         if self.isLeech:
@@ -224,10 +225,10 @@ class MirrorListener:
                 msg += f'🧩 <b>Corrupted Files: </b>{typ}\n'
             msg += f'⏱ <b>Selesai Dalam: </b>{get_readable_time(time() - self.message.date.timestamp())}\n'
             msg += f'\n👤 <b>Leecher: </b>{self.tag}\n'
-            if self.message.reply_to_message is not None:
-                msg += f'#️⃣ <b>UID: </b><code>{self.message.reply_to_message.from_user.id}</code>\n\n'
+            if not reply_to or reply_to.from_user.is_bot:
+                msg += f'#️⃣ <b>UID: </b><code>{self.message.from_user.id}</code>'
             else:
-                msg += f'#️⃣ <b>UID: </b><code>{self.message.from_user.id}</code>\n\n'
+                msg += f'#️⃣ <b>UID: </b><code>{reply_to.from_user.id}</code>'
             if not files:
                 sendMessage(msg, self.bot, self.message)
             else:
@@ -247,10 +248,10 @@ class MirrorListener:
                 msg += f'📄 <b>Files: </b>{files}\n'
             msg += f'⏱ <b>Selesai Dalam: </b>{get_readable_time(time() - self.message.date.timestamp())}\n'
             msg += f'\n👤 <b>Pemirror: </b>{self.tag}\n'
-            if self.message.reply_to_message is not None:
-                msg += f'#️⃣ <b>UID: </b><code>{self.message.reply_to_message.from_user.id}</code>'
-            else:
+            if not reply_to or reply_to.from_user.is_bot:
                 msg += f'#️⃣ <b>UID: </b><code>{self.message.from_user.id}</code>'
+            else:
+                msg += f'#️⃣ <b>UID: </b><code>{reply_to.from_user.id}</code>'
             buttons = ButtonMaker()
             link = short_url(link)
             buttons.buildbutton("☁️ Drive Link", link)
@@ -486,9 +487,6 @@ def _mirror(bot, message, isZip=False, extract=False, isQbit=False, isLeech=Fals
         multi -= 1
         sleep(4)
         Thread(target=_mirror, args=(bot, nextmsg, isZip, extract, isQbit, isLeech, pswd, multi)).start()
-
-    # if (isLeech is False) and (reply_to is None):
-    #     deleteMessage(bot, message)
 
 def mirror(update, context):
     _mirror(context.bot, update.message)

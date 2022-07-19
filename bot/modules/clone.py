@@ -113,9 +113,10 @@ def _clone(message, bot, multi=0):
             deleteMessage(bot, _msg)
         cc = f'\n⏱ <b>Selesai Dalam: </b>{get_readable_time(time() - message.date.timestamp())}'
         cc += f'\n\n👤 <b>Pemirror: </b>{tag}'
-        if reply_to is not None:
+        if not reply_to or reply_to.from_user.is_bot:
+            cc += f'\n#️⃣ <b>UID: </b><code>{message.from_user.id}</code>'
+        else:
             cc += f'\n#️⃣ <b>UID: </b><code>{reply_to.from_user.id}</code>'
-        else: cc += f'\n#️⃣ <b>UID: </b><code>{message.from_user.id}</code>'
         if button in ["cancelled", ""]:
             sendMessage(f"⚠️ {tag} {result}", bot, message)
         else:
@@ -127,8 +128,6 @@ def _clone(message, bot, multi=0):
             if apdict.get('link_type') == 'login':
                 LOGGER.info(f"Deleting: {link}")
                 gd.deletefile(link)
-        # if reply_to is None:
-        #     deleteMessage(bot, message)
     else:
         smsg = sendMessage(f'ℹ️ Ketik Gdrive/gdtot/appdrive link yang mau di-mirror.', bot, message)
         Thread(target=auto_delete_message, args=(bot, message, smsg)).start()
