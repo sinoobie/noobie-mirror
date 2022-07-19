@@ -143,7 +143,7 @@ def zippy_share(url: str) -> str:
         var_b = re.findall(r"\.omg.=.\"(.*?)\"\.", js_script)[0][0:3]
         uri1 = re.findall(r"\.href.=.\"/(.*?)/\"", js_script)[0]
         uri2 = re.findall(r"\+\"/(.*?)\"", js_script)[0]
-        dl_url = f"{base_url}/{uri1}/{math.pow(int(var_a), 3)+len(var_b)}/{uri2}"
+        dl_url = f"{base_url}/{uri1}/{int(math.pow(int(var_a), 3)+len(var_b))}/{uri2}"
         return dl_url
     except Exception as e:
         LOGGER.error(e)
