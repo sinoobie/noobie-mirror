@@ -139,11 +139,10 @@ def zippy_share(url: str) -> str:
                 js_script = str(js_script.find_all("script")[1])
             else:
                 raise DirectDownloadLinkException("ERROR: File not found, periksa link anda")
-        var_a = re.findall(r"var.[ab].=.(\d+)", js_script)[0]
-        var_b = re.findall(r"\.omg.=.\"(.*?)\"\.", js_script)[0][0:3]
+        var_a = re.findall(r"var.a.=.(\d+)", js_script)[0]
         uri1 = re.findall(r"\.href.=.\"/(.*?)/\"", js_script)[0]
         uri2 = re.findall(r"\+\"/(.*?)\"", js_script)[0]
-        dl_url = f"{base_url}/{uri1}/{int(math.pow(int(var_a), 3)+len(var_b))}/{uri2}"
+        dl_url = f"{base_url}/{uri1}/{int(math.pow(int(var_a),3)+3)}/{uri2}"
         return dl_url
     except Exception as e:
         LOGGER.error(e)
