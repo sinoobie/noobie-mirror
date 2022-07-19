@@ -24,17 +24,18 @@ def _clone(message, bot, multi=0):
         if link.strip().isdigit():
             multi = int(link)
             link = ''
-        elif message.from_user.username:
-            tag = f"@{message.from_user.username}"
-        else:
-            tag = message.from_user.mention_html(message.from_user.first_name)
+    if message.from_user.username:
+        tag = f"@{message.from_user.username}"
+    else:
+        tag = message.from_user.mention_html(message.from_user.first_name)
     if reply_to:
         if len(link) == 0:
             link = reply_to.text.split(maxsplit=1)[0].strip()
-        if reply_to.from_user.username:
-            tag = f"@{reply_to.from_user.username}"
-        else:
-            tag = reply_to.from_user.mention_html(reply_to.from_user.first_name)
+        if not reply_to.from_user.is_bot:
+            if reply_to.from_user.username:
+                tag = f"@{reply_to.from_user.username}"
+            else:
+                tag = reply_to.from_user.mention_html(reply_to.from_user.first_name)
     is_gdtot = is_gdtot_link(link)
     is_appdrive = is_appdrive_link(link)
     if is_gdtot:
