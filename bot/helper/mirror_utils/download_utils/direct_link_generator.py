@@ -123,8 +123,8 @@ def uptobox(url: str) -> str:
 
 def zippy_share(url: str) -> str:
     try:
-        base_url = re.search('http.+.zippyshare.com', link).group()
-        response = requests.get(link).content
+        base_url = re.search('http.+.zippyshare.com', url).group()
+        response = requests.get(url).content
         pages = BeautifulSoup(response, "lxml")
         try:
             js_script = pages.find("div", {"class": "center"})
