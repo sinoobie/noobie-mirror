@@ -9,6 +9,7 @@ than the modifications. See https://github.com/AvinashReddy3108/PaperplaneExtend
 for original authorship. """
 
 import requests
+import math
 import re
 
 from base64 import b64decode
