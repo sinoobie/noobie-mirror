@@ -130,13 +130,13 @@ def zippy_share(url: str) -> str:
         try:
             js_script = pages.find("div", {"class": "center"})
             if js_script:
-                js_script = str(js_script.find_all("script")[1])
+                js_script = str(js_script.find_all("script")[0])
             else:
                 raise DirectDownloadLinkException("ERROR: File not found, periksa link anda")
         except IndexError:
             js_script = pages.find("div", {"class": "right"})
             if js_script:
-                js_script = str(js_script.find_all("script")[1])
+                js_script = str(js_script.find_all("script")[0])
             else:
                 raise DirectDownloadLinkException("ERROR: File not found, periksa link anda")
         var_a = re.findall(r"var.a.=.(\d+)", js_script)[0]
