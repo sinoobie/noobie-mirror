@@ -223,12 +223,12 @@ class MirrorListener:
             msg += f'📄 <b>Total Files: </b>{folders}\n'
             if typ != 0:
                 msg += f'🧩 <b>Corrupted Files: </b>{typ}\n'
-            msg += f'⏱ <b>Selesai Dalam: </b>{get_readable_time(time() - self.message.date.timestamp())}\n'
-            msg += f'\n👤 <b>Leecher: </b>{self.tag}\n'
+            msg += f'⏱ <b>Selesai Dalam: </b>{get_readable_time(time() - self.message.date.timestamp())}\n\n'
+            msg += f'👤 <b>Leecher: </b>{self.tag}\n'
             if not reply_to or reply_to.from_user.is_bot:
-                msg += f'#️⃣ <b>UID: </b><code>{self.message.from_user.id}</code>'
+                msg += f'#️⃣ <b>UID: </b><code>{self.message.from_user.id}</code>\n\n'
             else:
-                msg += f'#️⃣ <b>UID: </b><code>{reply_to.from_user.id}</code>'
+                msg += f'#️⃣ <b>UID: </b><code>{reply_to.from_user.id}</code>\n\n'
             if not files:
                 sendMessage(msg, self.bot, self.message)
             else:
@@ -246,8 +246,8 @@ class MirrorListener:
             if ospath.isdir(f'{DOWNLOAD_DIR}{self.uid}/{name}'):
                 msg += f'📂 <b>SubFolders: </b>{folders}\n'
                 msg += f'📄 <b>Files: </b>{files}\n'
-            msg += f'⏱ <b>Selesai Dalam: </b>{get_readable_time(time() - self.message.date.timestamp())}\n'
-            msg += f'\n👤 <b>Pemirror: </b>{self.tag}\n'
+            msg += f'⏱ <b>Selesai Dalam: </b>{get_readable_time(time() - self.message.date.timestamp())}\n\n'
+            msg += f'👤 <b>Pemirror: </b>{self.tag}\n'
             if not reply_to or reply_to.from_user.is_bot:
                 msg += f'#️⃣ <b>UID: </b><code>{self.message.from_user.id}</code>'
             else:
