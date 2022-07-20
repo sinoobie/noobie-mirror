@@ -123,30 +123,39 @@ def uptobox(url: str) -> str:
     return dl_url
 
 def zippy_share(url: str) -> str:
+    base_url = re.search('http.+.zippyshare.com', url).group()
+    response = requests.get(url).content
+    pages = BeautifulSoup(response, "html.parser")
+
     try:
-        base_url = re.search('http.+.zippyshare.com', url).group()
-        response = requests.get(url).content
-        pages = BeautifulSoup(response, "lxml")
-        try:
-            js_script = pages.find("div", {"class": "center"})
-            if js_script:
-                js_script = str(js_script.find_all("script")[0])
-            else:
-                raise DirectDownloadLinkException("ERROR: File not found, periksa link anda")
-        except IndexError:
-            js_script = pages.find("div", {"class": "right"})
-            if js_script:
-                js_script = str(js_script.find_all("script")[0])
-            else:
-                raise DirectDownloadLinkException("ERROR: File not found, periksa link anda")
+        js_script = pages.find("div", {"class": "center"})
+        if js_script:
+            js_script = str(js_script.find_all("script")[1])
+        else:
+            raise DirectDownloadLinkException("ERROR: File not found, periksa link anda")
+    except IndexError:
+        js_script = pages.find("div", {"class": "right"})
+        if js_script:
+            js_script = str(js_script.find_all("script")[1])
+        else:
+            raise DirectDownloadLinkException("ERROR: File not found, periksa link anda")
+
+    try:
         var_a = re.findall(r"var.a.=.(\d+)", js_script)[0]
-        uri1 = re.findall(r"\.href.=.\"/(.*?)/\"", js_script)[0]
+        mtk = int(math.pow(int(var_a),3) + 3)
+        uri1 = re.findall(r".href.=.\"/(.*?)/\"", js_script)[0]
         uri2 = re.findall(r"\+\"/(.*?)\"", js_script)[0]
-        dl_url = f"{base_url}/{uri1}/{int(math.pow(int(var_a),3)+3)}/{uri2}"
-        return dl_url
-    except Exception as e:
-        LOGGER.error(e)
-        raise DirectDownloadLinkException("ERROR: Tidak dapat mengambil direct link")
+    except:
+        LOGGER.info("Frist zippyshare generate direct link method failed, try another one")
+        try:
+            mtk = eval(re.findall(r"\+.\((.*?)\).\+", js_script)[0])
+            uri1 = re.findall(r".href.=.\"/(.*?)/\"", js_script)[0]
+            uri2 = re.findall(r"\).\+.\"/(.*?)\"", js_script)[0]
+        except Exception as err:
+            LOGGER.error(err)
+            raise DirectDownloadLinkException("ERROR: Tidak dapat mengambil direct link")
+    dl_url = f"{base_url}/{uri1}/{mtk}/{uri2}"
+    return dl_url
 
 def yandex_disk(url: str) -> str:
     """ Yandex.Disk direct link generator
