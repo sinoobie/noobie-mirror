@@ -355,7 +355,7 @@ def fichier(link: str) -> str:
         else:
             return dl_url
     elif len(soup.find_all("div", {"class": "ct_warn"})) == 2:
-        str_2 = soup.find_all("div", {"class": "ct_warn"})[-1]
+        str_2 = soup.find_all("div", {"class": "ct_warn"})
         if "you must wait" in str(str_2).lower():
             numbers = [int(word) for word in str(str_2).split() if word.isdigit()]
             if not numbers:
