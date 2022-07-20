@@ -354,8 +354,8 @@ def fichier(link: str) -> str:
             raise DirectDownloadLinkException("ERROR: Tidak dapat mengambil direct link 1fichier!")
         else:
             return dl_url
-    elif len(soup.find_all("div", {"class": "ct_warn"})) == 2:
-        str_2 = soup.find_all("div", {"class": "ct_warn"})
+    elif len(soup.find_all("div", {"class": "ct_warn"})) == 3:
+        str_2 = soup.find_all("div", {"class": "ct_warn"})[-1]
         if "you must wait" in str(str_2).lower():
             numbers = [int(word) for word in str(str_2).split() if word.isdigit()]
             if not numbers:
@@ -367,7 +367,7 @@ def fichier(link: str) -> str:
         else:
             print(str_2)
             raise DirectDownloadLinkException("ERROR: Gagal ketika generate direct link 1fichier!")
-    elif len(soup.find_all("div", {"class": "ct_warn"})) == 3:
+    elif len(soup.find_all("div", {"class": "ct_warn"})) == 4:
         str_1 = soup.find_all("div", {"class": "ct_warn"})[-2]
         str_3 = soup.find_all("div", {"class": "ct_warn"})[-1]
         if "you must wait" in str(str_1).lower():
@@ -379,10 +379,8 @@ def fichier(link: str) -> str:
         elif "bad password" in str(str_3).lower():
             raise DirectDownloadLinkException("ERROR: Password yang kamu masukan salah!")
         else:
-            print(str_1,str_3)
             raise DirectDownloadLinkException("ERROR: Gagal ketika generate direct link 1fichier!")
     else:
-        print(soup)
         raise DirectDownloadLinkException("ERROR: Gagal ketika generate direct link 1fichier!")
 
 def solidfiles(url: str) -> str:
