@@ -124,21 +124,22 @@ def uptobox(url: str) -> str:
 
 def zippy_share(url: str) -> str:
     base_url = re.search('http.+.zippyshare.com', url).group()
-    response = requests.get(url).content
-    pages = BeautifulSoup(response, "html.parser")
+    response = requests.get(url)
+    pages = BeautifulSoup(response.text, "html.parser")
 
     try:
         js_script = pages.find("div", {"class": "center"})
-        if js_script:
-            js_script = str(js_script.find_all("script")[1])
+        if 'id="dlbutton"' in str(js_script):
+            js_script = str(js_script.find_all("script")[-1])
         else:
-            raise DirectDownloadLinkException("ERROR: File not found, periksa link anda")
-    except IndexError:
-        js_script = pages.find("div", {"class": "right"})
-        if js_script:
-            js_script = str(js_script.find_all("script")[1])
-        else:
-            raise DirectDownloadLinkException("ERROR: File not found, periksa link anda")
+            js_script = pages.find("div", {"class": "right"})
+            if 'id="dlbutton"' in str(js_script):
+                js_script = str(js_script.find_all("script")[-1])
+            else:
+                raise DirectDownloadLinkException("ERROR: File not found, periksa link anda")
+    except Exception as err:
+        LOGGER.error(err)
+        raise DirectDownloadLinkException("ERROR: Tidak dapat mengambil direct link")
 
     try:
         var_a = re.findall(r"var.a.=.(\d+)", js_script)[0]
