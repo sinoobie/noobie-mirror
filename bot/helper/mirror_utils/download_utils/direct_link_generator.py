@@ -347,7 +347,7 @@ def fichier(link: str) -> str:
         raise DirectDownloadLinkException("ERROR: Server 1fichier sedang down!")
     if req.status_code == 404:
         raise DirectDownloadLinkException("ERROR: File not found/The link you entered is wrong!")
-    soup = BeautifulSoup(req.content, 'lxml')
+    soup = BeautifulSoup(req.content, 'html.parser')
     if soup.find("a", {"class": "ok btn-general btn-orange"}) is not None:
         dl_url = soup.find("a", {"class": "ok btn-general btn-orange"})["href"]
         if dl_url is None:
