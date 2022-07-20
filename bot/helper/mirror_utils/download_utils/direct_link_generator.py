@@ -382,6 +382,7 @@ def fichier(link: str) -> str:
             LOGGER.info(str_1,str_3)
             raise DirectDownloadLinkException("ERROR: Gagal ketika generate direct link 1fichier!")
     else:
+        LOGGER.info(soup)
         raise DirectDownloadLinkException("ERROR: Gagal ketika generate direct link 1fichier!")
 
 def solidfiles(url: str) -> str:
