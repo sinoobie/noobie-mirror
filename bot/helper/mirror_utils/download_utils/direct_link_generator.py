@@ -365,7 +365,7 @@ def fichier(link: str) -> str:
         elif "protect access" in str(str_2).lower():
             raise DirectDownloadLinkException(f"ERROR: Link ini memerlukan password!\n\n- Tambahkan tanda <b>::</b> setelah link dan ketik password setelah tanda tersebut.\n\n<b>Contoh:</b>\n<code>/{BotCommands.MirrorCommand} https://1fichier.com/?smmtd8twfpm66awbqz04::love you</code>\n\n* Tanpa spasi diantara link dan password <b>::</b>\n* Tapi password bisa memakai spasi")
         else:
-            LOGGER.info(str_2)
+            print(str_2)
             raise DirectDownloadLinkException("ERROR: Gagal ketika generate direct link 1fichier!")
     elif len(soup.find_all("div", {"class": "ct_warn"})) == 3:
         str_1 = soup.find_all("div", {"class": "ct_warn"})[-2]
@@ -379,10 +379,10 @@ def fichier(link: str) -> str:
         elif "bad password" in str(str_3).lower():
             raise DirectDownloadLinkException("ERROR: Password yang kamu masukan salah!")
         else:
-            LOGGER.info(str_1,str_3)
+            print(str_1,str_3)
             raise DirectDownloadLinkException("ERROR: Gagal ketika generate direct link 1fichier!")
     else:
-        LOGGER.info(soup)
+        print(soup)
         raise DirectDownloadLinkException("ERROR: Gagal ketika generate direct link 1fichier!")
 
 def solidfiles(url: str) -> str:
