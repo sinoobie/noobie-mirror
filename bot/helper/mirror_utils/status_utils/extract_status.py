@@ -60,7 +60,8 @@ class ExtractStatus:
 
     def cancel_download(self):
         LOGGER.info(f'Cancelling Extract: {self.__name}')
-        self.__listener.ext_proc.kill()
+        if self.__listener.suproc is not None:
+            self.__listener.suproc.kill()
         self.__listener.onUploadError('extracting dihentikan oleh user!')
 
     def Pemirror(self):
