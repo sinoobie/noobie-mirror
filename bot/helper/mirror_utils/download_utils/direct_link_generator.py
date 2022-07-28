@@ -73,6 +73,8 @@ def direct_link_generator(link: str, host):
         return solidfiles(link)
     elif 'krakenfiles.com' in host:
         return krakenfiles(link)
+    elif 'upload.ee' in host:
+        return uploadee(link)
     elif 'romsget.io' in host:
         return link if host == 'static.romsget.io' else romsget(link)
     elif is_gdtot_link(link):
@@ -128,7 +130,7 @@ def zippy_share(url: str) -> str:
     pages = BeautifulSoup(response.text, "html.parser")
     js_script = str(pages.find("div", style="margin-left: 24px; margin-top: 20px; text-align: center; width: 303px; height: 105px;"))
     try:
-        mtk = eval(re.findall(r"\+\((.*?).\+", js_script)[0] + " + 10 + 5/5")
+        mtk = eval(re.findall(r"\+\((.*?).\+", js_script)[0] + " + 11")
         uri1 = re.findall(r".href.=.\"/(.*?)/\"", js_script)[0]
         uri2 = re.findall(r"\)\+\"/(.*?)\"", js_script)[0]
     except Exception as err:
@@ -196,10 +198,30 @@ def github(url: str) -> str:
         raise DirectDownloadLinkException("ERROR: Tidak dapat mengambil direct link")
 
 def hxfile(url: str) -> str:
-    """ Hxfile direct link generator
-    Based on https://github.com/zevtyardt/lk21
-    """
-    return Bypass().bypass_filesIm(url)
+    headers = {
+            'content-type': 'application/x-www-form-urlencoded',
+            'user-agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.152 Safari/537.36',
+        }
+
+    data = {
+        'op': 'download2',
+        'id': url.split('/')[-1],
+        'rand': '',
+        'referer': '',
+        'method_free': '',
+        'method_premium': '',
+    }
+
+    response = requests.post(url, headers=headers, data=data)
+    soup = BeautifulSoup(response.text, 'html.parser')
+    btn = soup.find(class_="btn btn-dow")
+    unique = soup.find(id="uniqueExpirylink")
+    if btn:
+        return btn["href"]
+    elif unique:
+        return unique["href"]
+    else:
+        raise("ERROR: Tidak dapat mengambil direct link")
 
 def anonfiles(url: str) -> str:
     """ Anonfiles direct link generator
@@ -421,6 +443,18 @@ def krakenfiles(page_link: str) -> str:
     else:
         raise DirectDownloadLinkException(
             f"Failed to acquire download URL from kraken for : {page_link}")
+
+def uploadee(url: str) -> str:
+    """ uploadee direct link generator
+    By https://github.com/iron-heart-x"""
+    try:
+        soup = BeautifulSoup(rget(url).content, 'lxml')
+        s_a=soup.find('a', attrs={'id':'d_l'})
+        dl_link=s_a['href']
+        return dl_link
+    except:
+        raise DirectDownloadLinkException(
+            f"Failed to acquire download URL from upload.ee for : {url}")
 
 def gdtot(url: str) -> str:
     """ Gdtot google drive link generator
