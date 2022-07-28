@@ -198,11 +198,6 @@ def github(url: str) -> str:
         raise DirectDownloadLinkException("ERROR: Tidak dapat mengambil direct link")
 
 def hxfile(url: str) -> str:
-    headers = {
-            'content-type': 'application/x-www-form-urlencoded',
-            'user-agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.152 Safari/537.36',
-        }
-
     data = {
         'op': 'download2',
         'id': url.split('/')[-1],
@@ -212,7 +207,7 @@ def hxfile(url: str) -> str:
         'method_premium': '',
     }
 
-    response = requests.post(url, headers=headers, data=data)
+    response = requests.post(url, data=data)
     soup = BeautifulSoup(response.text, 'html.parser')
     btn = soup.find(class_="btn btn-dow")
     unique = soup.find(id="uniqueExpirylink")
@@ -221,7 +216,7 @@ def hxfile(url: str) -> str:
     elif unique:
         return unique["href"]
     else:
-        raise("ERROR: Tidak dapat mengambil direct link")
+        raise DirectDownloadLinkException("ERROR: Tidak dapat mengambil direct link")
 
 def anonfiles(url: str) -> str:
     """ Anonfiles direct link generator
