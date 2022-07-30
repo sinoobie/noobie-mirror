@@ -128,7 +128,10 @@ def zippy_share(url: str) -> str:
     base_url = re.search('http.+.zippyshare.com', url).group()
     response = requests.get(url)
     pages = BeautifulSoup(response.text, "html.parser")
-    js_script = str(pages.find("div", style="margin-left: 24px; margin-top: 20px; text-align: center; width: 303px; height: 105px;"))
+    js_script = pages.find("div", style="margin-left: 24px; margin-top: 20px; text-align: center; width: 303px; height: 105px;").text
+    if js_script is None:
+        js_script = pages.find("div", style="margin-left: -22px; margin-top: -5px; text-align: center;width: 303px;").text
+
     try:
         mtk = eval(re.findall(r"\+\((.*?).\+", js_script)[0] + " + 11")
         uri1 = re.findall(r".href.=.\"/(.*?)/\"", js_script)[0]
