@@ -180,7 +180,7 @@ try:
         raise KeyError
     app = Client(name='pyrogram', api_id=int(TELEGRAM_API), api_hash=TELEGRAM_HASH, session_string=USER_SESSION_STRING, parse_mode=enums.ParseMode.HTML, no_updates=True)
     with app:
-        IS_PREMIUM_USER = app.get_me().is_premium
+        IS_PREMIUM_USER = app.me.is_premium
 except:
     app = Client(name='pyrogram', api_id=int(TELEGRAM_API), api_hash=TELEGRAM_HASH, bot_token=BOT_TOKEN, parse_mode=enums.ParseMode.HTML, no_updates=True)
 
