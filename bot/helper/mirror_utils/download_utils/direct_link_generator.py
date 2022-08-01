@@ -22,7 +22,7 @@ from base64 import standard_b64encode
 from time import sleep
 from lxml import etree
 
-from bot import LOGGER, UPTOBOX_TOKEN, CRYPT, APPDRIVE_EMAIL, APPDRIVE_PASS
+from bot import LOGGER, UPTOBOX_TOKEN, CRYPT, SHARERPW_XSRF_TOKEN, SHARERPW_LARAVEL_SESSION, APPDRIVE_EMAIL, APPDRIVE_PASS
 from bot.helper.telegram_helper.bot_commands import BotCommands
 from bot.helper.ext_utils.bot_utils import is_gdtot_link, is_appdrive_link
 from bot.helper.ext_utils.exceptions import DirectDownloadLinkException
@@ -455,106 +455,10 @@ def uploadee(url: str) -> str:
         raise DirectDownloadLinkException(
             f"Failed to acquire download URL from upload.ee for : {url}")
 
-def gdtot(url: str) -> str:
-    """ Gdtot google drive link generator
-    By https://github.com/xcscxr """
-
-    if CRYPT is None:
-        raise DirectDownloadLinkException("ERROR: CRYPT cookie not provided")
-
-    match = re.findall(r'https?://(.+)\.gdtot\.(.+)\/\S+\/\S+', url)[0]
-
-    with requests.Session() as client:
-        client.cookies.update({'crypt': CRYPT})
-        res = client.get(url)
-        res = client.get(f"https://{match[0]}.gdtot.{match[1]}/dld?id={url.split('/')[-1]}")
-    matches = re.findall('gd=(.*?)&', res.text)
-    try:
-        decoded_id = b64decode(str(matches[0])).decode('utf-8')
-    except:
-        raise DirectDownloadLinkException("ERROR: Coba di browser kamu, kemungkinan file sudah tidak ada atau sudah mencapai limit harian!")
-    return f'https://drive.google.com/open?id={decoded_id}'
-
-account = {
-    'email': APPDRIVE_EMAIL,
-    'passwd': APPDRIVE_PASS
-    }
-def account_login(client, url, email, password):
-    """ AppDrive google drive link generator
-    By https://github.com/xcscxr """
-
-    if APPDRIVE_EMAIL is None:
-        raise DirectDownloadLinkException("ERROR: Appdrive  Email Password not provided")
-
-    data = {
-        'email': email,
-        'password': password
-    }
-    client.post(f'https://{urlparse(url).netloc}/login', data=data)
-
-def gen_payload(data, boundary=f'{"-"*6}_'):
-    data_string = ''
-    for item in data:
-        data_string += f'{boundary}\r\n'
-        data_string += f'Content-Disposition: form-data; name="{item}"\r\n\r\n{data[item]}\r\n'
-    data_string += f'{boundary}--\r\n'
-    return data_string
-
-def parse_info(data):
-    info = re.findall(r'>(.*?)<\/li>', data)
-    info_parsed = {}
-    for item in info:
-        kv = [s.strip() for s in item.split(':', maxsplit=1)]
-        info_parsed[kv[0].lower()] = kv[1]
-    return info_parsed
-
-def appdrive(url: str) -> str:
-    client = requests.Session()
-    client.headers.update({
-        "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/97.0.4692.99 Safari/537.36"
-    })
-    account_login(client, url, account['email'], account['passwd'])
-    res = client.get(url)
-    key = re.findall(r'"key",\s+"(.*?)"', res.text)[0]
-    ddl_btn = etree.HTML(res.content).xpath("//button[@id='drc']")
-    info_parsed = parse_info(res.text)
-    info_parsed['error'] = False
-    info_parsed['link_type'] = 'login'  # direct/login
-    headers = {
-        "Content-Type": f"multipart/form-data; boundary={'-'*4}_",
-    }
-    data = {
-        'type': 1,
-        'key': key,
-        'action': 'original'
-    }
-    if len(ddl_btn):
-        info_parsed['link_type'] = 'direct'
-        data['action'] = 'direct'
-    while data['type'] <= 3:
-        try:
-            response = client.post(url, data=gen_payload(data), headers=headers).json()
-            break
-        except: data['type'] += 1
-    if 'url' in response:
-        info_parsed['gdrive_link'] = response['url']
-    elif 'error' in response and response['error']:
-        info_parsed['error'] = True
-        info_parsed['error_message'] = response['message']
-    if urlparse(url).netloc == 'driveapp.in' and not info_parsed['error']:
-        res = client.get(info_parsed['gdrive_link'])
-        drive_link = etree.HTML(res.content).xpath("//a[contains(@class,'btn')]/@href")[0]
-        info_parsed['gdrive_link'] = drive_link
-    if not info_parsed['error']:
-        return info_parsed
-    else:
-        raise DirectDownloadLinkException(f"ERROR: {info_parsed['error_message']}")
-
 def romsget(url: str) -> str:
     try:
         req = requests.get(url)
         bs1 = BeautifulSoup(req.text, 'html.parser')
-#        LOGGER.info(req.text)
 
         upos = bs1.find('form', {'id':'download-form'}).get('action')
         meid = bs1.find('input', {'id':'mediaId'}).get('name')
@@ -593,3 +497,139 @@ def uploadhaven(url: str) -> str:
     except Exception as e:
         LOGGER.error(e)
         raise DirectDownloadLinkException("ERROR: Tidak dapat mengambil direct link")
+
+
+def gdtot(url: str) -> str:
+    """ Gdtot google drive link generator
+    By https://github.com/xcscxr """
+
+    if CRYPT is None:
+        raise DirectDownloadLinkException("ERROR: CRYPT cookie not provided")
+
+    match = re.findall(r'https?://(.+)\.gdtot\.(.+)\/\S+\/\S+', url)[0]
+
+    with requests.Session() as client:
+        client.cookies.update({'crypt': CRYPT})
+        res = client.get(url)
+        res = client.get(f"https://{match[0]}.gdtot.{match[1]}/dld?id={url.split('/')[-1]}")
+    matches = re.findall('gd=(.*?)&', res.text)
+    try:
+        decoded_id = b64decode(str(matches[0])).decode('utf-8')
+    except:
+        raise DirectDownloadLinkException("ERROR: Coba di browser kamu, kemungkinan file sudah tidak ada atau sudah mencapai limit harian!")
+    return f'https://drive.google.com/open?id={decoded_id}'
+
+def sharerpw(url: str, forced_login=False) -> str:
+    """ sharer.pw link generator
+    By https://github.com/xcscxr """
+    if SHARERPW_XSRF_TOKEN is None or SHARERPW_LARAVEL_SESSION is None:
+        raise DirectDownloadLinkException("ERROR: Sharer.pw TOKEN/SESSION not provided!")
+    try:
+        client = requests.Session()
+        
+        client.cookies.update({
+            "XSRF-TOKEN": SHARERPW_XSRF_TOKEN,
+            "laravel_session": SHARERPW_LARAVEL_SESSION
+        })
+        
+        res = client.get(url)
+        token = re.findall("_token\s=\s'(.*?)'", res.text, re.DOTALL)[0]    
+        ddl_btn = etree.HTML(res.content).xpath("//button[@id='btndirect']")
+        if len(ddl_btn):
+            info_parsed['link_type'] = 'direct'
+        
+        headers = {
+            'content-type': 'application/x-www-form-urlencoded; charset=UTF-8',
+            'x-requested-with': 'XMLHttpRequest'
+        }
+        
+        data = {
+            '_token': token
+        }
+        
+        if not forced_login:
+            data['nl'] = 1
+        
+        try: 
+            res = client.post(url+'/dl', headers=headers, data=data).json()
+            return res['url']
+        except:
+            if len(ddl_btn) and not forced_login:
+                # retry download via login
+                return sharer_pw_dl(url, forced_login=True)
+            else:
+                raise DirectDownloadLinkException("ERROR: Tidak dapat mengambil direct link")
+    except:
+        raise DirectDownloadLinkException("ERROR: Tidak dapat mengambil direct link. Kemungkinan file sudah tidak ada")
+
+
+def account_login(client, url, email, password):
+    """ AppDrive google drive link generator
+    By https://github.com/xcscxr """
+
+    if APPDRIVE_EMAIL is None or APPDRIVE_PASS is None:
+        raise DirectDownloadLinkException("ERROR: Appdrive Email/Password not provided")
+
+    data = {
+        'email': email,
+        'password': password
+    }
+    client.post(f'https://{urlparse(url).netloc}/login', data=data)
+
+def gen_payload(data, boundary=f'{"-"*6}_'):
+    data_string = ''
+    for item in data:
+        data_string += f'{boundary}\r\n'
+        data_string += f'Content-Disposition: form-data; name="{item}"\r\n\r\n{data[item]}\r\n'
+    data_string += f'{boundary}--\r\n'
+    return data_string
+
+def parse_info(data):
+    info = re.findall(r'>(.*?)<\/li>', data)
+    info_parsed = {}
+    for item in info:
+        kv = [s.strip() for s in item.split(':', maxsplit=1)]
+        info_parsed[kv[0].lower()] = kv[1]
+    return info_parsed
+
+def appdrive(url: str) -> str:
+    client = requests.Session()
+    client.headers.update({
+        "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/97.0.4692.99 Safari/537.36"
+    })
+    account_login(client, url, APPDRIVE_EMAIL, APPDRIVE_PASS)
+    res = client.get(url)
+    key = re.findall(r'"key",\s+"(.*?)"', res.text)[0]
+    ddl_btn = etree.HTML(res.content).xpath("//button[@id='drc']")
+    info_parsed = parse_info(res.text)
+    info_parsed['error'] = False
+    info_parsed['link_type'] = 'login'  # direct/login
+    headers = {
+        "Content-Type": f"multipart/form-data; boundary={'-'*4}_",
+    }
+    data = {
+        'type': 1,
+        'key': key,
+        'action': 'original'
+    }
+    if len(ddl_btn):
+        info_parsed['link_type'] = 'direct'
+        data['action'] = 'direct'
+    while data['type'] <= 3:
+        try:
+            response = client.post(url, data=gen_payload(data), headers=headers).json()
+            break
+        except: data['type'] += 1
+    if 'url' in response:
+        info_parsed['gdrive_link'] = response['url']
+    elif 'error' in response and response['error']:
+        info_parsed['error'] = True
+        info_parsed['error_message'] = response['message']
+    if urlparse(url).netloc == 'driveapp.in' and not info_parsed['error']:
+        res = client.get(info_parsed['gdrive_link'])
+        drive_link = etree.HTML(res.content).xpath("//a[contains(@class,'btn')]/@href")[0]
+        info_parsed['gdrive_link'] = drive_link
+    if not info_parsed['error']:
+        return info_parsed['gdrive_link']
+    else:
+        raise DirectDownloadLinkException(f"ERROR: {info_parsed['error_message']}")

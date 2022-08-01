@@ -14,7 +14,7 @@ from telegram import InlineKeyboardMarkup
 from bot import Interval, INDEX_URL, BUTTON_FOUR_NAME, BUTTON_FOUR_URL, BUTTON_FIVE_NAME, BUTTON_FIVE_URL, \
                 BUTTON_SIX_NAME, BUTTON_SIX_URL, VIEW_LINK, aria2, QB_SEED, dispatcher, DOWNLOAD_DIR, \
                 download_dict, download_dict_lock, TG_SPLIT_SIZE, LOGGER, MEGA_KEY, DB_URI, INCOMPLETE_TASK_NOTIFIER
-from bot.helper.ext_utils.bot_utils import is_url, is_magnet, is_gdtot_link, is_mega_link, is_gdrive_link, get_content_type, get_readable_time
+from bot.helper.ext_utils.bot_utils import is_url, is_magnet, is_gdtot_link, is_gdrive_link, is_sharerpw_link, is_mega_link, is_gdrive_link, get_content_type, get_readable_time
 from bot.helper.ext_utils.fs_utils import get_base_name, get_path_size, split_file, clean_download
 from bot.helper.ext_utils.shortenurl import short_url
 from bot.helper.ext_utils.db_handler import DbManger
@@ -40,7 +40,7 @@ from bot.helper.telegram_helper.message_utils import sendMessage, sendMarkup, de
 
 
 class MirrorListener:
-    def __init__(self, bot, message, isZip=False, extract=False, isQbit=False, isLeech=False, pswd=None, tag=None, seed=False):
+    def __init__(self, bot, message, isZip=False, extract=False, isQbit=False, isLeech=False, pswd=None, tag=None, select=False, seed=False):
         self.bot = bot
         self.message = message
         self.uid = self.message.message_id
@@ -51,6 +51,7 @@ class MirrorListener:
         self.pswd = pswd
         self.tag = tag
         self.seed = any([seed, QB_SEED])
+        self.select = select
         self.isPrivate = self.message.chat.type in ['private', 'group']
         self.suproc = None
 
@@ -315,21 +316,19 @@ class MirrorListener:
         if not self.isPrivate and INCOMPLETE_TASK_NOTIFIER and DB_URI is not None:
             DbManger().rm_complete_task(self.message.link)
 
-def _mirror(bot, message, isZip=False, extract=False, isQbit=False, isLeech=False, pswd=None, multi=0, qbsd=False):
+def _mirror(bot, message, isZip=False, extract=False, isQbit=False, isLeech=False, pswd=None, multi=0, select=False, seed=False):
     mesg = message.text.split('\n')
     message_args = mesg[0].split(maxsplit=1)
     name_args = mesg[0].split('|', maxsplit=1)
-    qbsel = False
     index = 1
-    is_gdtot = False
 
     if len(message_args) > 1:
         args = mesg[0].split(maxsplit=3)
         if "s" in [x.strip() for x in args]:
-            qbsel = True
+            select = True
             index += 1
         if "d" in [x.strip() for x in args]:
-            qbsd = True
+            seed = True
             index += 1
         message_args = mesg[0].split(maxsplit=index)
         if len(message_args) > index:
@@ -405,11 +404,24 @@ def _mirror(bot, message, isZip=False, extract=False, isQbit=False, isLeech=Fals
 
     if not is_url(link) and not is_magnet(link) and not ospath.exists(link):
         help_msg = f"ℹ️ {tag} Tidak ada file/link yang mau di-mirror. Lihat format dibawah!"
-        help_msg += "\n<code>/command</code> {link} |newname pswd: mypassword [𝚣𝚒𝚙/𝚞𝚗𝚣𝚒𝚙]"
-        help_msg += "\n\n<b>Direct link authorization:</b>"
-        help_msg += "\n<code>/command</code> {link} |newname pswd: xx\nusername\npassword"
-        help_msg += "\n\n<b>Qbittorrent selection and seed:</b>"
-        help_msg += "\n<code>/qbcommand</code> <b>s</b>(for selection) <b>d</b>(for seeding) {link} or by replying to {file/link}"
+        if isQbit:
+            help_msg += "\n\n<b>Bittorrent selection:</b>"
+            help_msg += "\n<code>/commands</code> <b>s</b> {link} or by replying to {file/link}"
+            help_msg += "\n\n<b>Qbittorrent seed</b>:"
+            help_msg += "\n<code>/qbcommands</code> <b>d</b> {link} or by replying to {file/link}. "
+            help_msg += "Sure you can use seed and select perfix together with qbcommands."
+            help_msg += "\n\n<b>Multi links only by replying to first link/file:</b>"
+            help_msg += "\n<code>/commands</code> 10(number of links/files)"
+        else:
+            help_msg += "\n<code>/commands</code> {link} |newname pswd: xx [zip/unzip]"
+            help_msg += "\n\n<b>By replying to link/file:</b>"
+            help_msg += "\n<code>/commands</code> |newname pswd: xx [zip/unzip]"
+            help_msg += "\n\n<b>Direct link authorization:</b>"
+            help_msg += "\n<code>/commands</code> {link} |newname pswd: xx\nusername\npassword"
+            help_msg += "\n\n<b>Bittorrent selection:</b>"
+            help_msg += "\n<code>/commands</code> <b>s</b> {link} or by replying to {file/link}"
+            help_msg += "\n\n<b>Multi links only by replying to first link/file:</b>"
+            help_msg += "\n<code>/commands</code> 10(number of links/files)"
         smsg = sendMessage(help_msg, bot, message)
         Thread(target=auto_delete_message, args=(bot, message, smsg)).start()
         return
@@ -419,10 +431,13 @@ def _mirror(bot, message, isZip=False, extract=False, isQbit=False, isLeech=Fals
         check_ = sendMessage(f"ℹ️ {tag} Sedang memeriksa link, Tunggu sebentar...", bot, message)
     else: check_ = None
 
+    is_gdtot = is_gdtot_link(link)
+    is_appdrive = is_appdrive_link(link)
+    is_sharerpw = is_sharerpw_link(link)
+
     if not is_mega_link(link) and not isQbit and not is_magnet(link) \
         and not is_gdrive_link(link) and not link.endswith('.torrent'):
         host = urlparse(link).netloc
-        is_gdtot = is_gdtot_link(link)
         content_type = get_content_type(link)
         if content_type is None or re_match(r'text/html|text/plain', content_type):
             try:
@@ -443,24 +458,24 @@ def _mirror(bot, message, isZip=False, extract=False, isQbit=False, isLeech=Fals
 
     if check_ != None:
         deleteMessage(bot, check_); check_ = None
-    listener = MirrorListener(bot, message, isZip, extract, isQbit, isLeech, pswd, tag, qbsd)
+    listener = MirrorListener(bot, message, isZip, extract, isQbit, isLeech, pswd, tag, select, seed)
 
     if is_gdrive_link(link):
         if not isZip and not extract and not isLeech:
-            gmsg = f"Gunakan /{BotCommands.CloneCommand} untuk menyalin Gdrive/gdtot/appdrive file\n\n"
-            gmsg += f"Gunakan /{BotCommands.ZipMirrorCommand} untuk mengarsip file Gdrive/gdtot/appdrive\n\n"
-            gmsg += f"Gunakan /{BotCommands.UnzipMirrorCommand} untuk mengekstraks file Gdrive/gdtot/appdrive"
+            gmsg = f"Gunakan /{BotCommands.CloneCommand} untuk menyalin Gdrive/gdtot/appdrive/sharepw file\n\n"
+            gmsg += f"Gunakan /{BotCommands.ZipMirrorCommand} untuk mengarsip file Gdrive/gdtot/appdrive/sharepw\n\n"
+            gmsg += f"Gunakan /{BotCommands.UnzipMirrorCommand} untuk mengekstraks file Gdrive/gdtot/appdrive/sharepw"
             smsg = sendMessage(gmsg, bot, message)
             Thread(target=auto_delete_message, args=(bot, message, smsg)).start()
         else:
-            Thread(target=add_gd_download, args=(link, listener, is_gdtot, name)).start()
+            Thread(target=add_gd_download, args=(link, listener, name, is_gdtot, is_appdrive, is_sharerpw)).start()
     elif is_mega_link(link):
         if MEGA_KEY is not None:
             Thread(target=MegaDownloader(listener).add_download, args=(link, f'{DOWNLOAD_DIR}{listener.uid}/')).start()
         else:
             sendMessage('MEGA_API_KEY not Provided!', bot, message)
     elif isQbit:
-        Thread(target=QbDownloader(listener).add_qb_torrent, args=(link, f'{DOWNLOAD_DIR}{listener.uid}', qbsel)).start()
+        Thread(target=QbDownloader(listener).add_qb_torrent, args=(link, f'{DOWNLOAD_DIR}{listener.uid}', select)).start()
     else:
         if len(mesg) > 1:
             try:
@@ -475,7 +490,7 @@ def _mirror(bot, message, isZip=False, extract=False, isQbit=False, isLeech=Fals
             auth = "Basic " + b64encode(auth.encode()).decode('ascii')
         else:
             auth = ''
-        Thread(target=add_aria2c_download, args=(link, f'{DOWNLOAD_DIR}{listener.uid}', listener, name, auth)).start()
+        Thread(target=add_aria2c_download, args=(link, f'{DOWNLOAD_DIR}{listener.uid}', listener, name, auth, select)).start()
 
     if multi > 1:
         sleep(4)
@@ -487,7 +502,7 @@ def _mirror(bot, message, isZip=False, extract=False, isQbit=False, isLeech=Fals
         nextmsg.from_user.id = message.from_user.id
         multi -= 1
         sleep(4)
-        Thread(target=_mirror, args=(bot, nextmsg, isZip, extract, isQbit, isLeech, pswd, multi)).start()
+        Thread(target=_mirror, args=(bot, nextmsg, isZip, extract, isQbit, isLeech, pswd, multi, select, seed)).start()
 
 def mirror(update, context):
     _mirror(context.bot, update.message)

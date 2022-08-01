@@ -18,7 +18,7 @@ from .helper.telegram_helper.message_utils import sendMessage, sendMarkup, editM
 from .helper.telegram_helper.filters import CustomFilters
 from .helper.telegram_helper.button_build import ButtonMaker
 
-from .modules import authorize, list, cancel_mirror, mirror_status, mirror, clone, watch, shell, eval, delete, count, leech_settings, search, rss, qbselect, sleep
+from .modules import authorize, list, cancel_mirror, mirror_status, mirror, clone, watch, shell, eval, delete, count, leech_settings, search, rss, bt_select, sleep
 
 
 def stats(update, context):
@@ -92,7 +92,7 @@ help_string_telegraph = f'''<br>
 <br>Untuk mengekstraks file atau folder
 <br><br>
 <b>/{BotCommands.QbMirrorCommand} [magnet_link] atau [torrent_file] atau [torrent_file_url]</b>
-<br>Untuk mirror torrent dengan qBittorrent, Ketik <b>/{BotCommands.QbMirrorCommand} s</b> untuk memilih file sebelum download atau ketik <b>/{BotCommands.QbMirrorCommand} d</b> untuk seed spesifik torrent
+<br>Untuk mirror torrent dengan qBittorrent, Kirim <b>/{BotCommands.QbMirrorCommand}</b> untuk detail lebih lanjut
 <br><br>
 <b>/{BotCommands.QbZipMirrorCommand} [magnet_link] atau [torrent_file] atau [torrent_file_url]</b>
 <br>Untuk mirror torrent dengan qBittorrent lalu kemudian mengarsip file atau folder ke zip
@@ -139,8 +139,8 @@ help_string_telegraph = f'''<br>
 <b>/{BotCommands.LeechZipWatchCommand} [YouTube link]</b>
 <br>Leech (upload ke telegram) YouTube link as zip
 <br><br>
-<b>/{BotCommands.QbSelectCommand}</b>
-<br>Perintah ini terutama untuk pemilihan jika Anda memutuskan untuk memilih file dari qb-torrent yang sudah ditambahkan, Tetapi kamu juga dapat menggunakan perintah /qb dengan arg `s` untuk memilih file sebelum pengunduhan dimulai. Cara penggunaan: Balas perintah aktif /qb yang digunakan untuk memulai qb-download atau menambahkan id download bersama dengan perintah ini.
+<b>/{BotCommands.BtSelectCommand}</b>
+<br>Perintah ini terutama untuk pemilihan jika Anda memutuskan untuk memilih file dari bt-torrent yang sudah ditambahkan, Tetapi kamu juga dapat menggunakan perintah dengan arg `s` untuk memilih file sebelum pengunduhan dimulai. Cara penggunaan: Balas perintah aktif yang digunakan untuk memulai bt-download atau menambahkan ID Download bersama dengan perintah ini.
 <br><br>
 <b>/{BotCommands.LeechSetCommand}</b>: Leech settings
 <br><br>
@@ -229,9 +229,9 @@ botcmds = [
 def main():
     bot.set_my_commands(botcmds)
     start_cleanup()
+    notifier_dict = False
     if INCOMPLETE_TASK_NOTIFIER and DB_URI is not None:
-        notifier_dict = DbManger().get_incomplete_tasks()
-        if notifier_dict:
+        if notifier_dict := DbManger().get_incomplete_tasks():
             for cid, data in notifier_dict.items():
                 if ospath.isfile(".restartmsg"):
                     with open(".restartmsg") as f:

@@ -456,6 +456,16 @@ try:
 except KeyError:
     APPDRIVE_EMAIL = None
     APPDRIVE_PASS = None
+
+try:
+    SHARERPW_XSRF_TOKEN = getConfig('SHARERPW_XSRF_TOKEN')
+    SHARERPW_LARAVEL_SESSION = getConfig('SHARERPW_LARAVEL_SESSION')
+    if len(SHARERPW_XSRF_TOKEN) == 0 or len(SHARERPW_LARAVEL_SESSION) == 0:
+        raise KeyError
+except KeyError:
+    SHARERPW_XSRF_TOKEN = None
+    SHARERPW_LARAVEL_SESSION = None
+
 try:
     TOKEN_PICKLE_URL = getConfig('TOKEN_PICKLE_URL')
     if len(TOKEN_PICKLE_URL) == 0:
