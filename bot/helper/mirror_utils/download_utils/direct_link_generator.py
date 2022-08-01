@@ -8,6 +8,7 @@ from https://github.com/AvinashReddy3108/PaperplaneExtended . I hereby take no c
 than the modifications. See https://github.com/AvinashReddy3108/PaperplaneExtended/commits/master/userbot/modules/direct_links.py
 for original authorship. """
 
+import cloudscraper
 import requests
 import math
 import re
@@ -527,7 +528,7 @@ def sharerpw(url: str, forced_login=False) -> str:
     if SHARERPW_XSRF_TOKEN is None or SHARERPW_LARAVEL_SESSION is None:
         raise DirectDownloadLinkException("ERROR: Sharer.pw TOKEN/SESSION not provided!")
     try:
-        client = requests.Session()
+        client = cloudscraper.create_scraper(allow_brotli=False)
         
         client.cookies.update({
             "XSRF-TOKEN": SHARERPW_XSRF_TOKEN,
