@@ -537,8 +537,6 @@ def sharerpw(url: str, forced_login=False) -> str:
         res = client.get(url)
         token = re.findall("_token\s=\s'(.*?)'", res.text, re.DOTALL)[0]    
         ddl_btn = etree.HTML(res.content).xpath("//button[@id='btndirect']")
-        if len(ddl_btn):
-            info_parsed['link_type'] = 'direct'
         
         headers = {
             'content-type': 'application/x-www-form-urlencoded; charset=UTF-8',
