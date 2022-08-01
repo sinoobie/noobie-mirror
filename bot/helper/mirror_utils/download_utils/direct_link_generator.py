@@ -24,7 +24,7 @@ from lxml import etree
 
 from bot import LOGGER, UPTOBOX_TOKEN, CRYPT, SHARERPW_XSRF_TOKEN, SHARERPW_LARAVEL_SESSION, APPDRIVE_EMAIL, APPDRIVE_PASS
 from bot.helper.telegram_helper.bot_commands import BotCommands
-from bot.helper.ext_utils.bot_utils import is_gdtot_link, is_appdrive_link
+from bot.helper.ext_utils.bot_utils import is_gdtot_link, is_appdrive_link, is_sharerpw_link
 from bot.helper.ext_utils.exceptions import DirectDownloadLinkException
 
 fmed_list = ['fembed.net', 'fembed.com', 'femax20.com', 'fcdn.stream', 'feurl.com', 'layarkacaxxi.icu',
@@ -80,7 +80,9 @@ def direct_link_generator(link: str, host):
     elif is_gdtot_link(link):
         return gdtot(link)
     elif is_appdrive_link(link):
-        return appdrive(link).get('gdrive_link')
+        return appdrive(link)
+    elif is_sharerpw_link(link):
+        return sharerpw(link)
     elif any(x in host for x in fmed_list):
         return fembed(link)
     elif any(x in host for x in ['sbembed.com', 'watchsb.com', 'streamsb.net', 'sbplay.org']):
