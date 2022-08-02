@@ -131,6 +131,8 @@ def _clone(message, bot, multi=0):
         if is_gdtot or is_appdrive or is_sharerpw:
             gd.deletefile(link)
     else:
+        if _msg:
+            deleteMessage(bot, _msg)
         smsg = sendMessage(f'ℹ️ Ketik Gdrive/gdtot/appdrive/sharerpw link yang mau di-mirror.', bot, message)
         Thread(target=auto_delete_message, args=(bot, message, smsg)).start()
 

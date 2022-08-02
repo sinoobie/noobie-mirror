@@ -59,5 +59,4 @@ def add_gd_download(link, listener, newname, is_gdtot, is_appdrive, is_sharerpw)
     sendStatusMessage(listener.message, listener.bot)
     drive.download(link)
     if is_gdtot or is_appdrive or is_sharerpw:
-        rmv = drive.deletefile(link)
-        LOGGER.info(rmv)
+        drive.deletefile(link)

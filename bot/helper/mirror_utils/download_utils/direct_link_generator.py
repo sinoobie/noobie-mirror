@@ -76,6 +76,10 @@ def direct_link_generator(link: str, host):
         return krakenfiles(link)
     elif 'upload.ee' in host:
         return uploadee(link)
+    elif 'megaup.net' in host:
+        return megaupnet(link)
+    elif 'wetransfer.com' in host:
+        return wetransfer(link)
     elif 'romsget.io' in host:
         return link if host == 'static.romsget.io' else romsget(link)
     elif is_gdtot_link(link):
@@ -205,6 +209,10 @@ def github(url: str) -> str:
         raise DirectDownloadLinkException("ERROR: Tidak dapat mengambil direct link")
 
 def hxfile(url: str) -> str:
+    headers = {
+            'content-type': 'application/x-www-form-urlencoded',
+            'user-agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.152 Safari/537.36',
+    }
     data = {
         'op': 'download2',
         'id': url.split('/')[-1],
@@ -214,7 +222,8 @@ def hxfile(url: str) -> str:
         'method_premium': '',
     }
 
-    response = requests.post(url, data=data)
+    client = cloudscraper.create_scraper(allow_brotli=False)
+    response = client.post(url, data=data, headers=headers)
     soup = BeautifulSoup(response.text, 'html.parser')
     btn = soup.find(class_="btn btn-dow")
     unique = soup.find(id="uniqueExpirylink")
@@ -501,6 +510,47 @@ def uploadhaven(url: str) -> str:
         LOGGER.error(e)
         raise DirectDownloadLinkException("ERROR: Tidak dapat mengambil direct link")
 
+def megaupnet(url: str) -> str:
+    """ MegaUp direct link generator
+    By https://github.com/TheCaduceus/Link-Bypasser/ """
+    try:
+        api = "https://api.emilyx.in/api"
+        client = cloudscraper.create_scraper(allow_brotli=False)
+        resp = client.get(url)
+        if resp.status_code == 404:
+            raise DirectDownloadLinkException("ERROR: File tidak ditemukan atau link yang kamu masukan salah!")
+        try:
+            resp = client.post(api, json={"type": "megaup", "url": url})
+            res = resp.json()
+        except BaseException:
+            raise DirectDownloadLinkException("ERROR: Server API sedang down atau link yang kamu masukan salah!")
+        if res["success"] is True:
+            return res["url"]
+        else:
+            raise DirectDownloadLinkException(f"ERROR: {res['msg']}")
+    except Exception as err:
+        raise DirectDownloadLinkException("ERROR: Tidak dapat mengambil direct link")
+
+def wetransfer(url):
+    """ WeTransfer direct link generator
+    By https://github.com/TheCaduceus/Link-Bypasser/ """
+    try:
+        api = "https://api.emilyx.in/api"
+        client = cloudscraper.create_scraper(allow_brotli=False)
+        resp = client.get(url)
+        if resp.status_code == 404:
+            raise DirectDownloadLinkException("ERROR: File tidak ditemukan atau link yang kamu masukan salah!")
+        try:
+            resp = client.post(api, json={"type": "wetransfer", "url": url})
+            res = resp.json()
+        except BaseException:
+            raise DirectDownloadLinkException("ERROR: Server API sedang down atau link yang kamu masukan salah!")
+        if res["success"] is True:
+            return res["url"]
+        else:
+            raise DirectDownloadLinkException(f"ERROR: {res['msg']}")
+    except Exception as err:
+        raise DirectDownloadLinkException("ERROR: Tidak dapat mengambil direct link")
 
 def gdtot(url: str) -> str:
     """ Gdtot google drive link generator
@@ -594,6 +644,7 @@ def parse_info(data):
     return info_parsed
 
 def appdrive(url: str) -> str:
+    appdrive_family = ['driveapp.in', 'drivehub.in', 'gdflix.pro', 'drivesharer.in', 'drivebit.in', 'drivelinks.in', 'driveace.in', 'drivepro.in']
     client = requests.Session()
     client.headers.update({
         "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/97.0.4692.99 Safari/537.36"
@@ -626,7 +677,7 @@ def appdrive(url: str) -> str:
     elif 'error' in response and response['error']:
         info_parsed['error'] = True
         info_parsed['error_message'] = response['message']
-    if urlparse(url).netloc == 'driveapp.in' and not info_parsed['error']:
+    if urlparse(url).netloc in appdrive_family and not info_parsed['error']:
         res = client.get(info_parsed['gdrive_link'])
         drive_link = etree.HTML(res.content).xpath("//a[contains(@class,'btn')]/@href")[0]
         info_parsed['gdrive_link'] = drive_link

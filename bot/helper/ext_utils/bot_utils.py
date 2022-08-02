@@ -7,7 +7,7 @@ from psutil import cpu_percent, disk_usage
 from requests import head as rhead
 from urllib.request import urlopen
 from telegram import InlineKeyboardMarkup
-from urllib.parse import quote
+from urllib.parse import quote, urlparse
 
 from bot import download_dict, download_dict_lock, STATUS_LIMIT, botStartTime, DOWNLOAD_DIR, WEB_PINCODE, BASE_URL
 from bot.helper.telegram_helper.bot_commands import BotCommands
@@ -253,8 +253,8 @@ def is_gdtot_link(url: str):
     return bool(url)
 
 def is_appdrive_link(url: str):
-    url = re_match(r'https?://(?:\S*\.)?(?:appdrive|driveapp)\.in/\S+', url)
-    return bool(url)
+    appdrive_links = ['appdrive.in', 'driveapp.in', 'drivehub.in', 'gdflix.pro', 'drivesharer.in', 'drivebit.in', 'drivelinks.in', 'driveace.in', 'drivepro.in']
+    return urlparse(url).netloc in appdrive_links
 
 def is_mega_link(url: str):
     return "mega.nz" in url or "mega.co.nz" in url
