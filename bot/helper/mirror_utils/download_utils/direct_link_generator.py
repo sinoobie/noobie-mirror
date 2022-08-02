@@ -34,64 +34,60 @@ fmed_list = ['fembed.net', 'fembed.com', 'femax20.com', 'fcdn.stream', 'feurl.co
 
 def direct_link_generator(link: str, host):
     """ direct links generator """
-    if host == 'youtube.com' or host == 'youtu.be':
+    if 'youtube.com' in host or 'youtu.be' in host:
         raise DirectDownloadLinkException(f"ERROR: Use /{BotCommands.WatchCommand} to mirror Youtube link\nUse /{BotCommands.ZipWatchCommand} to make zip of Youtube playlist")
-    elif host == 'zippyshare.com':
+    elif 'zippyshare.com' in host:
         return zippy_share(link)
-    elif host == 'mediafire.com':
-        return mediafire(link)
-    elif host == 'uptobox.com':
-        return uptobox(link)
-    elif host == 'uploadhaven.com':
-        return uploadhaven(link)
-    elif host == 'osdn.net':
-        return osdn(link)
-    elif host == 'github.com':
-        return github(link)
-    elif host == 'hxfile.co':
-        return hxfile(link)
-    elif host == 'anonfiles.com':
-        return anonfiles(link)
-    elif host == 'letsupload.io':
-        return letsupload(link)
-    elif host == '1drv.ms':
-        return onedrive(link)
-    elif host == 'pixeldrain.com':
-        return pixeldrain(link)
-    elif host == 'antfiles.com':
-        return antfiles(link)
-    elif host == 'streamtape.com':
-        return streamtape(link)
-    elif host == 'bayfiles.com':
-        return anonfiles(link)
-    elif host == 'racaty.net':
-        return racaty(link)
-    elif host == '1fichier.com':
-        return fichier(link)
-    elif host == 'solidfiles.com':
-        return solidfiles(link)
-    elif host == 'krakenfiles.com':
-        return krakenfiles(link)
-    elif host == 'upload.ee':
-        return uploadee(link)
-    elif host == 'megaup.net':
-        return megaupnet(link)
-    elif host == 'wetransfer.com':
-        return wetransfer(link)
-    elif host == 'romsget.io':
-        return link if host == 'static.romsget.io' else romsget(link)
-    elif host in ['sbembed.com', 'watchsb.com', 'streamsb.net', 'sbplay.org']:
-        return sbembed(link)
-    elif host in ['yadi.sk', 'disk.yandex.com', 'disk.yandex.ru']:
+    elif 'yadi.sk' in host or 'disk.yandex.com' in host or 'disk.yandex.ru' in host:
         return yandex_disk(link)
-    elif host in fmed_list:
-        return fembed(link)
+    elif 'mediafire.com' in host:
+        return mediafire(link)
+    elif 'uptobox.com' in host:
+        return uptobox(link)
+    elif 'uploadhaven.com' in host:
+        return uploadhaven(link)
+    elif 'osdn.net' in host:
+        return osdn(link)
+    elif 'github.com' in host:
+        return github(link)
+    elif 'anonfiles.com' in host:
+        return anonfiles(link)
+    elif 'letsupload.io' in host:
+        return letsupload(link)
+    elif '1drv.ms' in host:
+        return onedrive(link)
+    elif 'pixeldrain.com' in host:
+        return pixeldrain(link)
+    elif 'antfiles.com' in host:
+        return antfiles(link)
+    elif 'streamtape.com' in host:
+        return streamtape(link)
+    elif 'bayfiles.com' in host:
+        return anonfiles(link)
+    elif 'racaty.net' in host:
+        return racaty(link)
+    elif '1fichier.com' in host:
+        return fichier(link)
+    elif 'solidfiles.com' in host:
+        return solidfiles(link)
+    elif 'krakenfiles.com' in host:
+        return krakenfiles(link)
+    elif 'upload.ee' in host:
+        return uploadee(link)
+    elif 'wetransfer.com' in host:
+        return wetransfer(link)
+    elif 'romsget.io' in host:
+        return link if host == 'static.romsget.io' else romsget(link)
     elif is_gdtot_link(link):
         return gdtot(link)
     elif is_appdrive_link(link):
         return appdrive(link)
     elif is_sharerpw_link(link):
         return sharerpw(link)
+    elif any(x in host for x in fmed_list):
+        return fembed(link)
+    elif any(x in host for x in ['sbembed.com', 'watchsb.com', 'streamsb.net', 'sbplay.org']):
+        return sbembed(link)
     else:
         raise DirectDownloadLinkException(f'No Direct link function found for {link}')
 
@@ -206,32 +202,6 @@ def github(url: str) -> str:
     try:
         return download.headers["location"]
     except KeyError:
-        raise DirectDownloadLinkException("ERROR: Tidak dapat mengambil direct link")
-
-def hxfile(url: str) -> str:
-    headers = {
-            'content-type': 'application/x-www-form-urlencoded',
-            'user-agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.152 Safari/537.36',
-    }
-    data = {
-        'op': 'download2',
-        'id': url.split('/')[-1],
-        'rand': '',
-        'referer': '',
-        'method_free': '',
-        'method_premium': '',
-    }
-
-    client = cloudscraper.create_scraper(allow_brotli=False)
-    response = client.post(url, data=data, headers=headers)
-    soup = BeautifulSoup(response.text, 'html.parser')
-    btn = soup.find(class_="btn btn-dow")
-    unique = soup.find(id="uniqueExpirylink")
-    if btn:
-        return btn["href"]
-    elif unique:
-        return unique["href"]
-    else:
         raise DirectDownloadLinkException("ERROR: Tidak dapat mengambil direct link")
 
 def anonfiles(url: str) -> str:
@@ -508,27 +478,6 @@ def uploadhaven(url: str) -> str:
         return dl_url[0]
     except Exception as e:
         LOGGER.error(e)
-        raise DirectDownloadLinkException("ERROR: Tidak dapat mengambil direct link")
-
-def megaupnet(url: str) -> str:
-    """ MegaUp direct link generator
-    By https://github.com/TheCaduceus/Link-Bypasser/ """
-    try:
-        api = "https://api.emilyx.in/api"
-        client = cloudscraper.create_scraper(allow_brotli=False)
-        resp = client.get(url)
-        if resp.status_code == 404:
-            raise DirectDownloadLinkException("ERROR: File tidak ditemukan atau link yang kamu masukan salah!")
-        try:
-            resp = client.post(api, json={"type": "megaup", "url": url})
-            res = resp.json()
-        except BaseException:
-            raise DirectDownloadLinkException("ERROR: Server API sedang down atau link yang kamu masukan salah!")
-        if res["success"] is True:
-            return res["url"]
-        else:
-            raise DirectDownloadLinkException(f"ERROR: {res['msg']}")
-    except Exception as err:
         raise DirectDownloadLinkException("ERROR: Tidak dapat mengambil direct link")
 
 def wetransfer(url):

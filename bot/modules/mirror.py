@@ -441,7 +441,7 @@ def _mirror(bot, message, isZip=False, extract=False, isQbit=False, isLeech=Fals
         content_type = get_content_type(link)
         if content_type is None or re_match(r'text/html|text/plain', content_type):
             try:
-                if host == "uptobox.com" or host == "uploadhaven.com":
+                if "uptobox.com" in host or "uploadhaven.com" in host:
                     editMessage(f"ℹ️ {tag} Generating {host} direct link. Tunggu sebentar...", check_)
                     link = direct_link_generator(link, host)
                 else:
