@@ -431,14 +431,11 @@ def _mirror(bot, message, isZip=False, extract=False, isQbit=False, isLeech=Fals
         check_ = sendMessage(f"ℹ️ {tag} Sedang memeriksa link, Tunggu sebentar...", bot, message)
     else: check_ = None
 
-    is_gdtot = is_gdtot_link(link)
-    is_appdrive = is_appdrive_link(link)
-    is_sharerpw = is_sharerpw_link(link)
-
     if not is_mega_link(link) and not isQbit and not is_magnet(link) \
         and not is_gdrive_link(link) and not link.endswith('.torrent'):
         host = urlparse(link).netloc
         content_type = get_content_type(link)
+        gdrive_sharer = any([is_gdtot_link(link), is_appdrive_link(link), is_sharerpw_link(link)])
         if content_type is None or re_match(r'text/html|text/plain', content_type):
             try:
                 if "uptobox.com" in host or "uploadhaven.com" in host:
@@ -468,7 +465,7 @@ def _mirror(bot, message, isZip=False, extract=False, isQbit=False, isLeech=Fals
             smsg = sendMessage(gmsg, bot, message)
             Thread(target=auto_delete_message, args=(bot, message, smsg)).start()
         else:
-            Thread(target=add_gd_download, args=(link, listener, name, is_gdtot, is_appdrive, is_sharerpw)).start()
+            Thread(target=add_gd_download, args=(link, listener, name, gdrive_sharer)).start()
     elif is_mega_link(link):
         if MEGA_KEY is not None:
             Thread(target=MegaDownloader(listener).add_download, args=(link, f'{DOWNLOAD_DIR}{listener.uid}/')).start()

@@ -11,9 +11,9 @@ from bot.helper.ext_utils.fs_utils import get_base_name, check_storage_threshold
 @new_thread
 def __onDownloadStarted(api, gid):
     download = api.get_download(gid)
+    dl = getDownloadByGid(gid)
     if download.is_metadata:
         LOGGER.info(f'onDownloadStarted: {gid} Metadata')
-        dl = getDownloadByGid(gid)
         if dl.listener().select:
             metamsg = f"ℹ️ {dl.listener().tag} Downloading Metadata, tunggu sebentar. Gunakan file .torrent untuk menghindari proses ini."
             meta = sendMessage(metamsg, dl.listener().bot, dl.listener().message)
@@ -28,16 +28,15 @@ def __onDownloadStarted(api, gid):
         LOGGER.info(f'onDownloadStarted: {gid}')
     try:
         if any([STOP_DUPLICATE, TORRENT_DIRECT_LIMIT, ZIP_UNZIP_LIMIT, STORAGE_THRESHOLD]):
+            if not dl or dl.listener().isLeech or dl.listener().select:
+                return
             if not download.is_torrent:
                 sleep(3)
                 download = api.get_download(gid)
-            dl = getDownloadByGid(gid)
-            if not dl or dl.listener().isLeech:
-                return
             LOGGER.info('Checking File/Folder if already in Drive...')
             sname = download.name
             if dl.listener().isZip:
-                sname = sname + ".zip"
+                sname = f"{sname}.zip"
             elif dl.listener().extract:
                 try:
                     sname = get_base_name(sname)
@@ -46,9 +45,9 @@ def __onDownloadStarted(api, gid):
             if sname is not None:
                 smsg, button = GoogleDriveHelper().drive_list(sname, True)
                 if smsg:
-                    dl.listener().onDownloadError(f'<code>{sname}</code> <b><u>sudah ada di Drive</u></b>', markup=True, button=button)
                     api.remove([download], force=True, files=True)
-                    return #sendMarkup("Here are the search results:", dl.listener().bot, dl.listener().message, button)
+                    dl.listener().onDownloadError(f'<code>{sname}</code> <b><u>sudah ada di Drive</u></b>', markup=True, button=button)
+                    return
             if any([ZIP_UNZIP_LIMIT, TORRENT_DIRECT_LIMIT, STORAGE_THRESHOLD]):
                 LOGGER.info('Checking File/Folder Size...')
                 sleep(1)

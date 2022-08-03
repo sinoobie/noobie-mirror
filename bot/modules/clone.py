@@ -39,30 +39,17 @@ def _clone(message, bot, multi=0):
     if multi == 0:
         _msg = sendMessage(f"♻️ {tag} Cloning: <code>{link}</code>", bot, message)
     else: _msg = None
-    is_gdtot = is_gdtot_link(link)
-    is_appdrive = is_appdrive_link(link)
-    is_sharerpw = is_sharerpw_link(link)
-    if is_gdtot:
-        try:
+    try:
+        if is_gdtot := is_gdtot_link(link)
             link = gdtot(link)
-        except DirectDownloadLinkException as e:
-            if _msg:
-                deleteMessage(bot, _msg)
-            return sendMessage(f"⚠️ {tag} {e}", bot, message)
-    elif is_appdrive:
-        try:
+        elif is_appdrive := is_appdrive_link(link)
             link = appdrive(link)
-        except DirectDownloadLinkException as e:
-            if _msg:
-                deleteMessage(bot, _msg)
-            return sendMessage(f"⚠️ {tag} {e}", bot, message)
-    elif is_sharerpw:
-        try:
+        elif is_sharerpw := is_sharerpw_link(link)
             link = sharerpw(link)
-        except DirectDownloadLinkException as e:
-            if _msg:
-                deleteMessage(bot, _msg)
-            return sendMessage(f"⚠️ {tag} {e}", bot, message)
+    except DirectDownloadLinkException as e:
+        if _msg:
+            deleteMessage(bot, _msg)
+        return sendMessage(f"⚠️ {tag} {e}", bot, message)
     if is_gdrive_link(link):
         gd = GoogleDriveHelper()
         res, size, name, files = gd.helper(link)
@@ -128,7 +115,7 @@ def _clone(message, bot, multi=0):
         else:
             sendMarkup(result + cc, bot, message, button)
             LOGGER.info(f'Cloning Done: {name}')
-        if is_gdtot or is_appdrive or is_sharerpw:
+        if any([is_gdtot, is_appdrive, is_sharerpw]):
             gd.deletefile(link)
     else:
         if _msg:
