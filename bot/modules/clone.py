@@ -40,11 +40,11 @@ def _clone(message, bot, multi=0):
         _msg = sendMessage(f"♻️ {tag} Cloning: <code>{link}</code>", bot, message)
     else: _msg = None
     try:
-        if is_gdtot := is_gdtot_link(link)
+        if is_gdtot := is_gdtot_link(link):
             link = gdtot(link)
-        elif is_appdrive := is_appdrive_link(link)
+        elif is_appdrive := is_appdrive_link(link):
             link = appdrive(link)
-        elif is_sharerpw := is_sharerpw_link(link)
+        elif is_sharerpw := is_sharerpw_link(link):
             link = sharerpw(link)
     except DirectDownloadLinkException as e:
         if _msg:
