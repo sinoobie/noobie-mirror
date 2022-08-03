@@ -163,6 +163,7 @@ def mediafire(url: str) -> str:
     """ MediaFire direct link generator """
     try:
         link = re.findall(r'\bhttps?://.*mediafire\.com\S+', url)[0]
+        link = link.split('?dkey=')[0]
     except IndexError:
         raise DirectDownloadLinkException("No MediaFire links found\n")
     try:
