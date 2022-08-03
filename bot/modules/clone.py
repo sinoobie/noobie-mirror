@@ -18,6 +18,7 @@ from bot.helper.ext_utils.exceptions import DirectDownloadLinkException
 def _clone(message, bot, multi=0):
     args = message.text.split()
     reply_to = message.reply_to_message
+    gdrive_sharer = False
     link = ''
     if len(args) > 1:
         link = args[1].strip()
@@ -42,10 +43,13 @@ def _clone(message, bot, multi=0):
     try:
         if is_gdtot := is_gdtot_link(link):
             link = gdtot(link)
+            gdrive_sharer = True
         elif is_appdrive := is_appdrive_link(link):
             link = appdrive(link)
+            gdrive_sharer = True
         elif is_sharerpw := is_sharerpw_link(link):
             link = sharerpw(link)
+            gdrive_sharer = True
     except DirectDownloadLinkException as e:
         if _msg:
             deleteMessage(bot, _msg)
@@ -115,7 +119,7 @@ def _clone(message, bot, multi=0):
         else:
             sendMarkup(result + cc, bot, message, button)
             LOGGER.info(f'Cloning Done: {name}')
-        if any([is_gdtot, is_appdrive, is_sharerpw]):
+        if gdrive_sharer:
             gd.deletefile(link)
     else:
         if _msg:
