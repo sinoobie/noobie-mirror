@@ -627,7 +627,7 @@ def appdrive(url: str) -> str:
     elif 'error' in response and response['error']:
         info_parsed['error'] = True
         info_parsed['error_message'] = response['message']
-    if urlparse(url).netloc in appdrive_family and not info_parsed['error']:
+    if any(x in url for x in appdrive_family) and not info_parsed['error']:
         res = client.get(info_parsed['gdrive_link'])
         drive_link = etree.HTML(res.content).xpath("//a[contains(@class,'btn')]/@href")[0]
         info_parsed['gdrive_link'] = drive_link
