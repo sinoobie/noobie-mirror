@@ -320,6 +320,7 @@ def _mirror(bot, message, isZip=False, extract=False, isQbit=False, isLeech=Fals
     mesg = message.text.split('\n')
     message_args = mesg[0].split(maxsplit=1)
     name_args = mesg[0].split('|', maxsplit=1)
+    gdrive_sharer = False
     index = 1
 
     if len(message_args) > 1:
