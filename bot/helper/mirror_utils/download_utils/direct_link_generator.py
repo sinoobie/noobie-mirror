@@ -76,6 +76,8 @@ def direct_link_generator(link: str, host):
         return uploadee(link)
     elif 'wetransfer.com' in host:
         return wetransfer(link)
+    elif 'sfile.mobi' in host:
+        return sfile(link)
     elif 'romsget.io' in host:
         return link if host == 'static.romsget.io' else romsget(link)
     elif is_gdtot_link(link):
@@ -273,6 +275,19 @@ def onedrive(link: str) -> str:
     file_name = dl_link.rsplit("/", 1)[1]
     resp2 = requests.head(dl_link)
     return dl_link
+
+def sfile(link: str) -> str:
+  """ Sfile.mobi direct link generator
+  By https://github.com/Ncode2014 """
+  url = link.strip("/ ")
+  file_id = url.split("/")[-1]
+  dl_link = f"https://sfile.mobi/download/{file_id}"
+  headers = {
+        'User-Agent': 'Mozilla/5.0 (Linux; Android 6.0.1; SM-G532G Build/MMB29T) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/63.0.3239.83 Mobile Safari/537.36'
+    }
+  bs = BeautifulSoup(requests.get(dl_link, headers=headers).content, "html.parser")
+  dl_link = bs.find("div", {"class": "w3-center"}).find("a")["href"]
+  return dl_link
 
 def pixeldrain(url: str) -> str:
     """ Based on https://github.com/yash-dk/TorToolkit-Telegram """
