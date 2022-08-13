@@ -137,17 +137,23 @@ def zippy_share(url: str) -> str:
     js_script = str(js_script)
 
     try:
-        mtk = eval(re.findall(r"\+\((.*?).\+", js_script)[0] + "+ 11")
-        uri1 = re.findall(r".href.=.\"/(.*?)/\"", js_script)[0]
+        a, b = re.findall(r"var.[ab].=.(\d+)", js_script)
+        mtk = eval(f"{math.floor(int(a)/3) + int(a) % int(b)}")
+        uri1 = re.findall(r"\.href.=.\"/(.*?)/\"", js_script)[0]
         uri2 = re.findall(r"\)\+\"/(.*?)\"", js_script)[0]
     except:
         try:
-            mtk = eval(re.findall(r"\+.\((.*?)\).\+", js_script)[0])
+            mtk = eval(re.findall(r"\+\((.*?).\+", js_script)[0] + "+ 11")
             uri1 = re.findall(r".href.=.\"/(.*?)/\"", js_script)[0]
-            uri2 = re.findall(r"\+.\"/(.*?)\"", js_script)[0]
-        except Exception as err:
-            LOGGER.error(err)
-            raise DirectDownloadLinkException("ERROR: Tidak dapat mengambil direct link")
+            uri2 = re.findall(r"\)\+\"/(.*?)\"", js_script)[0]
+        except:
+            try:
+                mtk = eval(re.findall(r"\+.\((.*?)\).\+", js_script)[0])
+                uri1 = re.findall(r".href.=.\"/(.*?)/\"", js_script)[0]
+                uri2 = re.findall(r"\+.\"/(.*?)\"", js_script)[0]
+            except Exception as err:
+                LOGGER.error(err)
+                raise DirectDownloadLinkException("ERROR: Tidak dapat mengambil direct link")
     dl_url = f"{base_url}/{uri1}/{int(mtk)}/{uri2}"
     return dl_url
 
