@@ -127,7 +127,7 @@ CATATAN: Coba setiap perintah tanpa perfiks apa pun untuk melihat lebih detail.
 '''
 
 def bot_help(update, context):
-    sendMarkup(help_string, context.bot, update.message)
+    sendMessage(help_string, context.bot, update.message)
 
 botcmds = [
 
