@@ -5,7 +5,7 @@ from threading import RLock, Lock
 from bot import LOGGER, download_dict, download_dict_lock, STOP_DUPLICATE, STORAGE_THRESHOLD, app
 from bot.helper.ext_utils.bot_utils import get_readable_file_size
 from ..status_utils.telegram_download_status import TelegramDownloadStatus
-from bot.helper.telegram_helper.message_utils import sendMarkup, sendMessage, sendStatusMessage
+from bot.helper.telegram_helper.message_utils import sendStatusMessage, sendFile, sendMessage
 from bot.helper.mirror_utils.upload_utils.gdriveTools import GoogleDriveHelper
 from bot.helper.ext_utils.fs_utils import check_storage_threshold
 
@@ -96,10 +96,11 @@ class TelegramDownloadHelper:
                 size = media.file_size
                 if STOP_DUPLICATE and not self.__listener.isLeech:
                     LOGGER.info('Checking File/Folder if already in Drive...')
-                    smsg, button = GoogleDriveHelper().drive_list(name, True, True)
-                    if smsg:
-                        msg = f"⚠️ {self.__listener.tag} Download kamu dihentikan karena: <code>{name}</code> <b><u>sudah ada di Drive</u></b>"
-                        return sendMarkup(msg, self.__listener.bot, self.__listener.message, button)
+                    cap, f_name = GoogleDriveHelper().drive_list(name, True, True)
+                    if cap:
+                        sendMessage(f"⚠️ {self.__listener.tag} Download kamu dihentikan karena: <code>{name}</code> <b><u>sudah ada di Drive</u></b>", self.__listener.bot, self.__listener.message)
+                        sendFile(self.__listener.bot, self.__listener.message, f_name, cap)
+                        return
                 if STORAGE_THRESHOLD is not None:
                     arch = any([self.__listener.isZip, self.__listener.extract])
                     acpt = check_storage_threshold(size, arch)

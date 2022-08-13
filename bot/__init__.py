@@ -133,7 +133,7 @@ AUTHORIZED_CHATS = set()
 SUDO_USERS = set()
 AS_DOC_USERS = set()
 AS_MEDIA_USERS = set()
-EXTENSION_FILTER = set()
+EXTENSION_FILTER = set(['.aria2'])
 
 try:
     aid = getConfig('AUTHORIZED_CHATS')
@@ -172,7 +172,7 @@ except:
     log_error("One or more env variables missing! Exiting now")
     exit(1)
 
-LOGGER.info("Generating SESSION_STRING")
+log_info("Generating SESSION_STRING")
 try:
     IS_PREMIUM_USER = False
     USER_SESSION_STRING = getConfig('USER_SESSION_STRING')
@@ -214,7 +214,7 @@ try:
         raise KeyError
 except:
     MEGA_KEY = None
-    LOGGER.info('MEGA_API_KEY not provided!')
+    log_info('MEGA_API_KEY not provided!')
 if MEGA_KEY is not None:
     # Start megasdkrest binary
     Popen(["megasdkrest", "--apikey", MEGA_KEY])
@@ -250,15 +250,14 @@ try:
 except:
     DB_URI = None
 try:
-    TG_SPLIT_SIZE = getConfig('TG_SPLIT_SIZE')
-    if len(TG_SPLIT_SIZE) == 0 or (not IS_PREMIUM_USER and TG_SPLIT_SIZE > 2097152000) or TG_SPLIT_SIZE > 4194304000:
+    LEECH_SPLIT_SIZE = getConfig('LEECH_SPLIT_SIZE')
+    if len(LEECH_SPLIT_SIZE) == 0 or (not IS_PREMIUM_USER and int(LEECH_SPLIT_SIZE) > 2097152000) \
+       or int(LEECH_SPLIT_SIZE) > 4194304000:
         raise KeyError
-    TG_SPLIT_SIZE = int(TG_SPLIT_SIZE)
+    LEECH_SPLIT_SIZE = int(LEECH_SPLIT_SIZE)
 except:
-    if not IS_PREMIUM_USER:
-        TG_SPLIT_SIZE = 2097152000
-    else:
-        TG_SPLIT_SIZE = 4194304000
+    LEECH_SPLIT_SIZE = 4194304000 if IS_PREMIUM_USER else 2097152000
+MAX_SPLIT_SIZE = 4194304000 if IS_PREMIUM_USER else 2097152000
 try:
     STATUS_LIMIT = getConfig('STATUS_LIMIT')
     if len(STATUS_LIMIT) == 0:
@@ -431,11 +430,6 @@ try:
     EQUAL_SPLITS = EQUAL_SPLITS.lower() == 'true'
 except:
     EQUAL_SPLITS = False
-try:
-    QB_SEED = getConfig('QB_SEED')
-    QB_SEED = QB_SEED.lower() == 'true'
-except:
-    QB_SEED = False
 try:
     CUSTOM_FILENAME = getConfig('CUSTOM_FILENAME')
     if len(CUSTOM_FILENAME) == 0:

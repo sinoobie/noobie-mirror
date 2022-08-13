@@ -10,7 +10,6 @@ from threading import Thread
 
 from bot import bot, dispatcher, updater, botStartTime, IGNORE_PENDING_REQUESTS, LOGGER, Interval, INCOMPLETE_TASK_NOTIFIER, DB_URI, alive, app, main_loop, AUTHORIZED_CHATS
 from .helper.ext_utils.fs_utils import start_cleanup, clean_all, exit_clean_up
-from .helper.ext_utils.telegraph_helper import telegraph
 from .helper.ext_utils.bot_utils import get_readable_file_size, get_readable_time
 from .helper.ext_utils.db_handler import DbManger
 from .helper.telegram_helper.bot_commands import BotCommands
@@ -18,7 +17,7 @@ from .helper.telegram_helper.message_utils import sendMessage, sendMarkup, editM
 from .helper.telegram_helper.filters import CustomFilters
 from .helper.telegram_helper.button_build import ButtonMaker
 
-from .modules import authorize, list, cancel_mirror, mirror_status, mirror, clone, watch, shell, eval, delete, count, leech_settings, search, rss, bt_select, sleep
+from .modules import authorize, list, cancel_mirror, mirror_status, mirror_leech, clone, ytdlp, shell, eval, delete, count, leech_settings, search, rss, bt_select, sleep
 
 
 def stats(update, context):
@@ -60,7 +59,7 @@ def restart(update, context):
         Interval.clear()
     alive.kill()
     clean_all()
-    srun(["pkill", "-9", "-f", "gunicorn|extra-api|last-api|megasdkrest|new-api"])
+    srun(["pkill", "-9", "-f", "gunicorn|extra-api|last-api|megasdkrest"])
     srun(["python3", "update.py"])
     with open(".restartmsg", "w") as f:
         f.truncate(0)
@@ -78,141 +77,77 @@ def ping(update, context):
 def log(update, context):
     sendLogFile(context.bot, update.message)
 
-
-help_string_telegraph = f'''<br>
-<b>/{BotCommands.HelpCommand}</b> Untuk mendapatkan pesan ini
-<br><br>
-<b>/{BotCommands.MirrorCommand} [download_url] atau [magnet_link]</b>
-<br>Untuk memulai mirror direct atau torrent link. Ketik <b>/{BotCommands.MirrorCommand}</b> untuk penggunaan lebih lanjut
-<br><br>
-<b>/{BotCommands.ZipMirrorCommand} [download_url] atau [magnet_link]</b>
-<br>Untuk mengarsip file atau folder ke zip
-<br><br>
-<b>/{BotCommands.UnzipMirrorCommand} [download_url] atau [magnet_link]</b>
-<br>Untuk mengekstraks file atau folder
-<br><br>
-<b>/{BotCommands.QbMirrorCommand} [magnet_link] atau [torrent_file] atau [torrent_file_url]</b>
-<br>Untuk mirror torrent dengan qBittorrent, Kirim <b>/{BotCommands.QbMirrorCommand}</b> untuk detail lebih lanjut
-<br><br>
-<b>/{BotCommands.QbZipMirrorCommand} [magnet_link] atau [torrent_file] atau [torrent_file_url]</b>
-<br>Untuk mirror torrent dengan qBittorrent lalu kemudian mengarsip file atau folder ke zip
-<br><br>
-<b>/{BotCommands.QbUnzipMirrorCommand} [magnet_link] atau [torrent_file] atau [torrent_file_url]</b>
-<br>Untuk mirror torrent dengan qBittorrent lalu kemudian mengekstraks file atau folder
-<br><br>
-<b>/{BotCommands.LeechCommand} [download_url] atau [magnet_link]</b>
-<br>Untuk mengupload hasil mirror ke telegram, Ketik <b>/{BotCommands.LeechCommand} s [download_url] atau [magnet_link]</b> untuk memilih file sebelum mulai mirror
-<br><br>
-<b>/{BotCommands.ZipLeechCommand} [download_url] atau [magnet_link]</b>
-<br>Untuk mengupload hasil mirror ke telegram lalu kemudian mengarsip file atau folder ke zip
-<br><br>
-<b>/{BotCommands.UnzipLeechCommand} [download_url] atau [magnet_link] atau [torent_file]</b>
-<br>Untuk mengupload hasil mirror ke telegram lalu kemudian mengekstraks file atau folder
-<br><br>
-<b>/{BotCommands.QbLeechCommand} [magnet_link] atau [torrent_file] atau [torrent_file_url]</b>
-<br>Untuk mengupload hasil mirror ke telegram dengan qBittorrent, Ketik <b>/{BotCommands.QbLeechCommand} s [magnet_link] atau [torrent_file] atau [torrent_file_url]</b> untuk memilih file sebelum mulai mirror
-<br><br>
-<b>/{BotCommands.QbZipLeechCommand} [magnet_link] atau [torrent_file] atau [torrent_file_url]</b>
-<br>Untuk mengupload hasil mirror ke telegram dengan qBittorrent lalu kemudian mengarsip file atau folder ke zip
-<br><br>
-<b>/{BotCommands.QbUnzipLeechCommand} [magnet_link] atau [torrent_file] atau [torrent_file_url]</b>
-<br>Untuk mengupload hasil mirror ke telegram dengan qBittorrent lalu kemudian mengekstraks file atau folder
-<br><br>
-<b>/{BotCommands.CloneCommand} [drive_url] atau [gdtot_url]</b>
-<br>Copy file atau folder ke Google Drive
-<br><br>
-<b>/{BotCommands.CountCommand} [drive_url] atau [gdtot_url]</b>
-<br>Menghitung file atau folder dari Google Drive
-<br><br>
-<b>/{BotCommands.DeleteCommand} [drive_url]</b>
-<br>Hapus file atau folder dari Google Drive (Hanya Owner & Sudo)
-<br><br>
-<b>/{BotCommands.WatchCommand} [YouTube link]</b>
-<br>Mirror YouTube link. Ketik <b>/{BotCommands.WatchCommand}</b> untuk lebih detail
-<br><br>
-<b>/{BotCommands.ZipWatchCommand} [YouTube link]</b>
-<br>Mirror YouTube link dan kompres ke zip
-<br><br>
-<b>/{BotCommands.LeechWatchCommand} [YouTube link]</b>
-<br>Leech (upload ke telegram) YouTube link
-<br><br>
-<b>/{BotCommands.LeechZipWatchCommand} [YouTube link]</b>
-<br>Leech (upload ke telegram) YouTube link as zip
-<br><br>
-<b>/{BotCommands.BtSelectCommand}</b>
-<br>Perintah ini terutama untuk pemilihan jika Anda memutuskan untuk memilih file dari bt-torrent yang sudah ditambahkan, Tetapi kamu juga dapat menggunakan perintah dengan arg `s` untuk memilih file sebelum pengunduhan dimulai. Cara penggunaan: Balas perintah aktif yang digunakan untuk memulai bt-download atau menambahkan ID Download bersama dengan perintah ini.
-<br><br>
-<b>/{BotCommands.LeechSetCommand}</b>: Leech settings
-<br><br>
-<b>/{BotCommands.SetThumbCommand}</b>: Reply photo untuk menetapkan Thumbnail
-<br><br>
-<b>/{BotCommands.CancelMirror}</b>: Untuk cancel task berdasarkan ID
-<br><br>
-<b>/{BotCommands.CancelAllCommand}</b>: Cancel semua downloading tasks
-<br><br>
-<b>/{BotCommands.ListCommand} [query]</b>
-<br>Search in Google Drive(s)
-<br><br>
-<b>/{BotCommands.SearchCommand} [query]</b>
-<br>Search for torrents with API
-<br>sites: <code>rarbg, 1337x, yts, etzv, tgx, torlock, piratebay, nyaasi, ettv</code><br><br>
-<b>/{BotCommands.StatusCommand}</b>: Tampilkan semua status tasks
-<br><br>
-<b>/{BotCommands.StatsCommand}</b>: Tampilkan statistik/speksifikasi bot
-'''
-
-help = telegraph.create_page(
-        title='Mirror-in Help',
-        content=help_string_telegraph,
-    )["path"]
-
 help_string = f'''
-/{BotCommands.PingCommand}: Ping Bot
-
-/{BotCommands.AuthorizeCommand}: Mengizinkan pengguna atau grup untuk menggunakan bot (Hanya untuk Owner)
-
-/{BotCommands.UnAuthorizeCommand}: Mencabut izin pengguna atau grup untuk menggunakan bot (Hanya untuk Owner)
-
-/{BotCommands.AuthorizedUsersCommand}: Tampilkan pengguna yang diberi izin menggunakan bot (Hanya untuk Owner)
-
-/{BotCommands.AddSudoCommand}: Menambahkan sudo user (Hanya untuk Owner)
-
-/{BotCommands.RmSudoCommand}: Menghapus sudo users (Hanya untuk Owner)
-
-/{BotCommands.RestartCommand}: Restart bot (Hanya untuk Owner)
-
-/{BotCommands.LogCommand}: Mendapatkan log debuging dari bot (Hanya untuk Owner)
-
-/{BotCommands.ShellCommand}: Menjalankan commands di Shell (Hanya untuk Owner)
-
-/{BotCommands.ExecHelpCommand}: Bantuan untuk Executor module (Hanya untuk Owner)
+CATATAN: Coba setiap perintah tanpa perfiks apa pun untuk melihat lebih detail.
+/{BotCommands.MirrorCommand[0]} atau /{BotCommands.MirrorCommand[1]}: Mulai memirror ke Google Drive.
+/{BotCommands.ZipMirrorCommand[0]} atau /{BotCommands.ZipMirrorCommand[1]}: Mulai memirror dan upload file/folder yang dikompresi dengan ekstensi zip.
+/{BotCommands.UnzipMirrorCommand[0]} atau /{BotCommands.UnzipMirrorCommand[1]}: Mulai memirror dan upload file/folder yang diekstrak dari ekstensi arsip apa pun.
+/{BotCommands.QbMirrorCommand[0]} atau /{BotCommands.QbMirrorCommand[1]}: Mulai memirror ke Google Drive menggunakan qBittorrent.
+/{BotCommands.QbZipMirrorCommand[0]} atau /{BotCommands.QbZipMirrorCommand[1]}: Mulai memirror menggunakan qBittorrent dan upload file/folder yang dikompresi dengan ekstensi zip.
+/{BotCommands.QbUnzipMirrorCommand[0]} atau /{BotCommands.QbUnzipMirrorCommand[1]}: Mulai memirror menggunakan qBittorrent dan upload file/folder yang diekstrak dari ekstensi arsip apa pun.
+/{BotCommands.YtdlCommand[0]} atau /{BotCommands.YtdlCommand[1]}: Memirror link yang didukung yt-dlp.
+/{BotCommands.YtdlZipCommand[0]} atau /{BotCommands.YtdlZipCommand[1]}: Memirror link yang didukung yt-dlp sebagai zip.
+/{BotCommands.LeechCommand[0]} atau /{BotCommands.LeechCommand[1]}: Mulai leeching ke Telegram.
+/{BotCommands.ZipLeechCommand[0]} atau /{BotCommands.ZipLeechCommand[1]}: Mulai leeching dan upload file/folder yang dikompres dengan ekstensi zip.
+/{BotCommands.UnzipLeechCommand[0]} atau /{BotCommands.UnzipLeechCommand[1]}: Mulai leeching dan upload file/folder yang diekstrak dari ekstensi arsip apa pun.
+/{BotCommands.QbLeechCommand[0]} atau /{BotCommands.QbLeechCommand[1]}: Mulai leeching menggunakan qBittorrent.
+/{BotCommands.QbZipLeechCommand[0]} atau /{BotCommands.QbZipLeechCommand[1]}: Mulai leeching menggunakan qBittorrent dan upload file/folder yang dikompresi dengan ekstensi zip.
+/{BotCommands.QbUnzipLeechCommand[0]} atau /{BotCommands.QbUnzipLeechCommand[1]}: Mulai leeching menggunakan qBittorrent dan upload file/folder yang diekstrak dari ekstensi arsip apa pun.
+/{BotCommands.YtdlLeechCommand[0]} atau /{BotCommands.YtdlLeechCommand[1]}: Leeching link yang didukung yt-dlp.
+/{BotCommands.YtdlZipLeechCommand[0]} atau /{BotCommands.YtdlZipLeechCommand[1]}: Leeching link yang didukung yt-dlp sebagai zip.
+/{BotCommands.CloneCommand}: Salin file/folder ke Google Drive.
+/{BotCommands.CountCommand}: Menghitung file/folder Google Drive.
+/{BotCommands.DeleteCommand}: Menghapus file/folder dari Google Drive (Hanya Pemilik & Sudo).
+/{BotCommands.LeechSetCommand}: Setelan leeching.
+/{BotCommands.SetThumbCommand}: Balas foto untuk mengaturnya sebagai Thumbnail.
+/{BotCommands.BtSelectCommand}: Pilih file dari torrent yang sudah atau ingin di mirror.
+/{BotCommands.RssListCommand[0]} atau /{BotCommands.RssListCommand[1]}: Mencantumkan semua info rss feed yang dilanggan (Hanya Pemilik & Sudo).
+/{BotCommands.RssGetCommand[0]} atau /{BotCommands.RssGetCommand[1]}: Ambil paksa N link terakhir (Hanya Pemilik & Sudo).
+/{BotCommands.RssSubCommand[0]} atau /{BotCommands.RssSubCommand[1]}: Berlangganan rss feed baru (Hanya Pemilik & Sudo).
+/{BotCommands.RssUnSubCommand[0]} atau /{BotCommands.RssUnSubCommand[1]}: Berhenti berlangganan umpan rss berdasarkan judul (Hanya Pemilik & Sudo).
+/{BotCommands.RssSettingsCommand[0]} atau /{BotCommands.RssSettingsCommand[1]}: Pengaturan Rss (Hanya Pemilik & Sudo).
+/{BotCommands.CancelMirror} [download id]: Membatalkan proses mirror.
+/{BotCommands.CancelAllCommand}: Membatalkan semua proses mirror.
+/{BotCommands.ListCommand}: Mencari file yang sudah pernah dimirror.
+/{BotCommands.SearchCommand}: Mencari torrent dengan API.
+/{BotCommands.StatusCommand}: Menampilkan semua proses mirror.
+/{BotCommands.StatsCommand}: Menampilkan statistik bot.
+/{BotCommands.PingCommand}: Periksa berapa lama waktu yang dibutuhkan untuk melakukan Ping pada Bot (Hanya Pemilik & Sudo).
+/{BotCommands.AuthorizeCommand}: Mengotorisasi obrolan atau pengguna untuk menggunakan bot (Hanya Pemilik & Sudo).
+/{BotCommands.UnAuthorizeCommand}: Membatalkan otorisasi obrolan atau pengguna untuk menggunakan bot (Hanya Pemilik & Sudo).
+/{BotCommands.AuthorizedUsersCommand}: Menampilkan pengguna yang diotorisasi (Hanya Pemilik & Sudo).
+/{BotCommands.AddSudoCommand}: Tambahkan pengguna sudo (Hanya Pemilik).
+/{BotCommands.RmSudoCommand}: Hapus pengguna sudo (Hanya Pemilik).
+/{BotCommands.RestartCommand}: Mulai ulang dan perbarui bot (Hanya Pemilik & Sudo).
+/{BotCommands.SleepCommand}: Menghentikan bot (Hanya Pemilik & Sudo).
+/{BotCommands.LogCommand}: Dapatkan file log bot. (Hanya Pemilik & Sudo).
+/{BotCommands.ShellCommand}: Jalankan perintah shell (Hanya Pemilik).
+/{BotCommands.EvalCommand}: Jalankan Baris Kode Python | Garis (Hanya Pemilik).
+/{BotCommands.ExecCommand}: Jalankan Perintah Di Exec (Hanya Pemilik).
 '''
 
 def bot_help(update, context):
-    button = ButtonMaker()
-    button.buildbutton("Perintah lainnya", f"https://telegra.ph/{help}")
-    reply_markup = InlineKeyboardMarkup(button.build_menu(1))
-    sendMarkup(help_string, context.bot, update.message, reply_markup)
+    sendMarkup(help_string, context.bot, update.message)
 
 botcmds = [
 
-        (f'{BotCommands.MirrorCommand}', 'Mirror'),
-        (f'{BotCommands.ZipMirrorCommand}','Mirror lalu arsip ke zip'),
-        (f'{BotCommands.UnzipMirrorCommand}','Mirror dan ekstrak file'),
-        (f'{BotCommands.QbMirrorCommand}','Mirror torrent menggunakan qBittorrent'),
-        (f'{BotCommands.QbZipMirrorCommand}','Mirror torrent menggunakan qBittorrent dan arsip ke zip'),
-        (f'{BotCommands.QbUnzipMirrorCommand}','Mirror torrent menggunakan qBittorrent dan ekstrak file'),
-        (f'{BotCommands.WatchCommand}','Mirror YouTube link'),
-        (f'{BotCommands.ZipWatchCommand}','Mirror YouTube link lalu arsip ke zip'),
-        (f'{BotCommands.CloneCommand}','Copy file/folder to Drive'),
-        (f'{BotCommands.LeechCommand}','Upload file ke telegram'),
-        (f'{BotCommands.ZipLeechCommand}','Arsip file ke zip lalu Upload ke telegram'),
-        (f'{BotCommands.UnzipLeechCommand}','Ekstrak file lalu Upload file ke telegram'),
-        (f'{BotCommands.QbLeechCommand}','Upload torrent ke telegram menggunakan qBittorrent'),
-        (f'{BotCommands.QbZipLeechCommand}','Arsip torrent ke zip lalu Upload ke telegram menggunakan qBittorrent'),
-        (f'{BotCommands.QbUnzipLeechCommand}','Ekstrak torrent lalu Upload ke telegram menggunakan qBittorrent'),
-        (f'{BotCommands.LeechWatchCommand}','Upload YouTube video ke telegram'),
-        (f'{BotCommands.LeechZipWatchCommand}','Arsip ke zip YouTube video lalu upload ke telegram'),
+        (f'{BotCommands.MirrorCommand[0]}', 'Mirror'),
+        (f'{BotCommands.ZipMirrorCommand[0]}','Mirror lalu arsip ke zip'),
+        (f'{BotCommands.UnzipMirrorCommand[0]}','Mirror dan ekstrak file'),
+        (f'{BotCommands.QbMirrorCommand[0]}','Mirror torrent menggunakan qBittorrent'),
+        (f'{BotCommands.QbZipMirrorCommand[0]}','Mirror torrent menggunakan qBittorrent dan arsip ke zip'),
+        (f'{BotCommands.QbUnzipMirrorCommand[0]}','Mirror torrent menggunakan qBittorrent dan ekstrak file'),
+        (f'{BotCommands.YtdlCommand[0]}','Mirror YouTube link'),
+        (f'{BotCommands.YtdlZipCommand[0]}','Mirror YouTube link lalu arsip ke zip'),
+        (f'{BotCommands.CloneCommand[0]}','Copy file/folder to Drive'),
+        (f'{BotCommands.LeechCommand[0]}','Upload file ke telegram'),
+        (f'{BotCommands.ZipLeechCommand[0]}','Arsip file ke zip lalu Upload ke telegram'),
+        (f'{BotCommands.UnzipLeechCommand[0]}','Ekstrak file lalu Upload file ke telegram'),
+        (f'{BotCommands.QbLeechCommand[0]}','Upload torrent ke telegram menggunakan qBittorrent'),
+        (f'{BotCommands.QbZipLeechCommand[0]}','Arsip torrent ke zip lalu Upload ke telegram menggunakan qBittorrent'),
+        (f'{BotCommands.QbUnzipLeechCommand[0]}','Ekstrak torrent lalu Upload ke telegram menggunakan qBittorrent'),
+        (f'{BotCommands.YtdlLeechCommand[0]}','Upload YouTube video ke telegram'),
+        (f'{BotCommands.YtdlZipLeechCommand[0]}','Arsip ke zip YouTube video lalu upload ke telegram'),
         (f'{BotCommands.CountCommand}','Menghitung file/folder dari Drive'),
         (f'{BotCommands.DeleteCommand}','Menghapus file/folder dari Drive'),
         (f'{BotCommands.CancelMirror}','Cancel sebuah task'),

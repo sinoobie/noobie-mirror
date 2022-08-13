@@ -147,22 +147,17 @@ def get_readable_message():
                 msg += f"\n📦 {get_readable_file_size(download.processed_bytes())} / {download.size()}"
                 msg += f"\n⚡️ {download.speed()} | ⏳ {download.eta()}"
                 msg += f"\n⏱ {get_readable_time(time() - download.message.date.timestamp())}"
-                try:
-                    msg += f"\n🧲 <b>Seeders:</b> {download.aria_download().num_seeders}" \
-                           f" | <b>Peers:</b> {download.aria_download().connections}"
-                except:
-                    pass
-                try:
-                    msg += f"\n🧲 <b>Seeders:</b> {download.torrent_info().num_seeds}" \
-                           f" | <b>Leechers:</b> {download.torrent_info().num_leechs}"
-                except:
-                    pass
+                if hasattr(download, 'seeders_num'):
+                    try:
+                        msg += f"\n🧲 <b>Seeders:</b> {download.seeders_num()} | <b>Leechers:</b> {download.leechers_num()}"
+                    except:
+                        pass
             elif download.status() == MirrorStatus.STATUS_SEEDING:
-                msg += f"\n📦 <b>Size: </b>{download.size()}"
-                msg += f"\n⚡️ <b>Speed: </b>{get_readable_file_size(download.torrent_info().upspeed)}/s"
-                msg += f" | 📤 <b>Uploaded: </b>{get_readable_file_size(download.torrent_info().uploaded)}"
-                msg += f"\n🧩 <b>Ratio: </b>{round(download.torrent_info().ratio, 3)}"
-                msg += f" | 🕒 <b>Time: </b>{get_readable_time(download.torrent_info().seeding_time)}"
+                msg += f"\n📦 {download.size()}"
+                msg += f"\n⚡️ {download.upload_speed()}"
+                msg += f" | 📤 {download.uploaded_bytes()}"
+                msg += f"\n🕒 {download.seeding_time()}"
+                msg += f" | 🧩 <b>Ratio: </b>{download.ratio()}"
             else:
                 msg += f"\n📦 {download.size()}"
             msg += f"\n👤 {tag}"
@@ -187,6 +182,12 @@ def get_readable_message():
                 if 'KB/s' in spd:
                     upspeed_bytes += float(spd.split('K')[0]) * 1024
                 elif 'MB/s' in spd:
+                    upspeed_bytes += float(spd.split('M')[0]) * 1048576
+            elif download.status() == MirrorStatus.STATUS_SEEDING:
+                spd = download.upload_speed()
+                if 'K' in spd:
+                    upspeed_bytes += float(spd.split('K')[0]) * 1024
+                elif 'M' in spd:
                     upspeed_bytes += float(spd.split('M')[0]) * 1048576
         bmsg += f"\n🔻 <b>DL:</b> {get_readable_file_size(dlspeed_bytes)}/s | 🔺 <b>UL:</b> {get_readable_file_size(upspeed_bytes)}/s"
         if STATUS_LIMIT is not None and tasks > STATUS_LIMIT:

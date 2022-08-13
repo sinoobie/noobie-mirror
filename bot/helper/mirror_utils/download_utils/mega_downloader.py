@@ -2,7 +2,7 @@ from threading import Lock
 from pathlib import Path
 
 from bot import LOGGER, download_dict, download_dict_lock, MEGA_LIMIT, STOP_DUPLICATE, ZIP_UNZIP_LIMIT, STORAGE_THRESHOLD
-from bot.helper.telegram_helper.message_utils import sendMessage, sendMarkup, sendStatusMessage
+from bot.helper.telegram_helper.message_utils import sendMessage, sendFile, sendStatusMessage
 from bot.helper.ext_utils.bot_utils import get_readable_file_size, setInterval
 from bot.helper.mirror_utils.upload_utils.gdriveTools import GoogleDriveHelper
 from bot.helper.ext_utils.fs_utils import get_base_name, check_storage_threshold
@@ -67,9 +67,8 @@ class MegaDownloader:
 
     def __onInterval(self):
         dlInfo = self.__mega_client.getDownloadInfo(self.gid)
-        if (dlInfo['state'] == constants.State.TYPE_STATE_COMPLETED or dlInfo[
-            'state'] == constants.State.TYPE_STATE_CANCELED or dlInfo[
-                'state'] == constants.State.TYPE_STATE_FAILED) and self.__periodic is not None:
+        if dlInfo['state'] in [constants.State.TYPE_STATE_COMPLETED, constants.State.TYPE_STATE_CANCELED, 
+            constants.State.TYPE_STATE_FAILED] and self.__periodic is not None:
             self.__periodic.cancel()
         if dlInfo['state'] == constants.State.TYPE_STATE_COMPLETED:
             self.__onDownloadComplete()
@@ -118,10 +117,11 @@ class MegaDownloader:
                 except:
                     mname = None
             if mname is not None:
-                smsg, button = GoogleDriveHelper().drive_list(mname, True)
-                if smsg:
-                    msg1 = "File/Folder is already available in Drive.\nHere are the search results:"
-                    return sendMarkup(msg1, self.__listener.bot, self.__listener.message, button)
+                cap, f_name = GoogleDriveHelper().drive_list(mname, True)
+                if cap:
+                    sendMessage(f"⚠️ {self.__listener.tag} <code>{mname}</code> <b><u>sudah ada di Drive</u></b>", self.__listener.bot, self.__listener.message)
+                    sendFile(self.__listener.bot, self.__listener.message, f_name, cap)
+                    return
         if any([STORAGE_THRESHOLD, ZIP_UNZIP_LIMIT, MEGA_LIMIT]):
             arch = any([self.__listener.isZip, self.__listener.extract])
             if STORAGE_THRESHOLD is not None:

@@ -37,7 +37,7 @@ try:
     if len(UPSTREAM_REPO) == 0:
        raise TypeError
 except:
-    UPSTREAM_REPO = 'https://nekoru-kun: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@github.com/nekoru-kun/noobie-mirror1'
+    UPSTREAM_REPO = 'https://github.com/sinoobie/noobie-mirror'
 try:
     if len(UPSTREAM_BRANCH) == 0:
        raise TypeError

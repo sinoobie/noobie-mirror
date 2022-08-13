@@ -5,7 +5,7 @@ from threading import Thread
 from time import sleep, time
 
 from bot.helper.mirror_utils.upload_utils.gdriveTools import GoogleDriveHelper
-from bot.helper.telegram_helper.message_utils import sendMessage, sendMarkup, deleteMessage, delete_all_messages, update_all_messages, sendStatusMessage, auto_delete_message
+from bot.helper.telegram_helper.message_utils import sendMessage, sendFile, deleteMessage, delete_all_messages, update_all_messages, sendStatusMessage, auto_delete_message, sendMarkup
 from bot.helper.telegram_helper.filters import CustomFilters
 from bot.helper.telegram_helper.bot_commands import BotCommands
 from bot.helper.mirror_utils.status_utils.clone_status import CloneStatus
@@ -63,12 +63,13 @@ def _clone(message, bot, multi=0):
             return sendMessage(f"⚠️ {tag} {res}", bot, message)
         if STOP_DUPLICATE:
             LOGGER.info('Checking File/Folder if already in Drive...')
-            smsg, button = gd.drive_list(name, True, True)
-            if smsg:
+            cap, f_name = gd.drive_list(name, True, True)
+            if cap:
                 if _msg:
                     deleteMessage(bot, _msg)
-                msg3 = f"⚠️ {tag} Download kamu dihentikan karena: <code>{name}</code> <b><u>sudah ada di Drive</u></b>"
-                return sendMarkup(msg3, bot, message, button)
+                sendMessage(f"⚠️ {tag} Download kamu dihentikan karena: <code>{name}</code> <b><u>sudah ada di Drive</u></b>", bot, message)
+                sendFile(bot, message, f_name, cap)
+                return
         if CLONE_LIMIT is not None:
             LOGGER.info('Checking File/Folder Size...')
             if size > CLONE_LIMIT * 1024**3:
