@@ -16,7 +16,7 @@ def list_drives(update, context):
         LOGGER.info(f"listing: {key}")
         bmsg = sendMessage(f"ℹ️ <b>Sedang mencari file</b> <code>{key}</code>", context.bot, update.message)
         gdrive = GoogleDriveHelper()
-        cap, f_name = gdrive.drive_list(key, isRecursive=True, itemType=item_type)
+        cap, f_name = gdrive.drive_list(key, isRecursive=True)
         if cap:
             deleteMessage(context.bot, bmsg)
             sendFile(bot, bmsg.reply_to_message, f_name, cap)

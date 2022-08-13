@@ -1,6 +1,6 @@
 from requests import utils as rutils
 from re import search as re_search
-from time import sleep
+from time import sleep, time
 from os import path as ospath, remove as osremove, listdir, walk
 from subprocess import Popen
 from html import escape
