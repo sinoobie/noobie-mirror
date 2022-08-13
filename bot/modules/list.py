@@ -19,7 +19,7 @@ def list_drives(update, context):
         cap, f_name = gdrive.drive_list(key, isRecursive=True)
         if cap:
             deleteMessage(context.bot, bmsg)
-            sendFile(bot, bmsg.reply_to_message, f_name, cap)
+            sendFile(context.bot, bmsg.reply_to_message, f_name, cap)
         else:
             editMessage(f'ℹ️ <b>Tidak ada file yang cocok dengan</b> <code>{key}</code>', bmsg)
     except Exception as err:
