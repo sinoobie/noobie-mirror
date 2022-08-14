@@ -310,7 +310,10 @@ class MirrorLeechListener:
                 LOGGER.error(str(e))
             count = len(download_dict)
         msg = f"⚠️ {self.tag} Download kamu dihentikan karena: {error}"
-        sendMessage(msg, self.bot, self.message)
+        if listfile == None:
+            sendMessage(msg, self.bot, self.message)
+        else:
+            sendFile(self.bot, self.message, listfile, msg)
         if count == 0:
             self.clean()
         else:
@@ -319,7 +322,7 @@ class MirrorLeechListener:
         if not self.isPrivate and INCOMPLETE_TASK_NOTIFIER and DB_URI is not None:
             DbManger().rm_complete_task(self.message.link)
 
-    def onUploadError(self, error, listfile=None):
+    def onUploadError(self, error):
         e_str = error.replace('<', '').replace('>', '')
         clean_download(self.dir)
         if self.newDir:
@@ -330,10 +333,7 @@ class MirrorLeechListener:
             except Exception as e:
                 LOGGER.error(str(e))
             count = len(download_dict)
-        if listfile == None:
-            sendMessage(f"⚠️ {self.tag} {e_str}", self.bot, self.message)
-        else:
-            sendFile(self.bot, self.message, listfile, f"⚠️ {self.tag} {e_str}")
+        sendMessage(f"⚠️ {self.tag} {e_str}", self.bot, self.message)
         if count == 0:
             self.clean()
         else:
