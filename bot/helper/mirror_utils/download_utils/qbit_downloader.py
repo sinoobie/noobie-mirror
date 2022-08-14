@@ -160,6 +160,7 @@ class QbDownloader:
                 self.__listener.onDownloadComplete()
                 if self.__listener.seed:
                     if SEED_LIMIT is not None:
+                        LOGGER.info(f"SEED_LIMIT seeding ratio: {self._ratio}")
                         size = (tor_info.size * self._ratio) if self._ratio else tor_info.size
                         if size > SEED_LIMIT * 1024**3:
                             self.__listener.onUploadError(f"Seeding torrent limit {SEED_LIMIT} GB. Ukuran File/folder yang akan di seeding adalah {get_readable_file_size(size)}")
