@@ -146,7 +146,7 @@ class GoogleDriveHelper:
                                                    body=permissions).execute()
 
     @retry(wait=wait_exponential(multiplier=2, min=3, max=6), stop=stop_after_attempt(3),
-           retry=(retry_if_exception_type(HttpError) | retry_if_exception_type(IOError)))
+           retry=(retry_if_exception_type(GCError) | retry_if_exception_type(IOError)))
     def __upload_file(self, file_path, file_name, mime_type, parent_id):
         # File body description
         file_metadata = {
@@ -388,9 +388,9 @@ class GoogleDriveHelper:
                 LOGGER.info(f"Total Attempts: {err.last_attempt.attempt_number}")
                 err = err.last_attempt.exception()
             err = str(err).replace('>', '').replace('<', '')
-            if "User rate limit exceeded" in str(err):
+            if "User rate limit exceeded" in err:
                 msg = f"Link tersebut sudah mencapai limit harian, coba besok lagi."
-            elif "File not found" in str(err):
+            elif "File not found" in err:
                 token_service = self.__alt_authorize()
                 if token_service is not None:
                     self.__service = token_service
@@ -516,7 +516,7 @@ class GoogleDriveHelper:
                 if stopDup:
                     query = f"name = '{fileName}' and "
                 else:
-                    fileName = fileName.split(' ')
+                    fileName = fileName.split()
                     query = "".join(
                         f"name contains '{name}' and "
                         for name in fileName
@@ -558,7 +558,7 @@ class GoogleDriveHelper:
                     query = f"'{parent_id}' in parents and name = '{fileName}' and "
                 else:
                     query = f"'{parent_id}' in parents and "
-                    fileName = fileName.split(' ')
+                    fileName = fileName.split()
                     for name in fileName:
                         if name != '':
                             query += f"name contains '{name}' and "
@@ -582,6 +582,7 @@ class GoogleDriveHelper:
                 )
         except Exception as err:
             err = str(err).replace('>', '').replace('<', '')
+            LOGGER.error(err)
             return {'files': []}
 
     def drive_list(self, fileName, stopDup=False, noMulti=False, isRecursive=True, itemType=""):
@@ -781,9 +782,9 @@ class GoogleDriveHelper:
                 LOGGER.info(f"Total Attempts: {err.last_attempt.attempt_number}")
                 err = err.last_attempt.exception()
             err = str(err).replace('>', '').replace('<', '')
-            if "downloadQuotaExceeded" in str(err):
+            if "downloadQuotaExceeded" in err:
                 err = "Link tersebut sudah mencapai limit harian, coba besok lagi."
-            elif "File not found" in str(err):
+            elif "File not found" in err:
                 token_service = self.__alt_authorize()
                 if token_service is not None:
                     self.__service = token_service
@@ -823,16 +824,16 @@ class GoogleDriveHelper:
                 break
 
     @retry(wait=wait_exponential(multiplier=2, min=3, max=6), stop=stop_after_attempt(3),
-           retry=(retry_if_exception_type(HttpError) | retry_if_exception_type(IOError)))
+           retry=(retry_if_exception_type(GCError) | retry_if_exception_type(IOError)))
     def __download_file(self, file_id, path, filename, mime_type):
         request = self.__service.files().get_media(fileId=file_id)
         filename = filename.replace('/', '')
         if len(filename.encode()) > 255:
             ext = ospath.splitext(filename)[1]
-            filename = filename[:245] + ext
+            filename = f"{filename[:245]}{ext}"
             if self.name.endswith(ext):
                 self.name = filename
-        fh = FileIO(f"{path}{filename}", 'wb')
+        fh = FileIO(f"{path}/{filename}", 'wb')
         downloader = MediaIoBaseDownload(fh, request, chunksize=50 * 1024 * 1024)
         done = False
         while not done:

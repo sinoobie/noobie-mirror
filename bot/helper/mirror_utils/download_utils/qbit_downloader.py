@@ -15,10 +15,10 @@ class QbDownloader:
 
     def __init__(self, listener):
         self.select = False
+        self.is_seeding = False
         self.client = None
         self.periodic = None
         self.ext_hash = ''
-        self.is_seeding = False
         self.__listener = listener
         self.__path = ''
         self.__name = ''
@@ -149,8 +149,7 @@ class QbDownloader:
                 self.client.torrents_recheck(torrent_hashes=self.ext_hash)
             elif tor_info.state == "error":
                 self.__onDownloadError("No enough space for this torrent on device")
-            elif (tor_info.state.lower().endswith("up") or tor_info.state == "uploading") and \
-                 not self.__uploaded and len(listdir(self.__path)) != 0:
+            elif (tor_info.state.lower().endswith("up") or tor_info.state == "uploading") and not self.__uploaded:
                 self.__uploaded = True
                 if not self.__listener.seed:
                     self.client.torrents_pause(torrent_hashes=self.ext_hash)
