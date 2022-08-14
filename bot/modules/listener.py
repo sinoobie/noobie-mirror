@@ -299,7 +299,7 @@ class MirrorLeechListener:
         else:
             update_all_messages()
 
-    def onDownloadError(self, error):
+    def onDownloadError(self, error, listfile=None):
         clean_download(self.dir)
         if self.newDir:
             clean_download(self.newDir)
