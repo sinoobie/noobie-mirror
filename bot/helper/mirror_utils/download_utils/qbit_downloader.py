@@ -19,6 +19,7 @@ class QbDownloader:
         self.client = None
         self.periodic = None
         self.ext_hash = ''
+        self._ratio = None
         self.__listener = listener
         self.__path = ''
         self.__name = ''
@@ -29,6 +30,7 @@ class QbDownloader:
 
     def add_qb_torrent(self, link, path, select, ratio, seed_time):
         self.__path = path
+        self._ratio = ratio
         self.select = select
         self.client = get_client()
         try:
@@ -157,9 +159,9 @@ class QbDownloader:
                     clean_unwanted(self.__path)
                 self.__listener.onDownloadComplete()
                 if self.__listener.seed:
-                    size = tor_info.size
+                    size = (tor_info.size * self._ratio) if self._ratio else tor_info.size
                     if SEED_LIMIT is not None:
-                        if size * round(tor_info.ratio, 3) > SEED_LIMIT * 1024**3:
+                        if size > SEED_LIMIT * 1024**3:
                             self.__listener.onUploadError(f"Seeding torrent limit {SEED_LIMIT} GB. Ukuran File/folder yang akan di seeding adalah {get_readable_file_size(size)}")
                             self.__remove_torrent()
                             return
