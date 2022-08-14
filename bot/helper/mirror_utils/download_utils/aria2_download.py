@@ -140,10 +140,11 @@ def __onBtDownloadComplete(api, gid):
         listener.onDownloadComplete()
         if listener.seed:
             size = download.total_length
-            if SEED_LIMIT is not None and size * dl.ratio() > SEED_LIMIT * 1024**3:
-                listener.onUploadError(f"Seeding torrent limit {SEED_LIMIT} GB. Ukuran File/folder yang akan di seeding adalah {get_readable_file_size(size)}")
-                api.remove([download], force=True, files=True)
-                return
+            if SEED_LIMIT is not None:
+                if size * dl.ratio() > SEED_LIMIT * 1024**3:
+                    listener.onUploadError(f"Seeding torrent limit {SEED_LIMIT} GB. Ukuran File/folder yang akan di seeding adalah {get_readable_file_size(size)}")
+                    api.remove([download], force=True, files=True)
+                    return
             with download_dict_lock:
                 if listener.uid not in download_dict:
                     api.remove([download], force=True, files=True)

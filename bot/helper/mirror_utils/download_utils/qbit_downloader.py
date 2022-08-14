@@ -158,10 +158,11 @@ class QbDownloader:
                 self.__listener.onDownloadComplete()
                 if self.__listener.seed:
                     size = tor_info.size
-                    if SEED_LIMIT is not None and size * round(tor_info.ratio, 3) > SEED_LIMIT * 1024**3:
-                        self.__listener.onUploadError(f"Seeding torrent limit {SEED_LIMIT} GB. Ukuran File/folder yang akan di seeding adalah {get_readable_file_size(size)}")
-                        self.__remove_torrent()
-                        return
+                    if SEED_LIMIT is not None:
+                        if size * round(tor_info.ratio, 3) > SEED_LIMIT * 1024**3:
+                            self.__listener.onUploadError(f"Seeding torrent limit {SEED_LIMIT} GB. Ukuran File/folder yang akan di seeding adalah {get_readable_file_size(size)}")
+                            self.__remove_torrent()
+                            return
                     with download_dict_lock:
                         if self.__listener.uid not in download_dict:
                             self.__remove_torrent()
