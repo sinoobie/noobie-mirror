@@ -185,7 +185,7 @@ def _mirror_leech(bot, message, isZip=False, extract=False, isQbit=False, isLeec
             smsg = sendMessage(gmsg, bot, message)
             Thread(target=auto_delete_message, args=(bot, message, smsg)).start()
         else:
-            Thread(target=add_gd_download, args=(link, f'{DOWNLOAD_DIR}{listener.uid}', listener, name)).start()
+            Thread(target=add_gd_download, args=(link, f'{DOWNLOAD_DIR}{listener.uid}', listener, name, gdrive_sharer)).start()
     elif is_mega_link(link):
         if MEGA_KEY is not None:
             Thread(target=MegaDownloader(listener).add_download, args=(link, f'{DOWNLOAD_DIR}{listener.uid}/')).start()
