@@ -158,7 +158,7 @@ class QbDownloader:
                 self.__listener.onDownloadComplete()
                 if self.__listener.seed:
                     if SEED_LIMIT is not None and size * ratio > SEED_LIMIT * 1024**3:
-                        self.__listener.onUploadError(f"Seeding torrent limit {SEED_LIMIT}. Ukuran File/folder kamu adalah {size}")
+                        self.__listener.onUploadError(f"Seeding torrent limit {SEED_LIMIT} GB. Ukuran File/folder yang akan di seeding adalah {get_readable_file_size(size)}")
                         self.__remove_torrent()
                         return
                     with download_dict_lock:
