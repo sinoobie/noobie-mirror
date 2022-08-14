@@ -603,17 +603,17 @@ class GoogleDriveHelper:
                 else:
                     continue
             if not Title:
-                msg += '<span class="container center rfontsize">' \
+                msg += '<span class="kontainer tengah rfontsize">' \
                       f'<h4>Hasil pencarian {fileName}</h4></span>'
                 Title = True
             if len(DRIVES_NAMES) > 1 and DRIVES_NAMES[index] is not None:
-                msg += '<span class="container center rfontsize">' \
+                msg += '<span class="kontainer tengah rfontsize">' \
                       f'<b>{DRIVES_NAMES[index]}</b></span>'
             for file in response.get('files', []):
                 mime_type = file.get('mimeType')
                 if mime_type == "application/vnd.google-apps.folder":
                     furl = f"https://drive.google.com/drive/folders/{file.get('id')}"
-                    msg += '<span class="container start rfontsize">' \
+                    msg += '<span class="kontainer mulai rfontsize">' \
                           f"<div>📁 {file.get('name')} (folder)</div>" \
                            '<div class="dlinks">' \
                           f'<span> <a class="btn btn-outline-primary btn-sm text-white" href="{short_url(furl)}" target="_blank"><i class="fab fa-google-drive"></i> Drive Link</a></span>'
@@ -626,14 +626,14 @@ class GoogleDriveHelper:
                         msg += f'<span> <a class="btn btn-outline-primary btn-sm text-white" href="{short_url(url)}" target="_blank"><i class="fas fa-bolt"></i> Index Link</a></span>'
                 elif mime_type == 'application/vnd.google-apps.shortcut':
                     furl = f"https://drive.google.com/drive/folders/{file.get('id')}"
-                    msg += '<span class="container start rfontsize">' \
+                    msg += '<span class="kontainer mulai rfontsize">' \
                           f"<div>📁 {file.get('name')} (shortcut)</div>" \
                            '<div class="dlinks">' \
                           f'<span> <a class="btn btn-outline-primary btn-sm text-white" href="{short_url(furl)}" target="_blank"><i class="fab fa-google-drive"></i> Drive Link</a></span>'\
                            '</div></span>'
                 else:
                     furl = f"https://drive.google.com/uc?id={file.get('id')}&export=download"
-                    msg += '<span class="container start rfontsize">' \
+                    msg += '<span class="kontainer mulai rfontsize">' \
                           f"<div>📄 {file.get('name')} ({get_readable_file_size(int(file.get('size', 0)))})</div>" \
                            '<div class="dlinks">' \
                           f'<span> <a class="btn btn-outline-primary btn-sm text-white" href="{short_url(furl)}" target="_blank"><i class="fab fa-google-drive"></i> Drive Link</a></span>'

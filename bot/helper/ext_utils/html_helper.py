@@ -27,7 +27,7 @@ hmtl_content = """
         body {
             background-color: #0D1117;
         }
-        .container {
+        .kontainer {
             margin: 0vh 1vw;
             margin-bottom: 1vh;
             padding: 1vh 3vw;
@@ -38,10 +38,10 @@ hmtl_content = """
             background-color: #161b22;
             align-items: center;
         }
-        .container.center {
+        .kontainer.tengah {
             text-align: center;
         }
-        .container.start {
+        .kontainer.mulai {
             text-align: start;
         }
         .rfontsize {
@@ -57,7 +57,9 @@ hmtl_content = """
     </style>
 </head>
 <body>
+<div class="container">
 {msg}
+</div>
 </body>
 </html>
 """
