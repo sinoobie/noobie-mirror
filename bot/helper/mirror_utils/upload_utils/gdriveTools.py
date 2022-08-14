@@ -616,7 +616,7 @@ class GoogleDriveHelper:
                     msg += '<span class="container start rfontsize">' \
                           f"<div>📁 {file.get('name')} (folder)</div>" \
                            '<div class="dlinks">' \
-                          f'<span> <a class="forhover" href="{short_url(furl)}">Drive Link</a></span>'
+                          f'<span> <a class="btn btn-outline-primary btn-sm text-white" href="{short_url(furl)}" target="_blank"><i class="fab fa-google-drive"></i> Drive Link</a></span>'
                     if INDEX_URLS[index] is not None:
                         if isRecur:
                             url_path = "/".join([rquote(n, safe='') for n in self.__get_recursive_list(file, parent_id)])
@@ -624,20 +624,20 @@ class GoogleDriveHelper:
                             url_path = rquote(f'{file.get("name")}', safe='')
                         url = f'{INDEX_URLS[index]}/{url_path}/'
                         msg += '<span> | </span>' \
-                              f'<span> <a class="forhover" href="{short_url(url)}">Index Link</a></span>'
+                              f'<span> <a class="btn btn-outline-primary btn-sm text-white" href="{short_url(url)}" target="_blank"><i class="fa-solid fa-bolt"></i> Index Link</a></span>'
                 elif mime_type == 'application/vnd.google-apps.shortcut':
                     furl = f"https://drive.google.com/drive/folders/{file.get('id')}"
                     msg += '<span class="container start rfontsize">' \
                           f"<div>📁 {file.get('name')} (shortcut)</div>" \
                            '<div class="dlinks">' \
-                          f'<span> <a class="forhover" href="{short_url(furl)}">Drive Link</a></span>'\
+                          f'<span> <a class="btn btn-outline-primary btn-sm text-white" href="{short_url(furl)}" target="_blank"><i class="fab fa-google-drive"></i> Drive Link</a></span>'\
                            '</div></span>'
                 else:
                     furl = f"https://drive.google.com/uc?id={file.get('id')}&export=download"
                     msg += '<span class="container start rfontsize">' \
                           f"<div>📄 {file.get('name')} ({get_readable_file_size(int(file.get('size', 0)))})</div>" \
                            '<div class="dlinks">' \
-                          f'<span> <a class="forhover" href="{short_url(furl)}">Drive Link</a></span>'
+                          f'<span> <a class="btn btn-outline-primary btn-sm text-white" href="{short_url(furl)}" target="_blank"><i class="fab fa-google-drive"></i> Drive Link</a></span>'
                     if INDEX_URLS[index] is not None:
                         if isRecur:
                             url_path = "/".join(rquote(n, safe='') for n in self.__get_recursive_list(file, parent_id))
@@ -645,11 +645,11 @@ class GoogleDriveHelper:
                             url_path = rquote(f'{file.get("name")}')
                         url = f'{INDEX_URLS[index]}/{url_path}'
                         msg += '<span> | </span>' \
-                              f'<span> <a class="forhover" href="{short_url(url)}">Index Link</a></span>'
+                              f'<span> <a class="btn btn-outline-primary btn-sm text-white" href="{short_url(url)}" target="_blank"><i class="fa-solid fa-bolt"></i> Index Link</a></span>'
                         if VIEW_LINK:
                             urlv = f'{INDEX_URLS[index]}/{url_path}?a=view'
                             msg += '<span> | </span>' \
-                                  f'<span> <a class="forhover" href="{short_url(urlv)}">View Link</a></span>'
+                                  f'<span> <a class="btn btn-outline-primary btn-sm text-white" href="{short_url(urlv)}" target="_blank"><i class="fa-solid fa-globe"></i> View Link</a></span>'
                 msg += '</div></span>'
                 contents_count += 1
             if noMulti:
