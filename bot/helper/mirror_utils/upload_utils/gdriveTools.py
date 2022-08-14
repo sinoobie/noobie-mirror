@@ -624,7 +624,7 @@ class GoogleDriveHelper:
                             url_path = rquote(f'{file.get("name")}', safe='')
                         url = f'{INDEX_URLS[index]}/{url_path}/'
                         msg += '<span> | </span>' \
-                              f'<span> <a class="btn btn-outline-primary btn-sm text-white" href="{short_url(url)}" target="_blank"><i class="fa-solid fa-bolt"></i> Index Link</a></span>'
+                              f'<span> <a class="btn btn-outline-primary btn-sm text-white" href="{short_url(url)}" target="_blank"><i class="fas fa-bolt"></i> Index Link</a></span>'
                 elif mime_type == 'application/vnd.google-apps.shortcut':
                     furl = f"https://drive.google.com/drive/folders/{file.get('id')}"
                     msg += '<span class="container start rfontsize">' \
@@ -645,11 +645,11 @@ class GoogleDriveHelper:
                             url_path = rquote(f'{file.get("name")}')
                         url = f'{INDEX_URLS[index]}/{url_path}'
                         msg += '<span> | </span>' \
-                              f'<span> <a class="btn btn-outline-primary btn-sm text-white" href="{short_url(url)}" target="_blank"><i class="fa-solid fa-bolt"></i> Index Link</a></span>'
+                              f'<span> <a class="btn btn-outline-primary btn-sm text-white" href="{short_url(url)}" target="_blank"><i class="fas fa-bolt"></i> Index Link</a></span>'
                         if VIEW_LINK:
                             urlv = f'{INDEX_URLS[index]}/{url_path}?a=view'
                             msg += '<span> | </span>' \
-                                  f'<span> <a class="btn btn-outline-primary btn-sm text-white" href="{short_url(urlv)}" target="_blank"><i class="fa-solid fa-globe"></i> View Link</a></span>'
+                                  f'<span> <a class="btn btn-outline-primary btn-sm text-white" href="{short_url(urlv)}" target="_blank"><i class="fas fa-globe"></i> View Link</a></span>'
                 msg += '</div></span>'
                 contents_count += 1
             if noMulti:
