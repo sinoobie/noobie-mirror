@@ -182,6 +182,7 @@ def start_listener():
                                   on_download_error=__onDownloadError,
                                   on_download_stop=__onDownloadStopped,
                                   on_download_complete=__onDownloadComplete,
+                                  on_bt_download_complete=__onBtDownloadComplete,
                                   timeout=60)
 
 def add_aria2c_download(link: str, path, listener, filename, auth, select, ratio, seed_time):
