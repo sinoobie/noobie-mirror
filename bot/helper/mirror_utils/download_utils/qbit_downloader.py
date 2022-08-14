@@ -157,7 +157,7 @@ class QbDownloader:
                     clean_unwanted(self.__path)
                 self.__listener.onDownloadComplete()
                 if self.__listener.seed:
-                    if SEED_LIMIT is not None and size > SEED_LIMIT * 1024**3:
+                    if SEED_LIMIT is not None and size * ratio > SEED_LIMIT * 1024**3:
                         self.__listener.onUploadError(f"Seeding torrent limit {SEED_LIMIT}. Ukuran File/folder kamu adalah {size}")
                         self.__remove_torrent()
                         return
