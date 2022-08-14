@@ -27,7 +27,7 @@ class MirrorStatus:
     STATUS_CLONING = "♻️ Cloning"
     STATUS_WAITING = "💤 Queued"
     STATUS_PAUSED = "⛔️ Paused"
-    STATUS_ARCHIVING = "🔐 Archiving"
+    STATUS_ARCHIVING = "🗜 Archiving"
     STATUS_EXTRACTING = "📂 Extracting"
     STATUS_SPLITTING = "✂️ Splitting"
     STATUS_CHECKING = "📝 CheckingUp"
@@ -154,10 +154,10 @@ def get_readable_message():
                         pass
             elif download.status() == MirrorStatus.STATUS_SEEDING:
                 msg += f"\n📦 {download.size()}"
-                msg += f"\n⚡️ {download.upload_speed()}"
                 msg += f" | 📤 {download.uploaded_bytes()}"
+                msg += f"\n⚡️ {download.upload_speed()}"
+                msg += f" | 🌀 <b>Ratio: </b>{download.ratio()}"
                 msg += f"\n🕒 {download.seeding_time()}"
-                msg += f" | 🧩 <b>Ratio: </b>{download.ratio()}"
             else:
                 msg += f"\n📦 {download.size()}"
             msg += f"\n👤 {tag}"

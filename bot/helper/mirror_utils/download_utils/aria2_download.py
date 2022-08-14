@@ -1,7 +1,7 @@
 from time import sleep, time
 from os import remove
 
-from bot import aria2, download_dict_lock, download_dict, STOP_DUPLICATE, TORRENT_DIRECT_LIMIT, ZIP_UNZIP_LIMIT, LOGGER, STORAGE_THRESHOLD, BASE_URL
+from bot import aria2, download_dict_lock, download_dict, STOP_DUPLICATE, SEED_LIMIT,TORRENT_DIRECT_LIMIT, ZIP_UNZIP_LIMIT, LOGGER, STORAGE_THRESHOLD, BASE_URL
 from bot.helper.mirror_utils.upload_utils.gdriveTools import GoogleDriveHelper
 from bot.helper.ext_utils.bot_utils import is_magnet, getDownloadByGid, new_thread, get_readable_file_size, bt_selection_buttons
 from bot.helper.mirror_utils.status_utils.aria_download_status import AriaDownloadStatus
@@ -51,8 +51,8 @@ def __onDownloadStarted(api, gid):
                 if sname is not None:
                     cap, f_name = GoogleDriveHelper().drive_list(sname, True)
                     if cap:
-                        api.remove([download], force=True, files=True)
                         listener.onDownloadError(f'<code>{sname}</code> <b><u>sudah ada di Drive</u></b>', listfile=f_name)
+                        api.remove([download], force=True, files=True)
                         return
             if any([ZIP_UNZIP_LIMIT, TORRENT_DIRECT_LIMIT, STORAGE_THRESHOLD]):
                 LOGGER.info('Checking File/Folder Size...')
@@ -67,17 +67,19 @@ def __onDownloadStarted(api, gid):
                         msg = f'You must leave {STORAGE_THRESHOLD}GB free storage.'
                         msg += f'\nYour File/Folder size is {get_readable_file_size(size)}'
                         listener.onDownloadError(msg)
-                        return api.remove([download], force=True, files=True)
+                        api.remove([download], force=True, files=True)
+                        return
                 if ZIP_UNZIP_LIMIT is not None and arch:
-                    mssg = f'Zip/Unzip limit is {ZIP_UNZIP_LIMIT}GB'
+                    mssg = f'Zip/Unzip limit {ZIP_UNZIP_LIMIT}GB'
                     limit = ZIP_UNZIP_LIMIT
                 elif TORRENT_DIRECT_LIMIT is not None:
                     mssg = f'Torrent/Direct limit {TORRENT_DIRECT_LIMIT}GB'
                     limit = TORRENT_DIRECT_LIMIT
                 if limit is not None:
                     if size > limit * 1024**3:
-                        listener.onDownloadError(f'{mssg}.\nUkuran file/folder kamu adalah {get_readable_file_size(size)}')
-                        return api.remove([download], force=True, files=True)
+                        listener.onDownloadError(f'{mssg}. Ukuran file/folder kamu adalah {get_readable_file_size(size)}')
+                        api.remove([download], force=True, files=True)
+                        return
     except Exception as e:
         LOGGER.error(f"{e} onDownloadStart: {gid} check duplicate and size check didn't pass")
 
@@ -137,6 +139,11 @@ def __onBtDownloadComplete(api, gid):
             api.client.force_pause(gid)
         listener.onDownloadComplete()
         if listener.seed:
+            size = download.total_length
+            if SEED_LIMIT is not None and size > SEED_LIMIT * 1024**3:
+                api.remove([download], force=True, files=True)
+                listener.onUploadError(f"Seeding torrent limit {SEED_LIMIT}. Ukuran File/folder kamu adalah {size}")
+                return
             with download_dict_lock:
                 if listener.uid not in download_dict:
                     api.remove([download], force=True, files=True)

@@ -2,7 +2,7 @@ from time import sleep, time
 from re import search as re_search
 from telegram import InlineKeyboardMarkup
 
-from bot import download_dict, download_dict_lock, BASE_URL, get_client, TORRENT_DIRECT_LIMIT, ZIP_UNZIP_LIMIT, STOP_DUPLICATE, TORRENT_TIMEOUT, LOGGER, STORAGE_THRESHOLD
+from bot import download_dict, download_dict_lock, BASE_URL, get_client, SEED_LIMIT, TORRENT_DIRECT_LIMIT, ZIP_UNZIP_LIMIT, STOP_DUPLICATE, TORRENT_TIMEOUT, LOGGER, STORAGE_THRESHOLD
 from bot.helper.mirror_utils.status_utils.qbit_download_status import QbDownloadStatus
 from bot.helper.mirror_utils.upload_utils.gdriveTools import GoogleDriveHelper
 from bot.helper.telegram_helper.message_utils import sendMessage, sendMarkup, deleteMessage, sendStatusMessage, update_all_messages, sendFile
@@ -157,6 +157,10 @@ class QbDownloader:
                     clean_unwanted(self.__path)
                 self.__listener.onDownloadComplete()
                 if self.__listener.seed:
+                    if SEED_LIMIT is not None and size > SEED_LIMIT * 1024**3:
+                        self.__listener.onUploadError(f"Seeding torrent limit {SEED_LIMIT}. Ukuran File/folder kamu adalah {size}")
+                        self.__remove_torrent()
+                        return
                     with download_dict_lock:
                         if self.__listener.uid not in download_dict:
                             self.__remove_torrent()

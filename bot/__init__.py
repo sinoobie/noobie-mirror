@@ -305,6 +305,13 @@ try:
 except:
     CMD_INDEX = ''
 try:
+    SEED_LIMIT = getConfig('SEED_LIMIT')
+    if len(SEED_LIMIT) == 0:
+        raise KeyError
+    SEED_LIMIT = float(SEED_LIMIT)
+except:
+    SEED_LIMIT = None
+try:
     TORRENT_DIRECT_LIMIT = getConfig('TORRENT_DIRECT_LIMIT')
     if len(TORRENT_DIRECT_LIMIT) == 0:
         raise KeyError
