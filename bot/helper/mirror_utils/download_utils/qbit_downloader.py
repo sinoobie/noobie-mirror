@@ -160,7 +160,7 @@ class QbDownloader:
                 self.__listener.onDownloadComplete()
                 if self.__listener.seed:
                     if SEED_LIMIT is not None:
-                        _ratio = self._ratio
+                        _ratio = float(self._ratio)
                         LOGGER.info(f"SEED_LIMIT seeding ratio: {_ratio}")
                         size = (tor_info.size * _ratio) if _ratio != 0 else tor_info.size
                         if size > SEED_LIMIT * 1024**3:
