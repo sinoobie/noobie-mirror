@@ -33,30 +33,8 @@ def __onDownloadStarted(api, gid):
             sleep(1)
             if dl := getDownloadByGid(gid):
                 listener = dl.listener()
-                if listener.isLeech or listener.select:
-                    return
                 download = api.get_download(gid)
-                if not download.is_torrent:
-                    sleep(3)
-                    download = download.live
-                LOGGER.info('Checking File/Folder if already in Drive...')
-                sname = download.name
-                if listener.isZip:
-                    sname = sname + ".zip"
-                elif listener.extract:
-                    try:
-                        sname = get_base_name(sname)
-                    except:
-                        sname = None
-                if sname is not None:
-                    cap, f_name = GoogleDriveHelper().drive_list(sname, True)
-                    if cap:
-                        listener.onDownloadError(f'<code>{sname}</code> <b><u>sudah ada di Drive</u></b>', listfile=f_name)
-                        api.remove([download], force=True, files=True)
-                        return
-            if any([ZIP_UNZIP_LIMIT, TORRENT_DIRECT_LIMIT, STORAGE_THRESHOLD]):
                 LOGGER.info('Checking File/Folder Size...')
-                sleep(1)
                 limit = None
                 size = download.total_length
                 arch = any([listener.isZip, listener.extract])
@@ -78,6 +56,26 @@ def __onDownloadStarted(api, gid):
                 if limit is not None:
                     if size > limit * 1024**3:
                         listener.onDownloadError(f'{mssg}. Ukuran file/folder kamu adalah {get_readable_file_size(size)}')
+                        api.remove([download], force=True, files=True)
+                        return
+                if listener.isLeech or listener.select:
+                    return
+                if not download.is_torrent:
+                    sleep(3)
+                    download = download.live
+                LOGGER.info('Checking File/Folder if already in Drive...')
+                sname = download.name
+                if listener.isZip:
+                    sname = sname + ".zip"
+                elif listener.extract:
+                    try:
+                        sname = get_base_name(sname)
+                    except:
+                        sname = None
+                if sname is not None:
+                    cap, f_name = GoogleDriveHelper().drive_list(sname, True)
+                    if cap:
+                        listener.onDownloadError(f'<code>{sname}</code> <b><u>sudah ada di Drive</u></b>', listfile=f_name)
                         api.remove([download], force=True, files=True)
                         return
     except Exception as e:
@@ -139,7 +137,7 @@ def __onBtDownloadComplete(api, gid):
             api.client.force_pause(gid)
         listener.onDownloadComplete()
         if listener.seed:
-            _ratio = api.get_options(['seed-ratio'])[0]
+            _ratio = api.get_options([download])["seed-ratio"]
             LOGGER.info(f"SEED_LIMIT seeding ratio: {_ratio}")
             size = (download.total_length * _ratio) if _ratio else download.total_length
             if SEED_LIMIT is not None:
