@@ -181,11 +181,14 @@ class QbDownloader:
         except Exception as e:
             LOGGER.error(str(e))
 
-    def __onDownloadError(self, err):
+    def __onDownloadError(self, err, listfile=None):
         LOGGER.info(f"Cancelling Download: {self.__name}")
         self.client.torrents_pause(torrent_hashes=self.ext_hash)
         sleep(0.3)
-        self.__listener.onDownloadError(err)
+        if listfile is None:
+            self.__listener.onDownloadError(err)
+        else:
+            self.__listener.onDownloadError(err, listfile=listfile)
         self.__remove_torrent()
 
     def __remove_torrent(self):
