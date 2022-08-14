@@ -51,9 +51,8 @@ def __onDownloadStarted(api, gid):
                 if sname is not None:
                     cap, f_name = GoogleDriveHelper().drive_list(sname, True)
                     if cap:
-                        listener.onDownloadError(f'<code>{sname}</code> <b><u>sudah ada di Drive</u></b>')
                         api.remove([download], force=True, files=True)
-                        sendFile(listener.bot, listener.message, f_name, cap)
+                        listener.onDownloadError(f'<code>{sname}</code> <b><u>sudah ada di Drive</u></b>', listfile=f_name)
                         return
             if any([ZIP_UNZIP_LIMIT, TORRENT_DIRECT_LIMIT, STORAGE_THRESHOLD]):
                 LOGGER.info('Checking File/Folder Size...')

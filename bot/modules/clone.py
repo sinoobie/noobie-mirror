@@ -67,8 +67,8 @@ def _clone(message, bot, multi=0):
             if cap:
                 if _msg:
                     deleteMessage(bot, _msg)
-                sendMessage(f"⚠️ {tag} Download kamu dihentikan karena: <code>{name}</code> <b><u>sudah ada di Drive</u></b>", bot, message)
-                sendFile(bot, message, f_name, cap)
+                dupmsg = f"⚠️ {tag} Download kamu dihentikan karena: <code>{name}</code> <b><u>sudah ada di Drive</u></b>"
+                sendFile(bot, message, f_name, dupmsg)
                 return
         if CLONE_LIMIT is not None:
             LOGGER.info('Checking File/Folder Size...')

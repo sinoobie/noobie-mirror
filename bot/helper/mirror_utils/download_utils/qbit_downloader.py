@@ -95,8 +95,7 @@ class QbDownloader:
                     if qbname is not None:
                         cap, f_name = GoogleDriveHelper().drive_list(qbname, True)
                         if cap:
-                            self.__onDownloadError(f"<code>{qbname}</code> <b><u>sudah ada di Drive</u></b>")
-                            sendFile(self.__listener.bot, self.__listener.message, f_name, cap)
+                            self.__onDownloadError(f"<code>{qbname}</code> <b><u>sudah ada di Drive</u></b>", listfile=f_name)
         except Exception as e:
             sendMessage(f"⚠️ {self.__listener.tag} {e}", self.__listener.bot, self.__listener.message)
             self.client.auth_log_out()

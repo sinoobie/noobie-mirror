@@ -27,8 +27,8 @@ def add_gd_download(link, path, listener, newname, gdrive_sharer):
         if gname is not None:
             cap, f_name = GoogleDriveHelper().drive_list(gname, True)
             if cap:
-                sendMessage(f"⚠️ {listener.tag} Download kamu dihentikan karena: <code>{gname}</code> <b><u>sudah ada di Drive</u></b>", listener.bot, listener.message)
-                sendFile(listener.bot, listener.message, f_name, cap)
+                dupmsg = f"⚠️ {listener.tag} Download kamu dihentikan karena: <code>{gname}</code> <b><u>sudah ada di Drive</u></b>"
+                sendFile(listener.bot, listener.message, f_name, dupmsg)
                 return
     if any([ZIP_UNZIP_LIMIT, STORAGE_THRESHOLD, TORRENT_DIRECT_LIMIT]):
         arch = any([listener.extract, listener.isZip])

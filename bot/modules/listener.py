@@ -19,7 +19,7 @@ from bot.helper.mirror_utils.status_utils.upload_status import UploadStatus
 from bot.helper.mirror_utils.status_utils.tg_upload_status import TgUploadStatus
 from bot.helper.mirror_utils.upload_utils.gdriveTools import GoogleDriveHelper
 from bot.helper.mirror_utils.upload_utils.pyrogramEngine import TgUploader
-from bot.helper.telegram_helper.message_utils import sendMessage, sendMarkup, delete_all_messages, update_all_messages
+from bot.helper.telegram_helper.message_utils import sendMessage, sendMarkup, sendFile, delete_all_messages, update_all_messages
 from bot.helper.telegram_helper.button_build import ButtonMaker
 from bot.helper.ext_utils.db_handler import DbManger
 from bot.helper.ext_utils.shortenurl import short_url
@@ -319,7 +319,7 @@ class MirrorLeechListener:
         if not self.isPrivate and INCOMPLETE_TASK_NOTIFIER and DB_URI is not None:
             DbManger().rm_complete_task(self.message.link)
 
-    def onUploadError(self, error):
+    def onUploadError(self, error, listfile=None):
         e_str = error.replace('<', '').replace('>', '')
         clean_download(self.dir)
         if self.newDir:
@@ -330,7 +330,10 @@ class MirrorLeechListener:
             except Exception as e:
                 LOGGER.error(str(e))
             count = len(download_dict)
-        sendMessage(f"⚠️ {self.tag} {e_str}", self.bot, self.message)
+        if listfile == None:
+            sendMessage(f"⚠️ {self.tag} {e_str}", self.bot, self.message)
+        else:
+            sendFile(self.bot, self.message, listfile, f"⚠️ {self.tag} {e_str}")
         if count == 0:
             self.clean()
         else:
