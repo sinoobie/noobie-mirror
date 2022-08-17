@@ -146,7 +146,7 @@ def _mirror_leech(bot, message, isZip=False, extract=False, isQbit=False, isLeec
         return
 
     LOGGER.info(link)
-    if multi == 0:
+    if multi == 1:
         check_ = sendMessage(f"ℹ️ {tag} Sedang memeriksa link, Tunggu sebentar...", bot, message)
     else: check_ = None
 

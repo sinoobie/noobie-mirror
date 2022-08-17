@@ -84,8 +84,9 @@ def _ytdl(bot, message, isZip=False, isLeech=False):
         return
 
 
-    if multi == 0:
+    if multi == 1:
         check_ = sendMessage(f"ℹ️ {tag} Sedang memeriksa link, Tunggu sebentar...", bot, message)
+    else: check_ = None
 
     listener = MirrorLeechListener(bot, message, isZip, isLeech=isLeech, pswd=pswd, tag=tag)
     buttons = button_build.ButtonMaker()
@@ -94,10 +95,10 @@ def _ytdl(bot, message, isZip=False, isLeech=False):
     ydl = YoutubeDLHelper(listener)
     try:
         result = ydl.extractMetaData(link, name, args, True)
-        if multi == 0:
+        if check_ != None:
             deleteMessage(bot, check_)
     except Exception as e:
-        if multi == 0:
+        if check_ != None:
             deleteMessage(bot, check_)
         msg = str(e).replace('<', ' ').replace('>', ' ').replace(';','').split('please report this issue on')[0]
         return sendMessage(f"⚠️ {tag} {msg.strip()}", bot, message)

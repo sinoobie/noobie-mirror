@@ -38,7 +38,7 @@ def _clone(message, bot):
                 tag = f"@{reply_to.from_user.username}"
             else:
                 tag = reply_to.from_user.mention_html(reply_to.from_user.first_name)
-    if multi == 0:
+    if multi == 1:
         _msg = sendMessage(f"♻️ {tag} Cloning: <code>{link}</code>", bot, message)
     else: _msg = None
     try:
