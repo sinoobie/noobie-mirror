@@ -67,5 +67,3 @@ class ZipStatus:
             self.__listener.suproc.kill()
         self.__listener.onUploadError('archiving stopped by user!')
         
-    def Pemirror(self):
-        return self.message

@@ -35,7 +35,7 @@ fmed_list = ['fembed.net', 'fembed.com', 'femax20.com', 'fcdn.stream', 'feurl.co
 def direct_link_generator(link: str, host):
     """ direct links generator """
     if 'youtube.com' in host or 'youtu.be' in host:
-        raise DirectDownloadLinkException(f"ERROR: Use /{BotCommands.WatchCommand} to mirror Youtube link\nUse /{BotCommands.ZipWatchCommand} to make zip of Youtube playlist")
+        raise DirectDownloadLinkException(f"ERROR: Use /{BotCommands.YtdlCommand} to mirror Youtube link\nUse /{BotCommands.YtdlZipCommand} to make zip of Youtube playlist")
     elif 'zippyshare.com' in host:
         return zippy_share(link)
     elif 'yadi.sk' in host or 'disk.yandex.com' in host or 'disk.yandex.ru' in host:
@@ -137,23 +137,29 @@ def zippy_share(url: str) -> str:
     js_script = str(js_script)
 
     try:
-        a, b = re.findall(r"var.[ab].=.(\d+)", js_script)
-        mtk = eval(f"{math.floor(int(a)/3) + int(a) % int(b)}")
+        var_a = re.findall(r"var.a.=.(\d+)", js_script)[0]
+        mtk = int(math.pow(int(var_a),3) + 3)
         uri1 = re.findall(r"\.href.=.\"/(.*?)/\"", js_script)[0]
-        uri2 = re.findall(r"\)\+\"/(.*?)\"", js_script)[0]
+        uri2 = re.findall(r"\+\"/(.*?)\"", js_script)[0]
     except:
         try:
-            mtk = eval(re.findall(r"\+\((.*?).\+", js_script)[0] + "+ 11")
-            uri1 = re.findall(r".href.=.\"/(.*?)/\"", js_script)[0]
+            a, b = re.findall(r"var.[ab].=.(\d+)", js_script)
+            mtk = eval(f"{math.floor(int(a)/3) + int(a) % int(b)}")
+            uri1 = re.findall(r"\.href.=.\"/(.*?)/\"", js_script)[0]
             uri2 = re.findall(r"\)\+\"/(.*?)\"", js_script)[0]
         except:
             try:
-                mtk = eval(re.findall(r"\+.\((.*?)\).\+", js_script)[0])
-                uri1 = re.findall(r".href.=.\"/(.*?)/\"", js_script)[0]
-                uri2 = re.findall(r"\+.\"/(.*?)\"", js_script)[0]
-            except Exception as err:
-                LOGGER.error(err)
-                raise DirectDownloadLinkException("ERROR: Tidak dapat mengambil direct link")
+                mtk = eval(re.findall(r"\+\((.*?).\+", js_script)[0] + "+ 11")
+                uri1 = re.findall(r"\.href.=.\"/(.*?)/\"", js_script)[0]
+                uri2 = re.findall(r"\)\+\"/(.*?)\"", js_script)[0]
+            except:
+                try:
+                    mtk = eval(re.findall(r"\+.\((.*?)\).\+", js_script)[0])
+                    uri1 = re.findall(r"\.href.=.\"/(.*?)/\"", js_script)[0]
+                    uri2 = re.findall(r"\+.\"/(.*?)\"", js_script)[0]
+                except Exception as err:
+                    LOGGER.error(err)
+                    raise DirectDownloadLinkException("ERROR: Tidak dapat mengambil direct link")
     dl_url = f"{base_url}/{uri1}/{int(mtk)}/{uri2}"
     return dl_url
 
@@ -262,9 +268,12 @@ def sbembed(link: str) -> str:
         if (direct := soup.find("a", text=re.compile("(?i)^direct"))):
             dl_url[a.text] = direct["href"]
 
-    count = len(dl_url)
-    lst_link = [dl_url[i] for i in dl_url]
-    return lst_link[count-1]
+    try:
+        count = len(dl_url)
+        lst_link = [dl_url[i] for i in dl_url]
+        return lst_link[count-1]
+    except:
+        raise DirectDownloadLinkException("ERROR: Tidak dapat mengambil direct link")
 
 def onedrive(link: str) -> str:
     """ Onedrive direct link generator

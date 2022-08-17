@@ -21,7 +21,7 @@ from .listener import MirrorLeechListener
 from bot.helper.telegram_helper.message_utils import sendMessage, deleteMessage, auto_delete_message, editMessage
 
 
-def _mirror_leech(bot, message, isZip=False, extract=False, isQbit=False, isLeech=False, multi=0):
+def _mirror_leech(bot, message, isZip=False, extract=False, isQbit=False, isLeech=False):
     mesg = message.text.split('\n')
     message_args = mesg[0].split(maxsplit=1)
     name_args = mesg[0].split('|', maxsplit=1)
@@ -31,6 +31,7 @@ def _mirror_leech(bot, message, isZip=False, extract=False, isQbit=False, isLeec
     seed_time = None
     select = False
     seed = False
+    multi = 1
 
     if len(message_args) > 1:
         args = mesg[0].split(maxsplit=3)
@@ -53,8 +54,7 @@ def _mirror_leech(bot, message, isZip=False, extract=False, isQbit=False, isLeec
         if len(message_args) > index:
             link = message_args[index].strip()
             if link.isdigit():
-                if multi == 0:
-                    multi = int(link)
+                multi = int(link)
                 link = ''
             elif link.startswith(("|", "pswd:")):
                 link = ''
@@ -105,11 +105,10 @@ def _mirror_leech(bot, message, isZip=False, extract=False, isQbit=False, isLeec
                 if multi > 1:
                     sleep(4)
                     nextmsg = type('nextmsg', (object, ), {'chat_id': message.chat_id, 'message_id': message.reply_to_message.message_id + 1})
-                    nextmsg = sendMessage(message.text, bot, nextmsg)
+                    nextmsg = sendMessage(message.text.replace(str(multi), str(multi - 1), 1), bot, nextmsg)
                     nextmsg.from_user.id = message.from_user.id
-                    multi -= 1
                     sleep(4)
-                    Thread(target=_mirror_leech, args=(bot, nextmsg, isZip, extract, isQbit, isLeech, multi)).start()
+                    Thread(target=_mirror_leech, args=(bot, nextmsg, isZip, extract, isQbit, isLeech)).start()
                 return
             else:
                 link = file_.get_file().file_path
@@ -211,11 +210,10 @@ def _mirror_leech(bot, message, isZip=False, extract=False, isQbit=False, isLeec
     if multi > 1:
         sleep(4)
         nextmsg = type('nextmsg', (object, ), {'chat_id': message.chat_id, 'message_id': message.reply_to_message.message_id + 1})
-        nextmsg = sendMessage(message.text, bot, nextmsg)
+        nextmsg = sendMessage(message.text.replace(str(multi), str(multi - 1), 1), bot, nextmsg)
         nextmsg.from_user.id = message.from_user.id
-        multi -= 1
         sleep(4)
-        Thread(target=_mirror_leech, args=(bot, nextmsg, isZip, extract, isQbit, isLeech, multi)).start()
+        Thread(target=_mirror_leech, args=(bot, nextmsg, isZip, extract, isQbit, isLeech)).start()
 
 
 def mirror(update, context):

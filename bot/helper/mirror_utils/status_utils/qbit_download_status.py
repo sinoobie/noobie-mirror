@@ -99,6 +99,3 @@ class QbDownloadStatus:
 
     def listener(self):
         return self.__listener
-
-    def Pemirror(self):
-        return self.message

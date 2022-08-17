@@ -100,9 +100,6 @@ class AriaDownloadStatus:
         self.__update()
         return self.__gid
 
-    def Pemirror(self):
-        return self.message
-
     def cancel_download(self):
         self.__update()
         if self.__download.seeder:

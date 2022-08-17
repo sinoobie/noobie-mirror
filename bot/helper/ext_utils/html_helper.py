@@ -45,7 +45,7 @@ hmtl_content = """
             text-align: start;
         }
         .rfontsize {
-            font-size: 1rem;
+            font-size: 1.1rem;
         }
         .forhover:hover {
             filter: invert(0.3);

@@ -26,6 +26,7 @@ class QbDownloader:
         self.__stalled_time = time()
         self.__uploaded = False
         self.__sizeChecked = False
+        self.__stopDup_check = False
         self.__rechecked = False
 
     def add_qb_torrent(self, link, path, select, ratio, seed_time):
@@ -84,20 +85,6 @@ class QbDownloader:
                 sendMarkup(msg, self.__listener.bot, self.__listener.message, SBUTTONS)
             else:
                 sendStatusMessage(self.__listener.message, self.__listener.bot)
-                if STOP_DUPLICATE and not self.__listener.isLeech:
-                    LOGGER.info('Checking File/Folder if already in Drive')
-                    qbname = tor_info.content_path.rsplit('/', 1)[-1].rsplit('.!qB', 1)[0]
-                    if self.__listener.isZip:
-                        qbname = f"{qbname}.zip"
-                    elif self.__listener.extract:
-                        try:
-                            qbname = get_base_name(qbname)
-                        except:
-                            qbname = None
-                    if qbname is not None:
-                        cap, f_name = GoogleDriveHelper().drive_list(qbname, True)
-                        if cap:
-                            self.__onDownloadError(f"<code>{qbname}</code> <b><u>sudah ada di Drive</u></b>", listfile=f_name)
         except Exception as e:
             sendMessage(f"⚠️ {self.__listener.tag} {e}", self.__listener.bot, self.__listener.message)
             self.client.auth_log_out()
@@ -136,7 +123,24 @@ class QbDownloader:
                         if size > limit * 1024**3:
                             fmsg = f"{mssg}.\nUkuran file/folder kamu adalah {get_readable_file_size(size)}"
                             self.__onDownloadError(fmsg)
+                            return
                     self.__sizeChecked = True
+                if not self.__stopDup_check and not self.select and STOP_DUPLICATE and not self.__listener.isLeech:
+                    LOGGER.info('Checking File/Folder if already in Drive')
+                    qbname = tor_info.content_path.rsplit('/', 1)[-1].rsplit('.!qB', 1)[0]
+                    if self.__listener.isZip:
+                        qbname = f"{qbname}.zip"
+                    elif self.__listener.extract:
+                        try:
+                            qbname = get_base_name(qbname)
+                        except:
+                            qbname = None
+                    if qbname is not None:
+                        cap, f_name = GoogleDriveHelper().drive_list(qbname, True)
+                        if cap:
+                            self.__onDownloadError(f"<code>{qbname}</code> <b><u>sudah ada di Drive</u></b>", listfile=f_name)
+                            return
+                    self.__stopDup_check = True
             elif tor_info.state == "stalledDL":
                 if not self.__rechecked and 0.99989999999999999 < tor_info.progress < 1:
                     msg = f"Force recheck - Name: {self.__name} Hash: "
@@ -160,9 +164,8 @@ class QbDownloader:
                 self.__listener.onDownloadComplete()
                 if self.__listener.seed:
                     if SEED_LIMIT is not None:
-                        _ratio = float(self._ratio)
-                        LOGGER.info(f"SEED_LIMIT seeding ratio: {_ratio}")
-                        size = (tor_info.size * _ratio) if _ratio != 0 else tor_info.size
+                        LOGGER.info(f"SEED_LIMIT seeding ratio: {self._ratio}")
+                        size = tor_info.size if not self._ratio else (tor_info.size * float(self._ratio))
                         if size > SEED_LIMIT * 1024**3:
                             self.__listener.onUploadError(f"Seeding torrent limit {SEED_LIMIT} GB. Ukuran File/folder yang akan di seeding adalah {get_readable_file_size(size)}")
                             self.__remove_torrent()
@@ -204,4 +207,4 @@ class QbDownloader:
             LOGGER.info(f"Cancelling Seed: {self.__name}")
             self.client.torrents_pause(torrent_hashes=self.ext_hash)
         else:
-            self.__onDownloadError('Download stopped by user!')
+            self.__onDownloadError('Download dibatalkan oleh User!')

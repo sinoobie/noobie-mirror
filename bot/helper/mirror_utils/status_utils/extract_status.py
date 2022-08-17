@@ -66,6 +66,3 @@ class ExtractStatus:
         if self.__listener.suproc is not None:
             self.__listener.suproc.kill()
         self.__listener.onUploadError('extracting dihentikan oleh user!')
-
-    def Pemirror(self):
-        return self.message

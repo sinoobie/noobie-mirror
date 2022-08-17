@@ -15,10 +15,11 @@ from bot.helper.mirror_utils.download_utils.direct_link_generator import gdtot, 
 from bot.helper.ext_utils.exceptions import DirectDownloadLinkException
 
 
-def _clone(message, bot, multi=0):
+def _clone(message, bot):
     args = message.text.split()
     reply_to = message.reply_to_message
     gdrive_sharer = False
+    multi = 1
     link = ''
     if len(args) > 1:
         link = args[1].strip()
@@ -80,11 +81,10 @@ def _clone(message, bot, multi=0):
         if multi > 1:
             sleep(4)
             nextmsg = type('nextmsg', (object, ), {'chat_id': message.chat_id, 'message_id': message.reply_to_message.message_id + 1})
-            nextmsg = sendMessage(args[0], bot, nextmsg)
+            nextmsg = sendMessage(message.text.replace(str(multi), str(multi - 1), 1), bot, nextmsg)
             nextmsg.from_user.id = message.from_user.id
-            multi -= 1
             sleep(4)
-            Thread(target=_clone, args=(nextmsg, bot, multi)).start()
+            Thread(target=_clone, args=(nextmsg, bot)).start()
         if files <= 20:
             result, button = gd.clone(link)
         else:

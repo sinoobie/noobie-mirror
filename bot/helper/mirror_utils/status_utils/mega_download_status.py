@@ -49,6 +49,3 @@ class MegaDownloadStatus:
 
     def download(self):
         return self.__obj
-
-    def Pemirror(self):
-        return self.message

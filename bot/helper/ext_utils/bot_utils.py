@@ -125,23 +125,20 @@ def get_readable_message():
                 globals()['PAGE_NO'] -= 1
         for index, download in enumerate(list(download_dict.values())[COUNT:], start=1):
             ### AWAL CUSTOM STATUS ###
-            pemirror = download.Pemirror()
+            pemirror = download.message
             reply_to = pemirror.reply_to_message
             if not reply_to or reply_to.from_user.is_bot:
-                link = f"https://t.me/c/{str(pemirror.chat.id)[4:]}/{pemirror.message_id}"
                 if pemirror.from_user.username:
                     tag = f"<code>@{pemirror.from_user.username}</code> (<code>{pemirror.from_user.id}</code>)"
                 else:
                     tag = f"<code>{pemirror.from_user.first_name}</code> (<code>{pemirror.from_user.id}</code>)"
+            elif reply_to.from_user.username:
+                tag = f"<code>@{reply_to.from_user.username}</code> (<code>{reply_to.from_user.id}</code>)"
             else:
-                link = f"https://t.me/c/{str(pemirror.chat.id)[4:]}/{reply_to.message_id}"
-                if reply_to.from_user.username:
-                    tag = f"<code>@{reply_to.from_user.username}</code> (<code>{reply_to.from_user.id}</code>)"
-                else:
-                    tag = f"<code>{reply_to.from_user.first_name}</code> (<code>{reply_to.from_user.id}</code>)"
+                tag = f"<code>{reply_to.from_user.first_name}</code> (<code>{reply_to.from_user.id}</code>)"
             ### AKHIR CUSTOM STATUS ###
             msg += f"💽 <code>{escape(str(download.name()))}</code>"
-            msg += f"\n<a href=\"{link}\"><b>{download.status()}</b></a>"
+            msg += f"\n<a href=\"{pemirror.link}\"><b>{download.status()}</b></a>"
             if download.status() != MirrorStatus.STATUS_SEEDING:
                 msg += f"\n🌀 {get_progress_bar_string(download)} {download.progress()}"
                 msg += f"\n📦 {get_readable_file_size(download.processed_bytes())} / {download.size()}"
@@ -168,28 +165,29 @@ def get_readable_message():
         if len(msg) == 0:
             return None, None
         msg += f"🎯 <b>Tasks:</b> {tasks}"
-        bmsg = f"\n🖥️ <b>CPU:</b> {cpu_percent()}% | 💿 <b>FREE:</b> {get_readable_file_size(disk_usage(DOWNLOAD_DIR).free)}"
-        dlspeed_bytes = 0
-        upspeed_bytes = 0
+        dl_speed = 0
+        up_speed = 0
         for download in list(download_dict.values()):
-            spd = download.speed()
             if download.status() == MirrorStatus.STATUS_DOWNLOADING:
+                spd = download.speed()
                 if 'K' in spd:
-                    dlspeed_bytes += float(spd.split('K')[0]) * 1024
+                    dl_speed += float(spd.split('K')[0]) * 1024
                 elif 'M' in spd:
-                    dlspeed_bytes += float(spd.split('M')[0]) * 1048576
+                    dl_speed += float(spd.split('M')[0]) * 1048576
             elif download.status() == MirrorStatus.STATUS_UPLOADING:
+                spd = download.speed()
                 if 'KB/s' in spd:
-                    upspeed_bytes += float(spd.split('K')[0]) * 1024
+                    up_speed += float(spd.split('K')[0]) * 1024
                 elif 'MB/s' in spd:
-                    upspeed_bytes += float(spd.split('M')[0]) * 1048576
+                    up_speed += float(spd.split('M')[0]) * 1048576
             elif download.status() == MirrorStatus.STATUS_SEEDING:
                 spd = download.upload_speed()
                 if 'K' in spd:
-                    upspeed_bytes += float(spd.split('K')[0]) * 1024
+                    up_speed += float(spd.split('K')[0]) * 1024
                 elif 'M' in spd:
-                    upspeed_bytes += float(spd.split('M')[0]) * 1048576
-        bmsg += f"\n🔻 <b>DL:</b> {get_readable_file_size(dlspeed_bytes)}/s | 🔺 <b>UL:</b> {get_readable_file_size(upspeed_bytes)}/s"
+                    up_speed += float(spd.split('M')[0]) * 1048576
+        bmsg = f"\n🖥️ <b>CPU:</b> {cpu_percent()}% | 💿 <b>FREE:</b> {get_readable_file_size(disk_usage(DOWNLOAD_DIR).free)}"
+        bmsg += f"\n🔻 <b>DL:</b> {get_readable_file_size(dl_speed)}/s | 🔺 <b>UL:</b> {get_readable_file_size(up_speed)}/s"
         if STATUS_LIMIT is not None and tasks > STATUS_LIMIT:
             msg += f" | 📑 <b>Page:</b> {PAGE_NO}/{pages}"
             buttons = ButtonMaker()

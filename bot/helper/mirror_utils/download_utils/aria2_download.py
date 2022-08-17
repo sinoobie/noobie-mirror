@@ -1,5 +1,5 @@
 from time import sleep, time
-from os import remove
+from os import remove, path as ospath
 
 from bot import aria2, download_dict_lock, download_dict, STOP_DUPLICATE, SEED_LIMIT,TORRENT_DIRECT_LIMIT, ZIP_UNZIP_LIMIT, LOGGER, STORAGE_THRESHOLD, BASE_URL
 from bot.helper.mirror_utils.upload_utils.gdriveTools import GoogleDriveHelper
@@ -122,9 +122,10 @@ def __onBtDownloadComplete(api, gid):
         if listener.select:
             res = download.files
             for file_o in res:
-                if not file_o.selected:
+                f_path = file_o.path
+                if not file_o.selected and ospath.exists(f_path):
                     try:
-                        remove(file_o.path)
+                        remove(f_path)
                     except:
                         pass
             clean_unwanted(download.dir)
@@ -138,9 +139,9 @@ def __onBtDownloadComplete(api, gid):
         listener.onDownloadComplete()
         if listener.seed:
             if SEED_LIMIT is not None:
-                _ratio = float(api.client.get_option(gid).get('seed-ratio'))
+                _ratio = api.client.get_option(gid).get('seed-ratio')
                 LOGGER.info(f"SEED_LIMIT seeding ratio: {_ratio}")
-                size = (download.total_length * _ratio) if _ratio != 0 else download.total_length
+                size = download.total_length if not _ratio else (download.total_length * float(_ratio))
                 if size > SEED_LIMIT * 1024**3:
                     listener.onUploadError(f"Seeding torrent limit {SEED_LIMIT} GB. Ukuran File/folder yang akan di seeding adalah {get_readable_file_size(size)}")
                     api.remove([download], force=True, files=True)
