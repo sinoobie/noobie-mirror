@@ -181,7 +181,7 @@ def _qual_subbuttons(task_id, b_name, msg):
     buttons.sbutton("Back", f"qu {task_id} back")
     buttons.sbutton("Cancel", f"qu {task_id} cancel")
     SUBBUTTONS = InlineKeyboardMarkup(buttons.build_menu(2))
-    editMessage(f"Pilih Bitrate untuk <b>{qual}</b>:", msg, SUBBUTTONS)
+    editMessage(f"Pilih Bitrate untuk <b>{b_name}</b>:", msg, SUBBUTTONS)
 
 def _mp3_subbuttons(task_id, msg, playlist=False):
     buttons = button_build.ButtonMaker()
