@@ -35,7 +35,7 @@ fmed_list = ['fembed.net', 'fembed.com', 'femax20.com', 'fcdn.stream', 'feurl.co
 def direct_link_generator(link: str, host):
     """ direct links generator """
     if 'youtube.com' in host or 'youtu.be' in host:
-        raise DirectDownloadLinkException(f"ERROR: Use /{BotCommands.YtdlCommand} to mirror Youtube link\nUse /{BotCommands.YtdlZipCommand} to make zip of Youtube playlist")
+        raise DirectDownloadLinkException(f"ERROR: Use /{BotCommands.YtdlCommand[0]} to mirror Youtube link\nUse /{BotCommands.YtdlZipCommand[0]} to make zip of Youtube playlist")
     elif 'zippyshare.com' in host:
         return zippy_share(link)
     elif 'yadi.sk' in host or 'disk.yandex.com' in host or 'disk.yandex.ru' in host:
@@ -376,7 +376,7 @@ def fichier(link: str) -> str:
             else:
                 raise DirectDownloadLinkException(f"ERROR: 1fichier sedang limit mohon tunggu {numbers[0]} menit.")
         elif "protect access" in str(str_2).lower():
-            raise DirectDownloadLinkException(f"ERROR: Link ini memerlukan password!\n\n- Tambahkan tanda <b>::</b> setelah link dan ketik password setelah tanda tersebut.\n\n<b>Contoh:</b>\n<code>/{BotCommands.MirrorCommand} https://1fichier.com/?smmtd8twfpm66awbqz04::love you</code>\n\n* Tanpa spasi diantara link dan password <b>::</b>\n* Tapi password bisa memakai spasi")
+            raise DirectDownloadLinkException(f"ERROR: Link ini memerlukan password!\n\n- Tambahkan tanda <b>::</b> setelah link dan ketik password setelah tanda tersebut.\n\n<b>Contoh:</b>\n<code>/{BotCommands.MirrorCommand[0]} https://1fichier.com/?smmtd8twfpm66awbqz04::love you</code>\n\n* Tanpa spasi diantara link dan password <b>::</b>\n* Tapi password bisa memakai spasi")
         else:
             raise DirectDownloadLinkException("ERROR: Gagal ketika generate direct link 1fichier!")
     elif len(soup.find_all("div", {"class": "ct_warn"})) == 4:

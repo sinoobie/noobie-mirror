@@ -1,7 +1,6 @@
 from base64 import b64encode
 from re import match as re_match, split as re_split
 from time import sleep
-from os import path as ospath
 from threading import Thread
 from urllib.parse import urlparse
 from telegram.ext import CommandHandler
@@ -86,7 +85,7 @@ def _mirror_leech(bot, message, isZip=False, extract=False, isQbit=False, isLeec
 
     reply_to = message.reply_to_message
     if reply_to is not None:
-        file_ = next((i for i in [reply_to.document, reply_to.video, reply_to.audio, reply_to.photo] if i), None)
+        file_ = reply_to.document or reply_to.video or reply_to.audio or reply_to.photo or None
         if not reply_to.from_user.is_bot:
             if reply_to.from_user.username:
                 tag = f"@{reply_to.from_user.username}"
@@ -113,7 +112,7 @@ def _mirror_leech(bot, message, isZip=False, extract=False, isQbit=False, isLeec
             else:
                 link = file_.get_file().file_path
 
-    if not is_url(link) and not is_magnet(link) and not ospath.exists(link):
+    if not is_url(link) and not is_magnet(link):
         help_msg = f"ℹ️ {tag} Tidak ada file/link yang mau di-mirror. Lihat format dibawah!"
         if isQbit:
             help_msg += "\n<code>/qbcommands</code> {link} pswd: xx [zip/unzip]"

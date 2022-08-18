@@ -6,7 +6,6 @@ from html import escape
 from psutil import cpu_percent, disk_usage
 from requests import head as rhead
 from urllib.request import urlopen
-from telegram import InlineKeyboardMarkup
 from urllib.parse import quote
 
 from bot import download_dict, download_dict_lock, STATUS_LIMIT, botStartTime, DOWNLOAD_DIR, WEB_PINCODE, BASE_URL
@@ -100,7 +99,7 @@ def bt_selection_buttons(id_: str):
     else:
         buttons.buildbutton("Pilih Files", f"{BASE_URL}/app/files/{id_}?pin_code={pincode}")
     buttons.sbutton("Selesai Memilih", f"btsel done {gid} {id_}")
-    return InlineKeyboardMarkup(buttons.build_menu(2))
+    return buttons.build_menu(2)
 
 def get_progress_bar_string(status):
     completed = status.processed_bytes() / 8
@@ -193,7 +192,7 @@ def get_readable_message():
             buttons = ButtonMaker()
             buttons.sbutton("⏪ Previous", "status pre")
             buttons.sbutton("Next ⏩", "status nex")
-            button = InlineKeyboardMarkup(buttons.build_menu(2))
+            button = buttons.build_menu(2)
             return msg + bmsg, button
         return msg + bmsg, ""
 

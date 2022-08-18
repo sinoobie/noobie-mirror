@@ -4,7 +4,6 @@ from subprocess import run as srun, check_output
 from psutil import disk_usage, cpu_percent, swap_memory, cpu_count, virtual_memory, net_io_counters, boot_time
 from time import time
 from sys import executable
-from telegram import InlineKeyboardMarkup
 from telegram.ext import CommandHandler
 from threading import Thread
 
@@ -49,7 +48,7 @@ def start(update, context):
     buttons = ButtonMaker()
     buttons.buildbutton("Owner", "@SiNoobie")
     buttons.buildbutton("Group", "@cermin_in")
-    reply_markup = InlineKeyboardMarkup(buttons.build_menu(2))
+    reply_markup = buttons.build_menu(2)
     sendMarkup('Silahkan gabung @cermin_in untuk menggunakan bot!', context.bot, update, reply_markup)
 
 def restart(update, context):
@@ -59,7 +58,7 @@ def restart(update, context):
         Interval.clear()
     alive.kill()
     clean_all()
-    srun(["pkill", "-9", "-f", "gunicorn|extra-api|last-api|megasdkrest"])
+    srun(["pkill", "-9", "-f", "gunicorn|chrome|firefox|megasdkrest"])
     srun(["python3", "update.py"])
     with open(".restartmsg", "w") as f:
         f.truncate(0)

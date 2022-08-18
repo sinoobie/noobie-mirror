@@ -14,10 +14,8 @@ class QbDownloader:
     POLLING_INTERVAL = 3
 
     def __init__(self, listener):
-        self.select = False
         self.is_seeding = False
-        self.client = None
-        self.periodic = None
+        self.client = get_client()
         self.ext_hash = ''
         self._ratio = None
         self.__listener = listener
@@ -28,12 +26,13 @@ class QbDownloader:
         self.__sizeChecked = False
         self.__stopDup_check = False
         self.__rechecked = False
+        self.__select = False
+        self.__periodic = None
 
     def add_qb_torrent(self, link, path, select, ratio, seed_time):
-        self.__path = path
         self._ratio = ratio
-        self.select = select
-        self.client = get_client()
+        self.__path = path
+        self.__select = select
         try:
             op = self.client.torrents_add(link, save_path=path, tags=self.__listener.uid,
                                           ratio_limit=ratio, seeding_time_limit=seed_time,
@@ -63,7 +62,7 @@ class QbDownloader:
                 download_dict[self.__listener.uid] = QbDownloadStatus(self.__listener, self)
             self.__listener.onDownloadStart()
             LOGGER.info(f"QbitDownload started: {self.__name} - Hash: {self.ext_hash}")
-            self.periodic = setInterval(self.POLLING_INTERVAL, self.__qb_listener)
+            self.__periodic = setInterval(self.POLLING_INTERVAL, self.__qb_listener)
             if BASE_URL is not None and select:
                 if link.startswith('magnet:'):
                     metamsg = f"ℹ️ {self.__listener.tag} Downloading Metadata, Tunggu sebentar. Gunakan .torrent file untuk menghindari proses ini"
@@ -125,7 +124,7 @@ class QbDownloader:
                             self.__onDownloadError(fmsg)
                             return
                     self.__sizeChecked = True
-                if not self.__stopDup_check and not self.select and STOP_DUPLICATE and not self.__listener.isLeech:
+                if not self.__stopDup_check and not self.__select and STOP_DUPLICATE and not self.__listener.isLeech:
                     LOGGER.info('Checking File/Folder if already in Drive')
                     qbname = tor_info.content_path.rsplit('/', 1)[-1].rsplit('.!qB', 1)[0]
                     if self.__listener.isZip:
@@ -159,7 +158,7 @@ class QbDownloader:
                 self.__uploaded = True
                 if not self.__listener.seed:
                     self.client.torrents_pause(torrent_hashes=self.ext_hash)
-                if self.select:
+                if self.__select:
                     clean_unwanted(self.__path)
                 self.__listener.onDownloadComplete()
                 if self.__listener.seed:
@@ -183,6 +182,11 @@ class QbDownloader:
             elif tor_info.state == 'pausedUP' and self.__listener.seed:
                 self.__listener.onUploadError(f"Seeding stopped with Ratio: {round(tor_info.ratio, 3)} and Time: {get_readable_time(tor_info.seeding_time)}")
                 self.__remove_torrent()
+            elif tor_info.state == 'pausedDL' and tor_info.completion_on != 0:
+                # recheck torrent incase one of seed limits reached
+                # sometimes it stuck on pausedDL from maxRatioAction but it should be pausedUP
+                LOGGER.info("Recheck on complete manually! PausedDL")
+                self.client.torrents_recheck(torrent_hashes=self.ext_hash)
         except Exception as e:
             LOGGER.error(str(e))
 
@@ -200,7 +204,7 @@ class QbDownloader:
         self.client.torrents_delete(torrent_hashes=self.ext_hash, delete_files=True)
         self.client.torrents_delete_tags(tags=self.__listener.uid)
         self.client.auth_log_out()
-        self.periodic.cancel()
+        self.__periodic.cancel()
 
     def cancel_download(self):
         if self.is_seeding:
