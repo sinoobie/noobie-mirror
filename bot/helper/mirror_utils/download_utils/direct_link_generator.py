@@ -15,7 +15,7 @@ import re
 
 from base64 import b64decode
 from urllib.parse import urlparse, unquote
-from json import loads as jsnloads
+from json import loads as jsonloads
 from lk21 import Bypass
 from cfscrape import create_scraper
 from bs4 import BeautifulSoup
@@ -404,7 +404,7 @@ def solidfiles(url: str) -> str:
     }
     pageSource = requests.get(url, headers = headers).text
     mainOptions = str(re.search(r'viewerOptions\'\,\ (.*?)\)\;', pageSource).group(1))
-    return jsnloads(mainOptions)["downloadUrl"]
+    return jsonloads(mainOptions)["downloadUrl"]
 
 def krakenfiles(page_link: str) -> str:
     """ krakenfiles direct link generator
