@@ -30,7 +30,7 @@ def _mirror_leech(bot, message, isZip=False, extract=False, isQbit=False, isLeec
     seed_time = None
     select = False
     seed = False
-    multi = 1
+    multi = 0
 
     if len(message_args) > 1:
         args = mesg[0].split(maxsplit=3)
@@ -49,14 +49,15 @@ def _mirror_leech(bot, message, isZip=False, extract=False, isQbit=False, isLeec
                 ratio = dargs[1] if dargs[1] else None
                 if len(dargs) == 3:
                     seed_time = dargs[2] if dargs[2] else None
-        message_args = mesg[0].split(maxsplit=index)
-        if len(message_args) > index:
-            link = message_args[index].strip()
-            if link.isdigit():
-                multi = int(link)
-                link = ''
-            elif link.startswith(("|", "pswd:")):
-                link = ''
+            elif x.isdigit():
+                multi = int(x)
+                mi = index
+        if multi == 0:
+            message_args = mesg[0].split(maxsplit=index)
+            if len(message_args) > index:
+                link = message_args[index].strip()
+                if link.startswith(("|", "pswd:")):
+                    link = ''
         else:
             link = ''
     else:
@@ -104,7 +105,9 @@ def _mirror_leech(bot, message, isZip=False, extract=False, isQbit=False, isLeec
                 if multi > 1:
                     sleep(4)
                     nextmsg = type('nextmsg', (object, ), {'chat_id': message.chat_id, 'message_id': message.reply_to_message.message_id + 1})
-                    nextmsg = sendMessage(message.text.replace(str(multi), str(multi - 1), 1), bot, nextmsg)
+                    msg = message.text.split(maxsplit=mi+1)
+                    msg[mi] = f"{multi - 1}"
+                    nextmsg = sendMessage(" ".join(msg), bot, nextmsg)
                     nextmsg.from_user.id = message.from_user.id
                     sleep(4)
                     Thread(target=_mirror_leech, args=(bot, nextmsg, isZip, extract, isQbit, isLeech)).start()
@@ -145,7 +148,7 @@ def _mirror_leech(bot, message, isZip=False, extract=False, isQbit=False, isLeec
         return
 
     LOGGER.info(link)
-    if multi == 1:
+    if multi == 0:
         check_ = sendMessage(f"ℹ️ {tag} Sedang memeriksa link, Tunggu sebentar...", bot, message)
     else: check_ = None
 
@@ -209,7 +212,9 @@ def _mirror_leech(bot, message, isZip=False, extract=False, isQbit=False, isLeec
     if multi > 1:
         sleep(4)
         nextmsg = type('nextmsg', (object, ), {'chat_id': message.chat_id, 'message_id': message.reply_to_message.message_id + 1})
-        nextmsg = sendMessage(message.text.replace(str(multi), str(multi - 1), 1), bot, nextmsg)
+        msg = message.text.split(maxsplit=mi+1)
+        msg[mi] = f"{multi - 1}"
+        nextmsg = sendMessage(" ".join(msg), bot, nextmsg)
         nextmsg.from_user.id = message.from_user.id
         sleep(4)
         Thread(target=_mirror_leech, args=(bot, nextmsg, isZip, extract, isQbit, isLeech)).start()

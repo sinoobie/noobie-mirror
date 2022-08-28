@@ -185,8 +185,16 @@ def split_file(path, size, file_, dirpath, split_size, listener, start_time=0, i
                 LOGGER.error(f'Something went wrong while splitting mostly file is corrupted. Path: {path}')
                 break
             elif duration == lpd:
-                LOGGER.warning(f"This file has been splitted with default stream and audio, so you will only see one part with less size from orginal one because it doesn't have all streams and audios. This happens mostly with MKV videos. noMap={noMap}. Path: {path}")
-                break
+                if not noMap:
+                    LOGGER.warning(f"Retrying without map, -map 0 not working in all situations. Path: {path}")
+                    try:
+                        osremove(out_path)
+                    except:
+                        pass
+                    return split_file(path, size, file_, dirpath, split_size, listener, start_time, i, True, True)
+                else:
+                    LOGGER.warning(f"This file has been splitted with default stream and audio, so you will only see one part with less size from orginal one because it doesn't have all streams and audios. This happens mostly with MKV videos. noMap={noMap}. Path: {path}")
+                    break
             elif lpd <= 4:
                 osremove(out_path)
                 break
@@ -236,7 +244,11 @@ def get_media_streams(path):
     is_audio = False
 
     mime_type = get_mime_type(path)
-    if not mime_type.startswith(('video', 'audio')):
+    if mime_type.startswith('audio'):
+        is_audio = True
+        return is_video, is_audio
+
+    if not mime_type.startswith('video'):
         return is_video, is_audio
 
     try:
@@ -252,9 +264,8 @@ def get_media_streams(path):
         return is_video, is_audio
 
 
-    for stream in fields:
-        if stream.get('codec_type') == 'video':
-            is_video = True
-        elif stream.get('codec_type') == 'audio':
-            is_audio = True
+    if fields[0].get('codec_type') == 'video':
+        is_video = True
+    else:
+        is_audio = True
     return is_video, is_audio

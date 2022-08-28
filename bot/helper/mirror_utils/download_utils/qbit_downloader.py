@@ -163,12 +163,15 @@ class QbDownloader:
                 self.__listener.onDownloadComplete()
                 if self.__listener.seed:
                     if SEED_LIMIT is not None:
-                        LOGGER.info(f"SEED_LIMIT seeding ratio: {self._ratio}")
-                        size = tor_info.size if not self._ratio else (tor_info.size * float(self._ratio))
-                        if size > SEED_LIMIT * 1024**3:
-                            self.__listener.onUploadError(f"Seeding torrent limit {SEED_LIMIT} GB. Ukuran File/folder yang akan di seeding adalah {get_readable_file_size(size)}")
-                            self.__remove_torrent()
-                            return
+                        size = tor_info.size #if not self._ratio else (tor_info.size * float(self._ratio))
+                        limit = SEED_LIMIT * 1024**3
+                        if size > limit:
+                            if self._ratio and size * float(self._ratio) <= limit:
+                                pass
+                            else:
+                                self.__listener.onUploadError(f"Seeding torrent limit {SEED_LIMIT} GB. Ukuran File/folder yang akan di seeding adalah {get_readable_file_size(size)}")
+                                self.__remove_torrent()
+                                return
                     with download_dict_lock:
                         if self.__listener.uid not in download_dict:
                             self.__remove_torrent()

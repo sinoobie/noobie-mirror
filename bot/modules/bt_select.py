@@ -75,7 +75,12 @@ def get_confirm(update, context):
         query.answer(text="Task ini telah dibatalkan!", show_alert=True)
         query.message.delete()
         return
-    listener = dl.listener()
+    if hasattr(dl, 'listener'):
+        listener = dl.listener()
+    else:
+        query.answer(text="Not in download status anymore!", show_alert=True)
+        query.message.delete()
+        return
     if user_id != listener.message.from_user.id:
         query.answer(text="Task ini bukan buat elu!", show_alert=True)
     elif data[1] == "pin":

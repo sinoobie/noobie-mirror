@@ -19,7 +19,7 @@ def _clone(message, bot):
     args = message.text.split()
     reply_to = message.reply_to_message
     gdrive_sharer = False
-    multi = 1
+    multi = 0
     link = ''
     if len(args) > 1:
         link = args[1].strip()
@@ -38,7 +38,7 @@ def _clone(message, bot):
                 tag = f"@{reply_to.from_user.username}"
             else:
                 tag = reply_to.from_user.mention_html(reply_to.from_user.first_name)
-    if multi == 1:
+    if multi == 0:
         _msg = sendMessage(f"♻️ {tag} Cloning: <code>{link}</code>", bot, message)
     else: _msg = None
     try:
@@ -81,7 +81,9 @@ def _clone(message, bot):
         if multi > 1:
             sleep(4)
             nextmsg = type('nextmsg', (object, ), {'chat_id': message.chat_id, 'message_id': message.reply_to_message.message_id + 1})
-            nextmsg = sendMessage(message.text.replace(str(multi), str(multi - 1), 1), bot, nextmsg)
+            cmsg = message.text.split()
+            cmsg[1] = f"{multi - 1}"
+            nextmsg = sendMessage(" ".join(cmsg), bot, nextmsg)
             nextmsg.from_user.id = message.from_user.id
             sleep(4)
             Thread(target=_clone, args=(nextmsg, bot)).start()
