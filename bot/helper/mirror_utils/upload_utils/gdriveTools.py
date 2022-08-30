@@ -40,7 +40,6 @@ class GoogleDriveHelper:
         self.__G_DRIVE_DIR_BASE_DOWNLOAD_URL = "https://drive.google.com/drive/folders/{}"
         self.__listener = listener
         self.__path = path
-        self.__service = self.__authorize()
         self.__total_bytes = 0
         self.__total_files = 0
         self.__total_folders = 0
@@ -57,6 +56,7 @@ class GoogleDriveHelper:
         self.__updater = None
         self.__update_interval = 3
         self.__size = size
+        self.__service = self.__authorize()
         self._file_processed_bytes = 0
         self.name = name
         self.processed_bytes = 0
@@ -82,7 +82,8 @@ class GoogleDriveHelper:
         # Get credentials
         credentials = None
         if USE_SERVICE_ACCOUNTS:
-            self.__service_account_index = randrange(SERVICE_ACCOUNTS_NUMBER)
+            if self.__sa_count == 0:
+                self.__service_account_index = randrange(SERVICE_ACCOUNTS_NUMBER)
             LOGGER.info(f"Authorizing with {self.__service_account_index}.json service account")
             credentials = service_account.Credentials.from_service_account_file(
                 f'accounts/{self.__service_account_index}.json',
