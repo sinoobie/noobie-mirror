@@ -163,7 +163,7 @@ class QbDownloader:
                 self.__listener.onDownloadComplete()
                 if self.__listener.seed:
                     if SEED_LIMIT is not None:
-                        size = tor_info.size #if not self._ratio else (tor_info.size * float(self._ratio))
+                        size = tor_info.size
                         limit = SEED_LIMIT * 1024**3
                         if size > limit:
                             if self._ratio and size * float(self._ratio) <= limit:
