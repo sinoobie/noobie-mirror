@@ -2,12 +2,12 @@ from time import sleep, time
 from re import search as re_search
 from telegram import InlineKeyboardMarkup
 
-from bot import download_dict, download_dict_lock, BASE_URL, get_client, SEED_LIMIT, TORRENT_DIRECT_LIMIT, ZIP_UNZIP_LIMIT, STOP_DUPLICATE, TORRENT_TIMEOUT, LOGGER, STORAGE_THRESHOLD
+from bot import download_dict, download_dict_lock, BASE_URL, get_client, SEED_LIMIT, TORRENT_DIRECT_LIMIT, ZIP_UNZIP_LIMIT, STOP_DUPLICATE, TORRENT_TIMEOUT, LOGGER
 from bot.helper.mirror_utils.status_utils.qbit_download_status import QbDownloadStatus
 from bot.helper.mirror_utils.upload_utils.gdriveTools import GoogleDriveHelper
 from bot.helper.telegram_helper.message_utils import sendMessage, sendMarkup, deleteMessage, sendStatusMessage, update_all_messages, sendFile
 from bot.helper.ext_utils.bot_utils import get_readable_file_size, get_readable_time, setInterval, bt_selection_buttons
-from bot.helper.ext_utils.fs_utils import clean_unwanted, get_base_name, check_storage_threshold
+from bot.helper.ext_utils.fs_utils import clean_unwanted, get_base_name
 
 
 class QbDownloader:
@@ -103,13 +103,6 @@ class QbDownloader:
                 if not self.__sizeChecked:
                     size = tor_info.size
                     arch = any([self.__listener.isZip, self.__listener.extract])
-                    if STORAGE_THRESHOLD is not None:
-                        acpt = check_storage_threshold(size, arch)
-                        if not acpt:
-                            msg = f'You must leave {STORAGE_THRESHOLD}GB free storage.'
-                            msg += f'\nYour File/Folder size is {get_readable_file_size(size)}'
-                            self.__onDownloadError(msg)
-                            return
                     limit = None
                     if ZIP_UNZIP_LIMIT is not None and arch:
                         mssg = f'Zip/Unzip limit is {ZIP_UNZIP_LIMIT}GB'

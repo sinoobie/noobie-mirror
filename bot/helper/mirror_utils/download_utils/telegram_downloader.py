@@ -2,12 +2,11 @@ from logging import getLogger, WARNING
 from time import time
 from threading import RLock, Lock
 
-from bot import LOGGER, download_dict, download_dict_lock, STOP_DUPLICATE, STORAGE_THRESHOLD, app
+from bot import LOGGER, download_dict, download_dict_lock, STOP_DUPLICATE, app
 from bot.helper.ext_utils.bot_utils import get_readable_file_size
 from ..status_utils.telegram_download_status import TelegramDownloadStatus
 from bot.helper.telegram_helper.message_utils import sendStatusMessage, sendFile, sendMessage
 from bot.helper.mirror_utils.upload_utils.gdriveTools import GoogleDriveHelper
-from bot.helper.ext_utils.fs_utils import check_storage_threshold
 
 global_lock = Lock()
 GLOBAL_GID = set()
@@ -101,13 +100,6 @@ class TelegramDownloadHelper:
                         dupmsg = f"⚠️ {self.__listener.tag} Download kamu dihentikan karena: <code>{name}</code> <b><u>sudah ada di Drive</u></b>"
                         sendFile(self.__listener.bot, self.__listener.message, f_name, dupmsg)
                         return
-                if STORAGE_THRESHOLD is not None:
-                    arch = any([self.__listener.isZip, self.__listener.extract])
-                    acpt = check_storage_threshold(size, arch)
-                    if not acpt:
-                        msg = f'You must leave {STORAGE_THRESHOLD}GB free storage.'
-                        msg += f'\nYour File/Folder size is {get_readable_file_size(size)}'
-                        return sendMessage(msg, self.__listener.bot, self.__listener.message)
                 self.__onDownloadStart(name, size, media.file_unique_id)
                 LOGGER.info(f'Downloading Telegram file with id: {media.file_unique_id}')
                 self.__download(_dmsg, path)

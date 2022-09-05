@@ -1,11 +1,11 @@
 from threading import Lock
 from pathlib import Path
 
-from bot import LOGGER, download_dict, download_dict_lock, MEGA_LIMIT, STOP_DUPLICATE, ZIP_UNZIP_LIMIT, STORAGE_THRESHOLD
+from bot import LOGGER, download_dict, download_dict_lock, MEGA_LIMIT, STOP_DUPLICATE, ZIP_UNZIP_LIMIT
 from bot.helper.telegram_helper.message_utils import sendMessage, sendFile, sendStatusMessage
 from bot.helper.ext_utils.bot_utils import get_readable_file_size, setInterval
 from bot.helper.mirror_utils.upload_utils.gdriveTools import GoogleDriveHelper
-from bot.helper.ext_utils.fs_utils import get_base_name, check_storage_threshold
+from bot.helper.ext_utils.fs_utils import get_base_name
 from ..status_utils.mega_download_status import MegaDownloadStatus
 from megasdkrestclient import MegaSdkRestClient, constants
 
@@ -122,14 +122,8 @@ class MegaDownloader:
                     dupmsg = f"⚠️ {self.__listener.tag} <code>{mname}</code> <b><u>sudah ada di Drive</u></b>"
                     sendFile(self.__listener.bot, self.__listener.message, f_name, dupmsg)
                     return
-        if any([STORAGE_THRESHOLD, ZIP_UNZIP_LIMIT, MEGA_LIMIT]):
+        if any([ZIP_UNZIP_LIMIT, MEGA_LIMIT]):
             arch = any([self.__listener.isZip, self.__listener.extract])
-            if STORAGE_THRESHOLD is not None:
-                acpt = check_storage_threshold(file_size, arch)
-                if not acpt:
-                    msg = f'You must leave {STORAGE_THRESHOLD}GB free storage.'
-                    msg += f'\nYour File/Folder size is {get_readable_file_size(file_size)}'
-                    return sendMessage(msg, self.__listener.bot, self.__listener.message)
             limit = None
             if ZIP_UNZIP_LIMIT is not None and arch:
                 msg3 = f'Failed, Zip/Unzip limit is {ZIP_UNZIP_LIMIT}GB.\nYour File/Folder size is {get_readable_file_size(file_size)}.'
