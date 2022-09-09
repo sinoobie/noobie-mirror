@@ -92,20 +92,14 @@ def direct_link_generator(link: str, host):
         raise DirectDownloadLinkException(f'No Direct link function found for {link}')
 
 def uptobox(url: str) -> str:
-    """ Uptobox direct link generator
-    based on https://github.com/jovanzers/WinTenCermin """
     try:
-        link = re.findall(r'\bhttps?://.*uptobox\.com\S+', url)[0]
-    except IndexError:
-        raise DirectDownloadLinkException("No Uptobox links found\n")
-    if UPTOBOX_TOKEN is None:
-        LOGGER.error('UPTOBOX_TOKEN not provided!')
+        link = re.findall(r'\bhttp?://.*uptobox\.com/dl\S+', url)[0]
         dl_url = link
-    else:
-        try:
-            link = re.findall(r'\bhttp?://.*uptobox\.com/dl\S+', url)[0]
+    except:
+        if UPTOBOX_TOKEN is None:
+            LOGGER.warning('UPTOBOX_TOKEN not provided!')
             dl_url = link
-        except:
+        try:
             file_id = re.findall(r'\bhttps?://.*uptobox\.com/(\w+)', url)[0]
             file_link = f'https://uptobox.com/api/link?token={UPTOBOX_TOKEN}&file_code={file_id}'
             req = requests.get(file_link)
@@ -125,6 +119,9 @@ def uptobox(url: str) -> str:
             else:
                 LOGGER.info(f"UPTOBOX_ERROR: {result}")
                 raise DirectDownloadLinkException(f"ERROR: {result['message']}")
+        except Exception as uer:
+            LOGGER.info(f"UPTOBOX_ERROR: {uer}")
+            raise DirectDownloadLinkException("ERROR: Tidak dapat mengambil direct link")
     return dl_url
 
 def zippy_share(url: str) -> str:
@@ -576,7 +573,7 @@ def sharerpw(url: str, forced_login=False) -> str:
         except:
             if len(ddl_btn) and not forced_login:
                 # retry download via login
-                return sharer_pw_dl(url, forced_login=True)
+                return sharerpw(url, forced_login=True)
             else:
                 raise DirectDownloadLinkException("ERROR: Tidak dapat mengambil direct link")
     except:
