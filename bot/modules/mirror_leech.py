@@ -196,7 +196,7 @@ def _mirror_leech(bot, message, isZip=False, extract=False, isQbit=False, isLeec
             sendMessage('MEGA_API_KEY not Provided!', bot, message)
     elif isQbit:
         Thread(target=QbDownloader(listener).add_qb_torrent, args=(link, f'{DOWNLOAD_DIR}{listener.uid}',
-                                                                   select, ratio, seed_time)).start()
+                                                                   ratio, seed_time)).start()
     else:
         if len(mesg) > 1:
             ussr = mesg[1]
@@ -209,7 +209,7 @@ def _mirror_leech(bot, message, isZip=False, extract=False, isQbit=False, isLeec
         else:
             auth = ''
         Thread(target=add_aria2c_download, args=(link, f'{DOWNLOAD_DIR}{listener.uid}', listener, name,
-                                                 auth, select, ratio, seed_time)).start()
+                                                 auth, ratio, seed_time)).start()
 
     if multi > 1:
         sleep(4)

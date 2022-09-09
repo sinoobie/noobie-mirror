@@ -26,13 +26,11 @@ class QbDownloader:
         self.__sizeChecked = False
         self.__stopDup_check = False
         self.__rechecked = False
-        self.__select = False
         self.__periodic = None
 
-    def add_qb_torrent(self, link, path, select, ratio, seed_time):
+    def add_qb_torrent(self, link, path, ratio, seed_time):
         self._ratio = ratio
         self.__path = path
-        self.__select = select
         try:
             op = self.client.torrents_add(link, save_path=path, tags=self.__listener.uid,
                                           ratio_limit=ratio, seeding_time_limit=seed_time,
@@ -63,7 +61,7 @@ class QbDownloader:
             self.__listener.onDownloadStart()
             LOGGER.info(f"QbitDownload started: {self.__name} - Hash: {self.ext_hash}")
             self.__periodic = setInterval(self.POLLING_INTERVAL, self.__qb_listener)
-            if BASE_URL is not None and select:
+            if BASE_URL is not None and self.__listener.select:
                 if link.startswith('magnet:'):
                     metamsg = f"ℹ️ {self.__listener.tag} Downloading Metadata, Tunggu sebentar. Gunakan .torrent file untuk menghindari proses ini"
                     meta = sendMessage(metamsg, self.__listener.bot, self.__listener.message)
@@ -117,7 +115,7 @@ class QbDownloader:
                             self.__onDownloadError(fmsg)
                             return
                     self.__sizeChecked = True
-                if not self.__stopDup_check and not self.__select and STOP_DUPLICATE and not self.__listener.isLeech:
+                if not self.__stopDup_check and not self.__listener.select and STOP_DUPLICATE and not self.__listener.isLeech:
                     LOGGER.info('Checking File/Folder if already in Drive')
                     qbname = tor_info.content_path.rsplit('/', 1)[-1].rsplit('.!qB', 1)[0]
                     if self.__listener.isZip:
@@ -151,7 +149,7 @@ class QbDownloader:
                 self.__uploaded = True
                 if not self.__listener.seed:
                     self.client.torrents_pause(torrent_hashes=self.ext_hash)
-                if self.__select:
+                if self.__listener.select:
                     clean_unwanted(self.__path)
                 self.__listener.onDownloadComplete()
                 if self.__listener.seed:

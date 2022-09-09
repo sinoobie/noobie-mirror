@@ -49,13 +49,15 @@ def select(update, context):
         Thread(target=auto_delete_message, args=(context.bot, update.message, tmsg)).start()
         return
     try:
-        if dl.listener().isQbit:
+        listener = dl.listener()
+        if listener.isQbit:
             id_ = dl.download().ext_hash
             client = dl.client()
             client.torrents_pause(torrent_hashes=id_)
         else:
             id_ = dl.gid()
             aria2.client.force_pause(id_)
+        listener.select = True
     except:
         tmsg = sendMessage(f"⚠️ {tag} Task ini bukan torrent!", context.bot, update.message)
         Thread(target=auto_delete_message, args=(context.bot, update.message, tmsg)).start()
