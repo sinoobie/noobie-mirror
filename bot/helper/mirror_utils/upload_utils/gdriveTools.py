@@ -210,7 +210,7 @@ class GoogleDriveHelper:
                 if re_match(r'text/html|text/plain', str(mime_type)):
                     LOGGER.info(f"Upload cancelled because: {mime_type} not allowed")
                     self.__listener.onUploadError("Download kamu dihentikan karena: Sepertinya link kamu bukan direct link.")
-                    return
+                    self.__is_cancelled = True
                 if self.__is_cancelled:
                     return
                 if link is None:
