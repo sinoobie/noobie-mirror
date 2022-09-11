@@ -117,12 +117,13 @@ def uptobox(url: str) -> str:
             LOGGER.info(f"UPTOBOX_ERROR: {uer}")
             raise DirectDownloadLinkException("ERROR: Tidak dapat mengambil direct link")
         else:
-            if result['message'].lower() == 'you need to wait before requesting a new download link':
-                cooldown = divmod(result['data']['waiting'], 60)
-                raise DirectDownloadLinkException(f"ERROR: Uptobox sedang limit mohon tunggu {cooldown[0]} menit {cooldown[1]} detik.")
-            else:
-                LOGGER.info(f"UPTOBOX_ERROR: {result}")
-                raise DirectDownloadLinkException(f"ERROR: {result['message']}")
+            if result['message'].lower() not in ['success', 'waiting needed']:
+                if result['message'].lower() == 'you need to wait before requesting a new download link':
+                    cooldown = divmod(result['data']['waiting'], 60)
+                    raise DirectDownloadLinkException(f"ERROR: Uptobox sedang limit mohon tunggu {cooldown[0]} menit {cooldown[1]} detik.")
+                else:
+                    LOGGER.info(f"UPTOBOX_ERROR: {result}")
+                    raise DirectDownloadLinkException(f"ERROR: {result['message']}")
     return dl_url
 
 def zippy_share(url: str) -> str:
