@@ -113,15 +113,16 @@ def uptobox(url: str) -> str:
                 req2 = requests.get(f"{file_link}&waitingToken={waiting_token}")
                 result2 = req2.json()
                 dl_url = result2['data']['dlLink']
-            elif result['message'].lower() == 'you need to wait before requesting a new download link':
+        except Exception as uer:
+            LOGGER.info(f"UPTOBOX_ERROR: {uer}")
+            raise DirectDownloadLinkException("ERROR: Tidak dapat mengambil direct link")
+        else:
+            if result['message'].lower() == 'you need to wait before requesting a new download link':
                 cooldown = divmod(result['data']['waiting'], 60)
                 raise DirectDownloadLinkException(f"ERROR: Uptobox sedang limit mohon tunggu {cooldown[0]} menit {cooldown[1]} detik.")
             else:
                 LOGGER.info(f"UPTOBOX_ERROR: {result}")
                 raise DirectDownloadLinkException(f"ERROR: {result['message']}")
-        except Exception as uer:
-            LOGGER.info(f"UPTOBOX_ERROR: {uer}")
-            raise DirectDownloadLinkException("ERROR: Tidak dapat mengambil direct link")
     return dl_url
 
 def zippy_share(url: str) -> str:
