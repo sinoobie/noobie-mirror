@@ -117,7 +117,6 @@ def get_readable_message():
         msg = ""
         tasks = len(download_dict)
         if STATUS_LIMIT is not None:
-            global pages
             pages = ceil(tasks/STATUS_LIMIT)
             if PAGE_NO > pages and pages != 0:
                 globals()['COUNT'] -= STATUS_LIMIT
@@ -149,7 +148,7 @@ def get_readable_message():
                     except:
                         pass
             elif download.status() == MirrorStatus.STATUS_SEEDING:
-                msg += f"\n📦 {download.size()}"
+                msg += f"\n🌱 {download.size()}"
                 msg += f" | 📤 {download.uploaded_bytes()}"
                 msg += f"\n⚡️ {download.upload_speed()}"
                 msg += f" | 🌀 <b>Ratio: </b>{download.ratio()}"
@@ -191,14 +190,19 @@ def get_readable_message():
             msg += f" | 📑 <b>Page:</b> {PAGE_NO}/{pages}"
             buttons = ButtonMaker()
             buttons.sbutton("⏪ Previous", "status pre")
+            buttons.sbutton("♻️ Refresh", "status ref")
             buttons.sbutton("Next ⏩", "status nex")
-            button = buttons.build_menu(2)
+            button = buttons.build_menu(3)
             return msg + bmsg, button
         return msg + bmsg, ""
 
 def turn(data):
     try:
         with download_dict_lock:
+            tasks = len(download_dict)
+            if tasks == 0:
+                raise ValueError
+            pages = ceil(tasks/STATUS_LIMIT)
             global COUNT, PAGE_NO
             if data[1] == "nex":
                 if PAGE_NO == pages:
