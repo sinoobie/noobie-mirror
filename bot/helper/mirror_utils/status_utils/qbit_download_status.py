@@ -42,7 +42,6 @@ class QbDownloadStatus:
         return f"{get_readable_file_size(self.__info.dlspeed)}/s"
 
     def name(self):
-        self.__update()
         if self.__info.state in ["metaDL", "checkingResumeData"]:
             return f"[METADATA] {self.__info.name}"
         else:
@@ -55,6 +54,7 @@ class QbDownloadStatus:
         return get_readable_time(self.__info.eta)
 
     def status(self):
+        self.__update()
         download = self.__info.state
         if download in ["queuedDL", "queuedUP"]:
             return MirrorStatus.STATUS_WAITING
@@ -77,6 +77,7 @@ class QbDownloadStatus:
         return f"{get_readable_file_size(self.__info.uploaded)}"
 
     def upload_speed(self):
+        self.__update()
         return f"{get_readable_file_size(self.__info.upspeed)}/s"
 
     def ratio(self):

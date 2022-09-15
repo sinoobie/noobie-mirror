@@ -103,9 +103,9 @@ def _ytdl(bot, message, isZip=False, isLeech=False):
         return sendMessage(f"⚠️ {tag} {msg.strip()}", bot, message)
     if 'entries' in result:
         for i in ['144', '240', '360', '480', '720', '1080', '1440', '2160']:
-            video_format = f"bv*[height<=?{i}][ext=mp4]+ba/b[height<=?{i}]"
+            video_format = f"bv*[height<={i}][ext=mp4]+ba[ext=m4a]/b[height<={i}]"
             buttons.sbutton(f"{i}-mp4", f"qu {msg_id} {video_format} t")
-            video_format = f"bv*[height<=?{i}][ext=webm]+ba/b[height<=?{i}]"
+            video_format = f"bv*[height<={i}][ext=webm]+ba/b[height<={i}]"
             buttons.sbutton(f"{i}-webm", f"qu {msg_id} {video_format} t")
         buttons.sbutton("MP3", f"qu {msg_id} mp3 t")
         buttons.sbutton("Best Videos", f"qu {msg_id} {best_video} t")
@@ -134,7 +134,10 @@ def _ytdl(bot, message, isZip=False, isLeech=False):
                         ext = frmt['ext']
                         fps = frmt['fps'] if frmt.get('fps') else ''
                         b_name = f"{height}p{fps}-{ext}"
-                        v_format = f"bv*[format_id={format_id}]+ba/b[height={height}]"
+                        if ext == 'mp4':
+                            v_format = f"bv*[format_id={format_id}]+ba[ext=m4a]/b[height={height}]"
+                        else:
+                            v_format = f"bv*[format_id={format_id}]+ba/b[height={height}]"
                     elif frmt.get('video_ext') == 'none' and frmt.get('acodec') != 'none':
                         b_name = f"{frmt['acodec']}-{frmt['ext']}"
                         v_format = f"ba[format_id={format_id}]"
@@ -246,7 +249,7 @@ def select_format(update, context):
             playlist = True
         else:
             playlist = False
-        if not playlist and not qual.startswith('ba/b-') and qual not in ["ba/b", "bv*+ba/b"]:
+        if '|' in qual:
             b_name, tbr = qual.split('|')
             qual = task_info[6][b_name][tbr][1]
         ydl = YoutubeDLHelper(listener)
