@@ -11,7 +11,7 @@ from bot import LOGGER, SHORTENER, SHORTENER_API
 
 
 def short_url(longurl):
-    if SHORTENER is None and SHORTENER_API is None:
+    if SHORTENER == None or SHORTENER_API == None:
         return longurl
     try:
         cget = create_scraper().get
