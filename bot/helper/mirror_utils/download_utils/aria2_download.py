@@ -89,7 +89,6 @@ def __onDownloadComplete(api, gid):
                 msg = f"⛔️ {listener.tag} Download kamu dijeda. Silahkan pilih file kemudian tekan tombol Selesai Memilih untuk memulai download."
                 sendMarkup(msg, listener.bot, listener.message, SBUTTONS)
     elif download.is_torrent:
-        sleep(2)
         if dl := getDownloadByGid(gid):
             if hasattr(dl, 'listener') and dl.seeding:
                 LOGGER.info(f"Cancelling Seed: {download.name} onDownloadComplete")
@@ -142,13 +141,6 @@ def __onBtDownloadComplete(api, gid):
                         listener.onUploadError(f"Seeding torrent limit {SEED_LIMIT} GB. Ukuran File/folder yang akan di seeding adalah {get_readable_file_size(size)}")
                         api.remove([download], force=True, files=True)
                         return
-            with download_dict_lock:
-                if listener.uid not in download_dict:
-                    api.remove([download], force=True, files=True)
-                    return
-                download_dict[listener.uid] = AriaDownloadStatus(gid, listener, True)
-                download_dict[listener.uid].start_time = seed_start_time
-            LOGGER.info(f"Seeding started: {download.name} - Gid: {gid}")
             download = download.live
             if download.is_complete:
                 if dl := getDownloadByGid(gid):
@@ -156,6 +148,13 @@ def __onBtDownloadComplete(api, gid):
                     listener.onUploadError(f"Seeding stopped with Ratio: {dl.ratio()} and Time: {dl.seeding_time()}")
                     api.remove([download], force=True, files=True)
             else:
+                with download_dict_lock:
+                    if listener.uid not in download_dict:
+                        api.remove([download], force=True, files=True)
+                        return
+                    download_dict[listener.uid] = AriaDownloadStatus(gid, listener, True)
+                    download_dict[listener.uid].start_time = seed_start_time
+                LOGGER.info(f"Seeding started: {download.name} - Gid: {gid}")
                 update_all_messages()
         else:
             api.remove([download], force=True, files=True)
