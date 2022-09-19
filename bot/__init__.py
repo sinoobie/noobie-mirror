@@ -29,10 +29,8 @@ basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
 
 LOGGER = getLogger(__name__)
 
-CONFIG_FILE_URL = environ.get('CONFIG_FILE_URL')
-try:
-    if len(CONFIG_FILE_URL) == 0:
-        raise TypeError
+CONFIG_FILE_URL = environ.get('CONFIG_FILE_URL','')
+if CONFIG_FILE_URL:
     try:
         res = rget(CONFIG_FILE_URL)
         if res.status_code == 200:
@@ -42,13 +40,11 @@ try:
             log_error(f"Failed to download config.env {res.status_code}")
     except Exception as e:
         log_error(f"CONFIG_FILE_URL: {e}")
-except:
-    pass
 
 load_dotenv('config.env', override=True)
 
 NETRC_URL = environ.get('NETRC_URL', '')
-if len(NETRC_URL) != 0:
+if NETRC_URL:
     try:
         res = rget(NETRC_URL)
         if res.status_code == 200:
@@ -137,21 +133,21 @@ except:
     exit(1)
 
 aid = environ.get('AUTHORIZED_CHATS', '')
-if len(aid) != 0:
+if aid:
     aid = aid.split()
     AUTHORIZED_CHATS = {int(_id.strip()) for _id in aid}
 else:
     AUTHORIZED_CHATS = set()
 
 aid = environ.get('SUDO_USERS', '')
-if len(aid) != 0:
+if aid:
     aid = aid.split()
     SUDO_USERS = {int(_id.strip()) for _id in aid}
 else:
     SUDO_USERS = set()
 
 fx = environ.get('EXTENSION_FILTER', '')
-if len(fx) > 0:
+if fx:
     fx = fx.split()
     for x in fx:
         EXTENSION_FILTER.add(x.strip().lower())
@@ -189,8 +185,8 @@ def aria2c_init():
         log_error(f"Aria2c initializing error: {e}")
 Thread(target=aria2c_init).start()
 
-MEGA_KEY = environ.get('MEGA_API_KEY', None)
-if MEGA_KEY is not None:
+MEGA_KEY = environ.get('MEGA_API_KEY', '')
+if MEGA_KEY:
     # Start megasdkrest binary
     Popen(["megasdkrest", "--apikey", MEGA_KEY])
     sleep(3)  # Wait for the mega server to start listening
@@ -209,10 +205,11 @@ if MEGA_KEY is not None:
     except:
         log_info("Mega API KEY provided but credentials not provided. Starting mega in anonymous mode!")
 else:
+    log_warning("Mega API KEY not provided")
     sleep(1.5)
 
 BASE_URL = environ.get('BASE_URL_OF_BOT', '').rstrip("/")
-if len(BASE_URL) == 0:
+if not BASE_URL:
     log_warning('BASE_URL_OF_BOT not provided!')
     BASE_URL = None
 
@@ -225,14 +222,14 @@ else:
     LEECH_SPLIT_SIZE = int(LEECH_SPLIT_SIZE)
 
 INDEX_URL = environ.get('INDEX_URL', '').rstrip("/")
-if len(INDEX_URL) == 0:
+if not INDEX_URL:
     INDEX_URL = None
     INDEX_URLS.append(None)
 else:
     INDEX_URLS.append(INDEX_URL)
 
 SEARCH_API_LINK = environ.get('SEARCH_API_LINK', '').rstrip("/")
-if len(SEARCH_API_LINK) == 0:
+if not SEARCH_API_LINK:
     SEARCH_API_LINK = None
 
 DUMP_CHAT = environ.get('DUMP_CHAT', '')
@@ -265,8 +262,13 @@ WEB_PINCODE = environ.get('WEB_PINCODE', '').lower() == 'true'
 AS_DOCUMENT = environ.get('AS_DOCUMENT', '').lower() == 'true'
 VIEW_LINK = environ.get('VIEW_LINK', '').lower() == 'true'
 
-CUSTOM_FILENAME = environ.get('CUSTOM_FILENAME', None)
-DB_URI = environ.get('DATABASE_URL', None)
+CUSTOM_FILENAME = environ.get('CUSTOM_FILENAME', '')
+if not CUSTOM_FILENAME:
+    CUSTOM_FILENAME = None
+
+DB_URI = environ.get('DATABASE_URL', '')
+if not DB_URI:
+    DB_URI = None
 
 CMD_INDEX = environ.get('CMD_INDEX', '')
 
@@ -285,28 +287,50 @@ MEGA_LIMIT = None if len(MEGA_LIMIT) == 0 else float(MEGA_LIMIT)
 ZIP_UNZIP_LIMIT = environ.get('ZIP_UNZIP_LIMIT', '')
 ZIP_UNZIP_LIMIT = None if len(ZIP_UNZIP_LIMIT) == 0 else float(ZIP_UNZIP_LIMIT)
 
-BUTTON_FOUR_NAME = environ.get('BUTTON_FOUR_NAME', None)
-BUTTON_FOUR_URL = environ.get('BUTTON_FOUR_URL', None)
+BUTTON_FOUR_NAME = environ.get('BUTTON_FOUR_NAME', '')
+BUTTON_FOUR_URL = environ.get('BUTTON_FOUR_URL', '')
+if not BUTTON_FOUR_NAME or not BUTTON_FOUR_URL:
+    BUTTON_FOUR_NAME = None
+    BUTTON_FOUR_URL = None
 
-BUTTON_FIVE_NAME = environ.get('BUTTON_FIVE_NAME', None)
-BUTTON_FIVE_URL = environ.get('BUTTON_FIVE_URL', None)
+BUTTON_FIVE_NAME = environ.get('BUTTON_FIVE_NAME', '')
+BUTTON_FIVE_URL = environ.get('BUTTON_FIVE_URL', '')
+if not BUTTON_FIVE_NAME or not BUTTON_FIVE_URL:
+    BUTTON_FIVE_NAME = None
+    BUTTON_FIVE_URL = None
 
-BUTTON_SIX_NAME = environ.get('BUTTON_SIX_NAME', None)
-BUTTON_SIX_URL = environ.get('BUTTON_SIX_URL', None)
+BUTTON_SIX_NAME = environ.get('BUTTON_SIX_NAME', '')
+BUTTON_SIX_URL = environ.get('BUTTON_SIX_URL', '')
+if not BUTTON_SIX_NAME or not BUTTON_SIX_URL:
+    BUTTON_SIX_NAME = None
+    BUTTON_SIX_URL = None
 
-SHORTENER = environ.get('SHORTENER',None)
-SHORTENER_API = environ.get('SHORTENER_API', None)
+SHORTENER = environ.get('SHORTENER','')
+SHORTENER_API = environ.get('SHORTENER_API', '')
+if not SHORTENER or not SHORTENER_API:
+    SHORTENER = None
+    SHORTENER_API = None
 
 #GDTOT
-CRYPT = environ.get('CRYPT', None)
+CRYPT = environ.get('CRYPT', '')
+if not CRYPT:
+    CRYPT = None
 
-UPTOBOX_TOKEN = environ.get('UPTOBOX_TOKEN', None)
+UPTOBOX_TOKEN = environ.get('UPTOBOX_TOKEN', '')
+if not UPTOBOX_TOKEN:
+    UPTOBOX_TOKEN = None
 
-APPDRIVE_EMAIL = environ.get('APPDRIVE_EMAIL', None)
-APPDRIVE_PASS = environ.get('APPDRIVE_PASS', None)
+APPDRIVE_EMAIL = environ.get('APPDRIVE_EMAIL', '')
+APPDRIVE_PASS = environ.get('APPDRIVE_PASS', '')
+if not APPDRIVE_EMAIL or not APPDRIVE_PASS:
+    APPDRIVE_EMAIL = None
+    APPDRIVE_PASS = None
 
-SHARERPW_XSRF_TOKEN = environ.get('SHARERPW_XSRF_TOKEN', None)
-SHARERPW_LARAVEL_SESSION = environ.get('SHARERPW_LARAVEL_SESSION', None)
+SHARERPW_XSRF_TOKEN = environ.get('SHARERPW_XSRF_TOKEN', '')
+SHARERPW_LARAVEL_SESSION = environ.get('SHARERPW_LARAVEL_SESSION', '')
+if not SHARERPW_XSRF_TOKEN or not SHARERPW_LARAVEL_SESSION:
+    SHARERPW_XSRF_TOKEN = None
+    SHARERPW_LARAVEL_SESSION = None
 
 TOKEN_PICKLE_URL = environ.get('TOKEN_PICKLE_URL', '')
 if len(TOKEN_PICKLE_URL) != 0:
