@@ -189,7 +189,7 @@ def aria2c_init():
         log_error(f"Aria2c initializing error: {e}")
 Thread(target=aria2c_init).start()
 
-MEGA_API_KEY = environ.get('MEGA_API_KEY', None)
+MEGA_KEY = environ.get('MEGA_API_KEY', None)
 if MEGA_KEY is not None:
     # Start megasdkrest binary
     Popen(["megasdkrest", "--apikey", MEGA_KEY])
