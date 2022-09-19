@@ -255,15 +255,15 @@ RSS_CHAT_ID = None if len(RSS_CHAT_ID) == 0 else int(RSS_CHAT_ID)
 RSS_DELAY = environ.get('RSS_DELAY', '')
 RSS_DELAY = 900 if len(RSS_DELAY) == 0 else int(RSS_DELAY)
 
-INCOMPLETE_TASK_NOTIFIER = environ.get('INCOMPLETE_TASK_NOTIFIER', False)
-IGNORE_PENDING_REQUESTS = environ.get('IGNORE_PENDING_REQUESTS', False)
-USE_SERVICE_ACCOUNTS = environ.get('USE_SERVICE_ACCOUNTS', False)
-STOP_DUPLICATE = environ.get('STOP_DUPLICATE', False)
-IS_TEAM_DRIVE = environ.get('IS_TEAM_DRIVE', False)
-EQUAL_SPLITS = environ.get('EQUAL_SPLITS', False)
-WEB_PINCODE = environ.get('WEB_PINCODE', False)
-AS_DOCUMENT = environ.get('AS_DOCUMENT', False)
-VIEW_LINK = environ.get('VIEW_LINK', False)
+INCOMPLETE_TASK_NOTIFIER = environ.get('INCOMPLETE_TASK_NOTIFIER', '').lower() == 'true'
+IGNORE_PENDING_REQUESTS = environ.get('IGNORE_PENDING_REQUESTS', '').lower() == 'true'
+USE_SERVICE_ACCOUNTS = environ.get('USE_SERVICE_ACCOUNTS', '').lower() == 'true'
+STOP_DUPLICATE = environ.get('STOP_DUPLICATE', '').lower() == 'true'
+IS_TEAM_DRIVE = environ.get('IS_TEAM_DRIVE', '').lower() == 'true'
+EQUAL_SPLITS = environ.get('EQUAL_SPLITS', '').lower() == 'true'
+WEB_PINCODE = environ.get('WEB_PINCODE', '').lower() == 'true'
+AS_DOCUMENT = environ.get('AS_DOCUMENT', '').lower() == 'true'
+VIEW_LINK = environ.get('VIEW_LINK', '').lower() == 'true'
 
 CUSTOM_FILENAME = environ.get('CUSTOM_FILENAME', None)
 DB_URI = environ.get('DATABASE_URL', None)
