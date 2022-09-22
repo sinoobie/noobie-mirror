@@ -1,7 +1,7 @@
 from random import SystemRandom
 from string import ascii_letters, digits
 
-from bot import download_dict, download_dict_lock, ZIP_UNZIP_LIMIT, LOGGER, STOP_DUPLICATE, TORRENT_DIRECT_LIMIT
+from bot import download_dict, download_dict_lock, LEECH_LIMIT, ZIP_UNZIP_LIMIT, LOGGER, STOP_DUPLICATE, TORRENT_DIRECT_LIMIT
 from bot.helper.mirror_utils.upload_utils.gdriveTools import GoogleDriveHelper
 from bot.helper.mirror_utils.status_utils.gd_download_status import GdDownloadStatus
 from bot.helper.telegram_helper.message_utils import sendMessage, sendStatusMessage, sendFile
@@ -27,23 +27,25 @@ def add_gd_download(link, path, listener, newname, gdrive_sharer):
         if gname is not None:
             cap, f_name = GoogleDriveHelper().drive_list(gname, True)
             if cap:
-                dupmsg = f"⚠️ {listener.tag} Download kamu dihentikan karena: <code>{gname}</code> <b><u>sudah ada di Drive</u></b>"
-                sendFile(listener.bot, listener.message, f_name, dupmsg)
+                listener.onDownloadError(f"<code>{gname}</code> <b><u>sudah ada di Drive</u></b>", listfile=f_name)
                 return
-    if any([ZIP_UNZIP_LIMIT, TORRENT_DIRECT_LIMIT]):
+    if any([ZIP_UNZIP_LIMIT, TORRENT_DIRECT_LIMIT, LEECH_LIMIT]):
         arch = any([listener.extract, listener.isZip])
         limit = None
-        if ZIP_UNZIP_LIMIT is not None and arch:
+        if listener.isLeech and LEECH_LIMIT:
+            mssg = f'Leech limit {LEECH_LIMIT}GB'
+            limit = LEECH_LIMIT
+        elif arch and ZIP_UNZIP_LIMIT:
             mssg = f'Zip/Unzip limit {ZIP_UNZIP_LIMIT}GB'
             limit = ZIP_UNZIP_LIMIT
-        elif TORRENT_DIRECT_LIMIT is not None:
+        elif TORRENT_DIRECT_LIMIT:
             mssg = f'Torrent/Direct limit {TORRENT_DIRECT_LIMIT}GB'
             limit = TORRENT_DIRECT_LIMIT
-        if limit is not None:
+        if limit:
             LOGGER.info('Checking File/Folder Size...')
             if size > limit * 1024**3:
-                msg = f'⚠️ {listener.tag} {mssg}.\nUkuran File/Folder kamu adalah {get_readable_file_size(size)}.'
-                return sendMessage(msg, listener.bot, listener.message)
+                listener.onDownloadError(f'{mssg}.\nUkuran File/Folder kamu adalah {get_readable_file_size(size)}.')
+                return
     LOGGER.info(f"Download Name: {name}")
     drive = GoogleDriveHelper(name, path, size, listener)
     gid = ''.join(SystemRandom().choices(ascii_letters + digits, k=12))

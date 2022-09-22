@@ -1,7 +1,7 @@
 from threading import Lock
 from pathlib import Path
 
-from bot import LOGGER, download_dict, download_dict_lock, MEGA_LIMIT, STOP_DUPLICATE, ZIP_UNZIP_LIMIT
+from bot import LOGGER, download_dict, download_dict_lock, LEECH_LIMIT, MEGA_LIMIT, STOP_DUPLICATE, ZIP_UNZIP_LIMIT
 from bot.helper.telegram_helper.message_utils import sendMessage, sendFile, sendStatusMessage
 from bot.helper.ext_utils.bot_utils import get_readable_file_size, setInterval
 from bot.helper.mirror_utils.upload_utils.gdriveTools import GoogleDriveHelper
@@ -119,22 +119,25 @@ class MegaDownloader:
             if mname is not None:
                 cap, f_name = GoogleDriveHelper().drive_list(mname, True)
                 if cap:
-                    dupmsg = f"⚠️ {self.__listener.tag} <code>{mname}</code> <b><u>sudah ada di Drive</u></b>"
-                    sendFile(self.__listener.bot, self.__listener.message, f_name, dupmsg)
+                    self.__listener.onDownloadError(f"<code>{mname}</code> <b><u>sudah ada di Drive</u></b>", listfile=f_name)
                     return
-        if any([ZIP_UNZIP_LIMIT, MEGA_LIMIT]):
+        if any([ZIP_UNZIP_LIMIT, MEGA_LIMIT, LEECH_LIMIT]):
             arch = any([self.__listener.isZip, self.__listener.extract])
             limit = None
-            if ZIP_UNZIP_LIMIT is not None and arch:
-                msg3 = f'Failed, Zip/Unzip limit is {ZIP_UNZIP_LIMIT}GB.\nYour File/Folder size is {get_readable_file_size(file_size)}.'
+            if self.__listener.isLeech and LEECH_LIMIT:
+                mssg = f'Leech limit {LEECH_LIMIT}GB'
+                limit = LEECH_LIMIT
+            elif arch and ZIP_UNZIP_LIMIT:
+                msg3 = f'Zip/Unzip limit {ZIP_UNZIP_LIMIT}GB'
                 limit = ZIP_UNZIP_LIMIT
             elif MEGA_LIMIT is not None:
-                msg3 = f'Failed, Mega limit is {MEGA_LIMIT}GB.\nYour File/Folder size is {get_readable_file_size(file_size)}.'
+                msg3 = f'Mega limit {MEGA_LIMIT}GB'
                 limit = MEGA_LIMIT
             if limit is not None:
                 LOGGER.info('Checking File/Folder Size...')
                 if file_size > limit * 1024**3:
-                    return sendMessage(msg3, self.__listener.bot, self.__listener.message)
+                    self.__listener.onDownloadError(f'{msg3}.\nUkuran file/folder kamu adalah {get_readable_file_size(size)}')
+                    return
         self.__onDownloadStart(file_name, file_size, gid)
         LOGGER.info(f'Mega download started with gid: {gid}')
 

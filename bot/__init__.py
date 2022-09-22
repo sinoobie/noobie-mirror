@@ -119,7 +119,7 @@ EXTENSION_FILTER = set(['.aria2'])
 
 try:
     BOT_TOKEN = getConfig('BOT_TOKEN')
-    parent_id = getConfig('GDRIVE_FOLDER_ID')
+    PARENT_ID = getConfig('GDRIVE_FOLDER_ID')
     DOWNLOAD_DIR = getConfig('DOWNLOAD_DIR')
     if not DOWNLOAD_DIR.endswith("/"):
         DOWNLOAD_DIR = DOWNLOAD_DIR + '/'
@@ -216,7 +216,7 @@ if not BASE_URL:
 MAX_SPLIT_SIZE = 4194304000 if IS_PREMIUM_USER else 2097152000
 
 LEECH_SPLIT_SIZE = environ.get('LEECH_SPLIT_SIZE', '')
-if len(LEECH_SPLIT_SIZE) == 0 or int(LEECH_SPLIT_SIZE) > MAX_SPLIT_SIZE:
+if not LEECH_SPLIT_SIZE or int(LEECH_SPLIT_SIZE) > MAX_SPLIT_SIZE:
     LEECH_SPLIT_SIZE = MAX_SPLIT_SIZE
 else:
     LEECH_SPLIT_SIZE = int(LEECH_SPLIT_SIZE)
@@ -233,24 +233,24 @@ if not SEARCH_API_LINK:
     SEARCH_API_LINK = None
 
 DUMP_CHAT = environ.get('DUMP_CHAT', '')
-DUMP_CHAT = None if len(DUMP_CHAT) == 0 else int(DUMP_CHAT)
+DUMP_CHAT = int(DUMP_CHAT) if DUMP_CHAT else None
 
 STATUS_LIMIT = environ.get('STATUS_LIMIT', '')
-STATUS_LIMIT = None if len(STATUS_LIMIT) == 0 else int(STATUS_LIMIT)
+STATUS_LIMIT = int(STATUS_LIMIT) if STATUS_LIMIT else None
 
 SEARCH_PLUGINS = environ.get('SEARCH_PLUGINS', '')
-SEARCH_PLUGINS = None if len(SEARCH_PLUGINS) == 0 else jsonloads(SEARCH_PLUGINS)
+SEARCH_PLUGINS = jsonloads(SEARCH_PLUGINS) if SEARCH_PLUGINS else None
 
 SEARCH_LIMIT = environ.get('SEARCH_LIMIT', '')
-SEARCH_LIMIT = None if len(SEARCH_LIMIT) == 0 else int(SEARCH_LIMIT)
+SEARCH_LIMIT = int(SEARCH_LIMIT) if SEARCH_LIMIT else None
 
 RSS_COMMAND = environ.get('RSS_COMMAND', None)
 
 RSS_CHAT_ID = environ.get('RSS_CHAT_ID', '')
-RSS_CHAT_ID = None if len(RSS_CHAT_ID) == 0 else int(RSS_CHAT_ID)
+RSS_CHAT_ID = int(RSS_CHAT_ID) if RSS_CHAT_ID else None
 
 RSS_DELAY = environ.get('RSS_DELAY', '')
-RSS_DELAY = 900 if len(RSS_DELAY) == 0 else int(RSS_DELAY)
+RSS_DELAY = int(RSS_DELAY) if RSS_DELAY else 900
 
 INCOMPLETE_TASK_NOTIFIER = environ.get('INCOMPLETE_TASK_NOTIFIER', '').lower() == 'true'
 IGNORE_PENDING_REQUESTS = environ.get('IGNORE_PENDING_REQUESTS', '').lower() == 'true'
@@ -273,19 +273,22 @@ if not DB_URI:
 CMD_INDEX = environ.get('CMD_INDEX', '')
 
 SEED_LIMIT = environ.get('SEED_LIMIT', '')
-SEED_LIMIT = None if len(SEED_LIMIT) == 0 else float(SEED_LIMIT)
+SEED_LIMIT = float(SEED_LIMIT) if SEED_LIMIT else None
 
 TORRENT_DIRECT_LIMIT = environ.get('TORRENT_DIRECT_LIMIT', '')
-TORRENT_DIRECT_LIMIT = None if len(TORRENT_DIRECT_LIMIT) == 0 else float(TORRENT_DIRECT_LIMIT)
+TORRENT_DIRECT_LIMIT = float(TORRENT_DIRECT_LIMIT) if TORRENT_DIRECT_LIMIT else None
 
 CLONE_LIMIT = environ.get('CLONE_LIMIT', '')
-CLONE_LIMIT = None if len(CLONE_LIMIT) == 0 else float(CLONE_LIMIT)
+CLONE_LIMIT = float(CLONE_LIMIT) if CLONE_LIMIT else None
 
 MEGA_LIMIT = environ.get('MEGA_LIMIT', '')
-MEGA_LIMIT = None if len(MEGA_LIMIT) == 0 else float(MEGA_LIMIT)
+MEGA_LIMIT = float(MEGA_LIMIT) if MEGA_LIMIT else None
 
 ZIP_UNZIP_LIMIT = environ.get('ZIP_UNZIP_LIMIT', '')
-ZIP_UNZIP_LIMIT = None if len(ZIP_UNZIP_LIMIT) == 0 else float(ZIP_UNZIP_LIMIT)
+ZIP_UNZIP_LIMIT = float(ZIP_UNZIP_LIMIT) if ZIP_UNZIP_LIMIT else None
+
+LEECH_LIMIT = environ.get('LEECH_LIMIT','')
+LEECH_LIMIT = float(LEECH_LIMIT) if LEECH_LIMIT else None
 
 BUTTON_FOUR_NAME = environ.get('BUTTON_FOUR_NAME', '')
 BUTTON_FOUR_URL = environ.get('BUTTON_FOUR_URL', '')
@@ -333,7 +336,7 @@ if not SHARERPW_XSRF_TOKEN or not SHARERPW_LARAVEL_SESSION:
     SHARERPW_LARAVEL_SESSION = None
 
 TOKEN_PICKLE_URL = environ.get('TOKEN_PICKLE_URL', '')
-if len(TOKEN_PICKLE_URL) != 0:
+if TOKEN_PICKLE_URL:
     try:
         res = rget(TOKEN_PICKLE_URL)
         if res.status_code == 200:
@@ -345,7 +348,7 @@ if len(TOKEN_PICKLE_URL) != 0:
         log_error(f"TOKEN_PICKLE_URL: {e}")
 
 ACCOUNTS_ZIP_URL = environ.get('ACCOUNTS_ZIP_URL', '')
-if len(ACCOUNTS_ZIP_URL) != 0:
+if ACCOUNTS_ZIP_URL:
     try:
         res = rget(ACCOUNTS_ZIP_URL)
         if res.status_code == 200:
@@ -360,7 +363,7 @@ if len(ACCOUNTS_ZIP_URL) != 0:
         log_error(f"ACCOUNTS_ZIP_URL: {e}")
 
 MULTI_SEARCH_URL = environ.get('MULTI_SEARCH_URL', '')
-if len(MULTI_SEARCH_URL) != 0:
+if MULTI_SEARCH_URL:
     try:
         res = rget(MULTI_SEARCH_URL)
         if res.status_code == 200:
@@ -372,7 +375,7 @@ if len(MULTI_SEARCH_URL) != 0:
         log_error(f"MULTI_SEARCH_URL: {e}")
 
 YT_COOKIES_URL = environ.get('YT_COOKIES_URL', '')
-if len(YT_COOKIES_URL) != 0:
+if YT_COOKIES_URL:
     try:
         res = rget(YT_COOKIES_URL)
         if res.status_code == 200:
@@ -384,7 +387,7 @@ if len(YT_COOKIES_URL) != 0:
         log_error(f"YT_COOKIES_URL: {e}")
 
 DRIVES_NAMES.append("Main")
-DRIVES_IDS.append(parent_id)
+DRIVES_IDS.append(PARENT_ID)
 if ospath.exists('drive_folder'):
     with open('drive_folder', 'r+') as f:
         lines = f.readlines()

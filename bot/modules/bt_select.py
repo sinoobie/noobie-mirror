@@ -2,7 +2,7 @@ from threading import Thread
 from os import remove, path as ospath
 from telegram.ext import CommandHandler, CallbackQueryHandler
 
-from bot import aria2, BASE_URL, download_dict, dispatcher, download_dict_lock, SUDO_USERS, OWNER_ID
+from bot import aria2, BASE_URL, download_dict, dispatcher, download_dict_lock, SUDO_USERS, OWNER_ID, LOGGER
 from bot.helper.telegram_helper.bot_commands import BotCommands
 from bot.helper.telegram_helper.filters import CustomFilters
 from bot.helper.telegram_helper.message_utils import sendMessage, sendMarkup, sendStatusMessage, auto_delete_message
@@ -56,7 +56,10 @@ def select(update, context):
             client.torrents_pause(torrent_hashes=id_)
         else:
             id_ = dl.gid()
-            aria2.client.force_pause(id_)
+            try:
+                aria2.client.force_pause(id_)
+            except Exception as e:
+                LOGGER.error(f"{e} Error in pause, this mostly happens after abuse aria2")
         listener.select = True
     except:
         tmsg = sendMessage(f"⚠️ {tag} Task ini bukan torrent!", context.bot, update.message)
@@ -113,7 +116,10 @@ def get_confirm(update, context):
                         remove(f['path'])
                     except:
                         pass
-            aria2.client.unpause(id_)
+            try:
+                aria2.client.unpause(id_)
+            except Exception as e:
+                LOGGER.error(f"{e} Error in resume, this mostly happens after abuse aria2")
         sendStatusMessage(listener.message, listener.bot)
         query.message.delete()
 

@@ -321,7 +321,9 @@ class MirrorLeechListener:
             update_all_messages()
 
         if not self.isPrivate and INCOMPLETE_TASK_NOTIFIER and DB_URI is not None:
-            DbManger().rm_complete_task(self.message.link)
+            try:
+                DbManger().rm_complete_task(self.message.link)
+            except: pass
 
     def onUploadError(self, error):
         e_str = error.replace('<', '').replace('>', '')
@@ -341,4 +343,6 @@ class MirrorLeechListener:
             update_all_messages()
 
         if not self.isPrivate and INCOMPLETE_TASK_NOTIFIER and DB_URI is not None:
-            DbManger().rm_complete_task(self.message.link)
+            try:
+                DbManger().rm_complete_task(self.message.link)
+            except: pass

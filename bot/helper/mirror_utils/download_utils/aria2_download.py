@@ -1,7 +1,7 @@
 from time import sleep, time
 from os import remove, path as ospath
 
-from bot import aria2, download_dict_lock, download_dict, STOP_DUPLICATE, SEED_LIMIT,TORRENT_DIRECT_LIMIT, ZIP_UNZIP_LIMIT, LOGGER, BASE_URL
+from bot import aria2, download_dict_lock, download_dict, STOP_DUPLICATE, LEECH_LIMIT, SEED_LIMIT, TORRENT_DIRECT_LIMIT, ZIP_UNZIP_LIMIT, LOGGER, BASE_URL
 from bot.helper.mirror_utils.upload_utils.gdriveTools import GoogleDriveHelper
 from bot.helper.ext_utils.bot_utils import is_magnet, getDownloadByGid, new_thread, get_readable_file_size, bt_selection_buttons
 from bot.helper.mirror_utils.status_utils.aria_download_status import AriaDownloadStatus
@@ -29,7 +29,7 @@ def __onDownloadStarted(api, gid):
     else:
         LOGGER.info(f'onDownloadStarted: {download.name} - Gid: {gid}')
     try:
-        if any([STOP_DUPLICATE, TORRENT_DIRECT_LIMIT, ZIP_UNZIP_LIMIT]):
+        if any([STOP_DUPLICATE, TORRENT_DIRECT_LIMIT, ZIP_UNZIP_LIMIT, LEECH_LIMIT]):
             sleep(1)
             if dl := getDownloadByGid(gid):
                 listener = dl.listener()
@@ -38,13 +38,16 @@ def __onDownloadStarted(api, gid):
                 limit = None
                 size = download.total_length
                 arch = any([listener.isZip, listener.extract])
-                if ZIP_UNZIP_LIMIT is not None and arch:
+                if listener.isLeech and LEECH_LIMIT:
+                    mssg = f'Leech limit {LEECH_LIMIT}GB'
+                    limit = LEECH_LIMIT
+                elif arch and ZIP_UNZIP_LIMIT:
                     mssg = f'Zip/Unzip limit {ZIP_UNZIP_LIMIT}GB'
                     limit = ZIP_UNZIP_LIMIT
-                elif TORRENT_DIRECT_LIMIT is not None:
+                elif TORRENT_DIRECT_LIMIT:
                     mssg = f'Torrent/Direct limit {TORRENT_DIRECT_LIMIT}GB'
                     limit = TORRENT_DIRECT_LIMIT
-                if limit is not None:
+                if limit:
                     if size > limit * 1024**3:
                         listener.onDownloadError(f'{mssg}. Ukuran file/folder kamu adalah {get_readable_file_size(size)}')
                         api.remove([download], force=True, files=True)

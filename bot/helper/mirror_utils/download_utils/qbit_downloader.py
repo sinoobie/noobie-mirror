@@ -2,7 +2,7 @@ from time import sleep, time
 from re import search as re_search
 from telegram import InlineKeyboardMarkup
 
-from bot import download_dict, download_dict_lock, BASE_URL, get_client, SEED_LIMIT, TORRENT_DIRECT_LIMIT, ZIP_UNZIP_LIMIT, STOP_DUPLICATE, TORRENT_TIMEOUT, LOGGER
+from bot import download_dict, download_dict_lock, BASE_URL, get_client, LEECH_LIMIT, SEED_LIMIT, TORRENT_DIRECT_LIMIT, ZIP_UNZIP_LIMIT, STOP_DUPLICATE, TORRENT_TIMEOUT, LOGGER
 from bot.helper.mirror_utils.status_utils.qbit_download_status import QbDownloadStatus
 from bot.helper.mirror_utils.upload_utils.gdriveTools import GoogleDriveHelper
 from bot.helper.telegram_helper.message_utils import sendMessage, sendMarkup, deleteMessage, sendStatusMessage, update_all_messages, sendFile
@@ -102,17 +102,19 @@ class QbDownloader:
                     size = tor_info.size
                     arch = any([self.__listener.isZip, self.__listener.extract])
                     limit = None
-                    if ZIP_UNZIP_LIMIT is not None and arch:
-                        mssg = f'Zip/Unzip limit is {ZIP_UNZIP_LIMIT}GB'
+                    if self.__listener.isLeech and LEECH_LIMIT:
+                        mssg = f'Leech limit {LEECH_LIMIT}GB'
+                        limit = LEECH_LIMIT
+                    elif arch and ZIP_UNZIP_LIMIT:
+                        mssg = f'Zip/Unzip limit {ZIP_UNZIP_LIMIT}GB'
                         limit = ZIP_UNZIP_LIMIT
-                    elif TORRENT_DIRECT_LIMIT is not None:
+                    elif TORRENT_DIRECT_LIMIT:
                         mssg = f'Torrent limit {TORRENT_DIRECT_LIMIT}GB'
                         limit = TORRENT_DIRECT_LIMIT
-                    if limit is not None:
+                    if limit:
                         LOGGER.info('Checking File/Folder Size...')
                         if size > limit * 1024**3:
-                            fmsg = f"{mssg}.\nUkuran file/folder kamu adalah {get_readable_file_size(size)}"
-                            self.__onDownloadError(fmsg)
+                            self.__onDownloadError(f"{mssg}.\nUkuran file/folder kamu adalah {get_readable_file_size(size)}")
                             return
                     self.__sizeChecked = True
                 if not self.__stopDup_check and not self.__listener.select and STOP_DUPLICATE and not self.__listener.isLeech:
