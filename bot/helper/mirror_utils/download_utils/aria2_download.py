@@ -38,21 +38,6 @@ def __onDownloadStarted(api, gid):
                 if not download.is_torrent:
                     sleep(3)
                     download = download.live
-                LOGGER.info('Checking File/Folder if already in Drive...')
-                sname = download.name
-                if listener.isZip:
-                    sname = sname + ".zip"
-                elif listener.extract:
-                    try:
-                        sname = get_base_name(sname)
-                    except:
-                        sname = None
-                if sname and not listener.isLeech:
-                    cap, f_name = GoogleDriveHelper().drive_list(sname, True)
-                    if cap:
-                        listener.onDownloadError(f'<code>{sname}</code> <b><u>sudah ada di Drive</u></b>', listfile=f_name)
-                        api.remove([download], force=True, files=True)
-                        return
                 LOGGER.info('Checking File/Folder Size...')
                 limit = None
                 size = download.total_length
@@ -71,6 +56,22 @@ def __onDownloadStarted(api, gid):
                         listener.onDownloadError(f'{mssg}. Ukuran file/folder kamu adalah {get_readable_file_size(size)}')
                         api.remove([download], force=True, files=True)
                         return
+                if not listener.isLeech:
+                    LOGGER.info('Checking File/Folder if already in Drive...')
+                    sname = download.name
+                    if listener.isZip:
+                        sname = sname + ".zip"
+                    elif listener.extract:
+                        try:
+                            sname = get_base_name(sname)
+                        except:
+                            sname = None
+                    if sname:
+                        cap, f_name = GoogleDriveHelper().drive_list(sname, True)
+                        if cap:
+                            listener.onDownloadError(f'<code>{sname}</code> <b><u>sudah ada di Drive</u></b>', listfile=f_name)
+                            api.remove([download], force=True, files=True)
+                            return
     except Exception as e:
         LOGGER.error(f"{e} onDownloadStart: {gid} check duplicate and size check didn't pass")
 
