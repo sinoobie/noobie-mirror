@@ -33,27 +33,9 @@ def __onDownloadStarted(api, gid):
             sleep(1)
             if dl := getDownloadByGid(gid):
                 listener = dl.listener()
-                download = api.get_download(gid)
-                LOGGER.info('Checking File/Folder Size...')
-                limit = None
-                size = download.total_length
-                arch = any([listener.isZip, listener.extract])
-                if listener.isLeech and LEECH_LIMIT:
-                    mssg = f'Leech limit {LEECH_LIMIT}GB'
-                    limit = LEECH_LIMIT
-                elif arch and ZIP_UNZIP_LIMIT:
-                    mssg = f'Zip/Unzip limit {ZIP_UNZIP_LIMIT}GB'
-                    limit = ZIP_UNZIP_LIMIT
-                elif TORRENT_DIRECT_LIMIT:
-                    mssg = f'Torrent/Direct limit {TORRENT_DIRECT_LIMIT}GB'
-                    limit = TORRENT_DIRECT_LIMIT
-                if limit:
-                    if size > limit * 1024**3:
-                        listener.onDownloadError(f'{mssg}. Ukuran file/folder kamu adalah {get_readable_file_size(size)}')
-                        api.remove([download], force=True, files=True)
-                        return
                 if listener.isLeech or listener.select:
                     return
+                download = api.get_download(gid)
                 if not download.is_torrent:
                     sleep(3)
                     download = download.live
@@ -70,6 +52,24 @@ def __onDownloadStarted(api, gid):
                     cap, f_name = GoogleDriveHelper().drive_list(sname, True)
                     if cap:
                         listener.onDownloadError(f'<code>{sname}</code> <b><u>sudah ada di Drive</u></b>', listfile=f_name)
+                        api.remove([download], force=True, files=True)
+                        return
+                LOGGER.info('Checking File/Folder Size...')
+                limit = None
+                size = download.total_length
+                arch = any([listener.isZip, listener.extract])
+                if listener.isLeech and LEECH_LIMIT:
+                    mssg = f'Leech limit {LEECH_LIMIT}GB'
+                    limit = LEECH_LIMIT
+                elif arch and ZIP_UNZIP_LIMIT:
+                    mssg = f'Zip/Unzip limit {ZIP_UNZIP_LIMIT}GB'
+                    limit = ZIP_UNZIP_LIMIT
+                elif TORRENT_DIRECT_LIMIT:
+                    mssg = f'Torrent/Direct limit {TORRENT_DIRECT_LIMIT}GB'
+                    limit = TORRENT_DIRECT_LIMIT
+                if limit:
+                    if size > limit * 1024**3:
+                        listener.onDownloadError(f'{mssg}. Ukuran file/folder kamu adalah {get_readable_file_size(size)}')
                         api.remove([download], force=True, files=True)
                         return
     except Exception as e:
