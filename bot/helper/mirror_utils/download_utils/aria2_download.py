@@ -30,10 +30,9 @@ def __onDownloadStarted(api, gid):
         LOGGER.info(f'onDownloadStarted: {download.name} - Gid: {gid}')
     try:
         if any([STOP_DUPLICATE, TORRENT_DIRECT_LIMIT, ZIP_UNZIP_LIMIT, LEECH_LIMIT]):
-            sleep(1)
             if dl := getDownloadByGid(gid):
                 listener = dl.listener()
-                if listener.isLeech or listener.select:
+                if listener.select:
                     return
                 download = api.get_download(gid)
                 if not download.is_torrent:
@@ -48,7 +47,7 @@ def __onDownloadStarted(api, gid):
                         sname = get_base_name(sname)
                     except:
                         sname = None
-                if sname is not None:
+                if sname and not listener.isLeech:
                     cap, f_name = GoogleDriveHelper().drive_list(sname, True)
                     if cap:
                         listener.onDownloadError(f'<code>{sname}</code> <b><u>sudah ada di Drive</u></b>', listfile=f_name)
