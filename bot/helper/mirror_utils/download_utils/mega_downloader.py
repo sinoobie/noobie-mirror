@@ -127,12 +127,12 @@ class MegaDownloader:
                 mssg = f'Leech limit {LEECH_LIMIT}GB'
                 limit = LEECH_LIMIT
             elif MEGA_LIMIT:
-                msg3 = f'Mega limit {MEGA_LIMIT}GB'
+                mssg = f'Mega limit {MEGA_LIMIT}GB'
                 limit = MEGA_LIMIT
-            if limit:
+            if limit is not None:
                 LOGGER.info('Checking File/Folder Size...')
                 if file_size > limit * 1024**3:
-                    self.__listener.onDownloadError(f'{msg3}.\nUkuran file/folder kamu adalah {get_readable_file_size(size)}')
+                    self.__listener.onDownloadError(f'{mssg}.\nUkuran file/folder kamu adalah {get_readable_file_size(size)}')
                     return
         self.__onDownloadStart(file_name, file_size, gid)
         LOGGER.info(f'Mega download started with gid: {gid}')
