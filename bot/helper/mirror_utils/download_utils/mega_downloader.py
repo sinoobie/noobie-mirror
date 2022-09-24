@@ -134,6 +134,7 @@ class MegaDownloader:
             if limit is not None:
                 LOGGER.info('Checking File/Folder Size...')
                 if file_size > limit * 1024**3:
+                    msg = f'⚠️ {self.__listener.tag} {msg3}.\nUkuran File/Folder kamu adalah {get_readable_file_size(file_size)}.'
                     return sendMessage(msg3, self.__listener.bot, self.__listener.message)
         self.__onDownloadStart(file_name, file_size, gid)
         LOGGER.info(f'Mega download started with gid: {gid}')
