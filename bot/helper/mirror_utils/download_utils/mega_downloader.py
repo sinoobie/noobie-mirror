@@ -1,7 +1,7 @@
 from threading import Lock
 from pathlib import Path
 
-from bot import LOGGER, download_dict, download_dict_lock, LEECH_LIMIT, MEGA_LIMIT, STOP_DUPLICATE
+from bot import LOGGER, download_dict, download_dict_lock, LEECH_LIMIT, MEGA_LIMIT, STOP_DUPLICATE, ZIP_UNZIP_LIMIT
 from bot.helper.telegram_helper.message_utils import sendMessage, sendFile, sendStatusMessage
 from bot.helper.ext_utils.bot_utils import get_readable_file_size, setInterval
 from bot.helper.mirror_utils.upload_utils.gdriveTools import GoogleDriveHelper
@@ -116,17 +116,21 @@ class MegaDownloader:
                     mname = get_base_name(mname)
                 except:
                     mname = None
-            if mname:
+            if mname is not None:
                 cap, f_name = GoogleDriveHelper().drive_list(mname, True)
                 if cap:
                     self.__listener.onDownloadError(f"<code>{mname}</code> <b><u>sudah ada di Drive</u></b>", listfile=f_name)
                     return
-        if any([MEGA_LIMIT, LEECH_LIMIT]):
+        if any([ZIP_UNZIP_LIMIT, MEGA_LIMIT, LEECH_LIMIT]):
+            arch = any([self.__listener.isZip, self.__listener.extract])
             limit = None
             if self.__listener.isLeech and LEECH_LIMIT:
                 mssg = f'Leech limit {LEECH_LIMIT}GB'
                 limit = LEECH_LIMIT
-            elif MEGA_LIMIT:
+            elif arch and ZIP_UNZIP_LIMIT:
+                mssg = f'Zip/Unzip limit {MEGA_LIMIT}GB'
+                limit = MEGA_LIMIT
+            elif MEGA_LIMIT is not None:
                 mssg = f'Mega limit {MEGA_LIMIT}GB'
                 limit = MEGA_LIMIT
             if limit is not None:
