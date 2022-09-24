@@ -30,6 +30,7 @@ def __onDownloadStarted(api, gid):
         LOGGER.info(f'onDownloadStarted: {download.name} - Gid: {gid}')
     try:
         if any([STOP_DUPLICATE, TORRENT_DIRECT_LIMIT, ZIP_UNZIP_LIMIT, LEECH_LIMIT]):
+            sleep(1)
             if dl := getDownloadByGid(gid):
                 listener = dl.listener()
                 if listener.select:

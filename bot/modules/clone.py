@@ -71,7 +71,7 @@ def _clone(message, bot):
                 dupmsg = f"⚠️ {tag} Download kamu dihentikan karena: <code>{name}</code> <b><u>sudah ada di Drive</u></b>"
                 sendFile(bot, message, f_name, dupmsg)
                 return
-        if CLONE_LIMIT is not None:
+        if CLONE_LIMIT:
             LOGGER.info('Checking File/Folder Size...')
             if size > CLONE_LIMIT * 1024**3:
                 if _msg:

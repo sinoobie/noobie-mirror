@@ -116,24 +116,20 @@ class MegaDownloader:
                     mname = get_base_name(mname)
                 except:
                     mname = None
-            if mname is not None:
+            if mname:
                 cap, f_name = GoogleDriveHelper().drive_list(mname, True)
                 if cap:
                     self.__listener.onDownloadError(f"<code>{mname}</code> <b><u>sudah ada di Drive</u></b>", listfile=f_name)
                     return
         if any([ZIP_UNZIP_LIMIT, MEGA_LIMIT, LEECH_LIMIT]):
-            arch = any([self.__listener.isZip, self.__listener.extract])
             limit = None
             if self.__listener.isLeech and LEECH_LIMIT:
                 mssg = f'Leech limit {LEECH_LIMIT}GB'
                 limit = LEECH_LIMIT
-            elif arch and ZIP_UNZIP_LIMIT:
-                msg3 = f'Zip/Unzip limit {ZIP_UNZIP_LIMIT}GB'
-                limit = ZIP_UNZIP_LIMIT
-            elif MEGA_LIMIT is not None:
+            elif MEGA_LIMIT:
                 msg3 = f'Mega limit {MEGA_LIMIT}GB'
                 limit = MEGA_LIMIT
-            if limit is not None:
+            if limit:
                 LOGGER.info('Checking File/Folder Size...')
                 if file_size > limit * 1024**3:
                     self.__listener.onDownloadError(f'{msg3}.\nUkuran file/folder kamu adalah {get_readable_file_size(size)}')
