@@ -2,7 +2,7 @@ from threading import Thread
 from os import remove, path as ospath
 from telegram.ext import CommandHandler, CallbackQueryHandler
 
-from bot import aria2, BASE_URL, download_dict, dispatcher, download_dict_lock, SUDO_USERS, OWNER_ID, LOGGER
+from bot import aria2, BASE_URL, download_dict, dispatcher, download_dict_lock, OWNER_ID, user_data, LOGGER
 from bot.helper.telegram_helper.bot_commands import BotCommands
 from bot.helper.telegram_helper.filters import CustomFilters
 from bot.helper.telegram_helper.message_utils import sendMessage, sendMarkup, sendStatusMessage, auto_delete_message
@@ -35,7 +35,8 @@ def select(update, context):
         Thread(target=auto_delete_message, args=(context.bot, update.message, smsg)).start()
         return
 
-    if OWNER_ID != user_id and dl.message.from_user.id != user_id and user_id not in SUDO_USERS:
+    if OWNER_ID != user_id and dl.message.from_user.id != user_id and \
+       (user_id not in user_data or not user_data[user_id].get('is_sudo')):
         tmsg = sendMessage(f"⚠️ {tag} Task ini bukan buat elu!", context.bot, update.message)
         Thread(target=auto_delete_message, args=(context.bot, update.message, tmsg)).start()
         return
@@ -122,6 +123,7 @@ def get_confirm(update, context):
                 LOGGER.error(f"{e} Error in resume, this mostly happens after abuse aria2")
         sendStatusMessage(listener.message, listener.bot)
         query.message.delete()
+        query.message.reply_to_message.delete()
 
 
 select_handler = CommandHandler(BotCommands.BtSelectCommand, select,

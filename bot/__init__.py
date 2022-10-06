@@ -75,11 +75,6 @@ srun(["chrome", "--conf-path=/usr/src/app/a2c.conf"])
 alive = Popen(["python3", "alive.py"])
 sleep(0.5)
 
-Interval = []
-DRIVES_NAMES = []
-DRIVES_IDS = []
-INDEX_URLS = []
-
 def getConfig(name: str):
     return environ[name]
 
@@ -113,8 +108,11 @@ download_dict = {}
 # value: [rss_feed, last_link, last_title, filter]
 rss_dict = {}
 
-AS_DOC_USERS = set()
-AS_MEDIA_USERS = set()
+user_data = {}
+Interval = []
+DRIVES_NAMES = []
+DRIVES_IDS = []
+INDEX_URLS = []
 EXTENSION_FILTER = set(['.aria2'])
 
 try:
@@ -135,16 +133,14 @@ except:
 aid = environ.get('AUTHORIZED_CHATS', '')
 if aid:
     aid = aid.split()
-    AUTHORIZED_CHATS = {int(_id.strip()) for _id in aid}
-else:
-    AUTHORIZED_CHATS = set()
+    for id_ in aid:
+        user_data[int(id_.strip())] = {'is_auth': True}
 
 aid = environ.get('SUDO_USERS', '')
 if aid:
     aid = aid.split()
-    SUDO_USERS = {int(_id.strip()) for _id in aid}
-else:
-    SUDO_USERS = set()
+    for id_ in aid:
+        user_data[int(id_.strip())] = {'is_sudo': True}
 
 fx = environ.get('EXTENSION_FILTER', '')
 if fx:

@@ -366,8 +366,8 @@ def fichier(link: str) -> str:
             raise DirectDownloadLinkException("ERROR: Tidak dapat mengambil direct link 1fichier!")
         else:
             return dl_url
-    elif len(soup.find_all("div", {"class": "ct_warn"})) == 3:
-        str_2 = soup.find_all("div", {"class": "ct_warn"})[-1]
+    elif len(soup.find_all("div", {"class": "ct_warn"})) == 2:
+        str_2 = soup.find_all("div", {"class": "ct_warn"})
         if "you must wait" in str(str_2).lower():
             numbers = [int(word) for word in str(str_2).split() if word.isdigit()]
             if not numbers:
@@ -378,7 +378,7 @@ def fichier(link: str) -> str:
             raise DirectDownloadLinkException(f"ERROR: Link ini memerlukan password!\n\n- Tambahkan tanda <b>::</b> setelah link dan ketik password setelah tanda tersebut.\n\n<b>Contoh:</b>\n<code>/{BotCommands.MirrorCommand[0]} https://1fichier.com/?smmtd8twfpm66awbqz04::love you</code>\n\n* Tanpa spasi diantara link dan password <b>::</b>\n* Tapi password bisa memakai spasi")
         else:
             raise DirectDownloadLinkException("ERROR: Gagal ketika generate direct link 1fichier!")
-    elif len(soup.find_all("div", {"class": "ct_warn"})) == 4:
+    elif len(soup.find_all("div", {"class": "ct_warn"})) == 3:
         str_1 = soup.find_all("div", {"class": "ct_warn"})[-2]
         str_3 = soup.find_all("div", {"class": "ct_warn"})[-1]
         if "you must wait" in str(str_1).lower():
@@ -490,8 +490,8 @@ def uploadhaven(url: str) -> str:
             "time": form.find("input", attrs={"name": "time"}).get("value"),
             "hash": form.find("input", attrs={"name": "hash"}).get("value")
         }
-        wait = form.find("span", {'class':'download-timer-seconds d-inline'}).text
-        sleep(int(wait.replace('seconds', '').strip()))
+        #wait = form.find("span", {'class':'download-timer-seconds d-inline'}).text
+        sleep(15)
         post = ses.post(url, data=postdata)
         dl_url = re.findall('"src", "(.*?)"', post.text)
         return dl_url[0]

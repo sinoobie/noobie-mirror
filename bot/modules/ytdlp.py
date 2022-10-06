@@ -5,7 +5,7 @@ from re import split as re_split
 
 from bot import DOWNLOAD_DIR, dispatcher
 from bot.helper.telegram_helper.message_utils import sendMessage, sendMarkup, editMessage, deleteMessage, auto_delete_message
-from bot.helper.telegram_helper import button_build
+from bot.helper.telegram_helper.button_build import ButtonMaker
 from bot.helper.ext_utils.bot_utils import get_readable_file_size, is_url
 from bot.helper.mirror_utils.download_utils.yt_dlp_download_helper import YoutubeDLHelper
 from bot.helper.telegram_helper.bot_commands import BotCommands
@@ -88,7 +88,7 @@ def _ytdl(bot, message, isZip=False, isLeech=False):
     else: check_ = None
 
     listener = MirrorLeechListener(bot, message, isZip, isLeech=isLeech, pswd=pswd, tag=tag)
-    buttons = button_build.ButtonMaker()
+    buttons = ButtonMaker()
     best_video = "bv*+ba/b"
     best_audio = "ba/b"
     ydl = YoutubeDLHelper(listener)
@@ -182,7 +182,7 @@ def _ytdl(bot, message, isZip=False, isLeech=False):
         Thread(target=_ytdl, args=(bot, nextmsg, isZip, isLeech)).start()
 
 def _qual_subbuttons(task_id, b_name, msg):
-    buttons = button_build.ButtonMaker()
+    buttons = ButtonMaker()
     task_info = listener_dict[task_id]
     formats_dict = task_info[6]
     for tbr, d_data in formats_dict[b_name].items():
@@ -194,7 +194,7 @@ def _qual_subbuttons(task_id, b_name, msg):
     editMessage(f"Pilih Bitrate untuk <b>{b_name}</b>:", msg, SUBBUTTONS)
 
 def _mp3_subbuttons(task_id, msg, playlist=False):
-    buttons = button_build.ButtonMaker()
+    buttons = ButtonMaker()
     audio_qualities = [64, 128, 320]
     for q in audio_qualities:
         if playlist:
@@ -233,10 +233,7 @@ def select_format(update, context):
         return editMessage('Pilih Kualitas Video:', msg, task_info[4])
     elif data[2] == "mp3":
         query.answer()
-        if len(data) == 4:
-            playlist = True
-        else:
-            playlist = False
+        playlist = len(data) == 4
         _mp3_subbuttons(task_id, msg, playlist)
         return
     elif data[2] == "cancel":
@@ -263,10 +260,10 @@ def select_format(update, context):
         query.message.delete()
     del listener_dict[task_id]
 
-def _auto_cancel(msg, msg_id):
+def _auto_cancel(msg, task_id):
     sleep(120)
     try:
-        del listener_dict[msg_id]
+        del listener_dict[task_id]
         editMessage('Timed out! Task telah dibatalkan.', msg)
     except:
         pass

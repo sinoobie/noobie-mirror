@@ -39,7 +39,7 @@ def stats(update, context):
             f'🔻 <b>Download:</b> {recv}\n'\
             f'🖥️ <b>CPU:</b> {cpuUsage}%\n'\
             f'💾 <b>RAM:</b> {mem_p}%\n\n'\
-            f'🤖 <b>Bot Version:</b> {botVersion}'
+            f'🤖 <b>Bot Version:</b> {botVersion} [FINAL]'
     smsg = sendMessage(stats, context.bot, update.message)
     Thread(target=auto_delete_message, args=(context.bot, update.message, smsg)).start()
 
@@ -98,7 +98,7 @@ CATATAN: Coba setiap perintah tanpa perfiks apa pun untuk melihat lebih detail.
 /{BotCommands.CloneCommand}: Salin file/folder ke Google Drive.
 /{BotCommands.CountCommand}: Menghitung file/folder Google Drive.
 /{BotCommands.DeleteCommand}: Menghapus file/folder dari Google Drive (Hanya Pemilik & Sudo).
-/{BotCommands.LeechSetCommand}: Setelan leeching.
+/{BotCommands.UserSetCommand} : Users settings.
 /{BotCommands.SetThumbCommand}: Balas foto untuk mengaturnya sebagai Thumbnail.
 /{BotCommands.BtSelectCommand}: Pilih file dari torrent yang sudah atau ingin di mirror.
 /{BotCommands.RssListCommand[0]} atau /{BotCommands.RssListCommand[1]}: Mencantumkan semua info rss feed yang dilanggan (Hanya Pemilik & Sudo).
@@ -115,7 +115,7 @@ CATATAN: Coba setiap perintah tanpa perfiks apa pun untuk melihat lebih detail.
 /{BotCommands.PingCommand}: Periksa berapa lama waktu yang dibutuhkan untuk melakukan Ping pada Bot (Hanya Pemilik & Sudo).
 /{BotCommands.AuthorizeCommand}: Mengotorisasi obrolan atau pengguna untuk menggunakan bot (Hanya Pemilik & Sudo).
 /{BotCommands.UnAuthorizeCommand}: Membatalkan otorisasi obrolan atau pengguna untuk menggunakan bot (Hanya Pemilik & Sudo).
-/{BotCommands.AuthorizedUsersCommand}: Menampilkan pengguna yang diotorisasi (Hanya Pemilik & Sudo).
+/{BotCommands.UsersCommand}: Menampilkan users setting (Hanya pemilik & sudo).
 /{BotCommands.AddSudoCommand}: Tambahkan pengguna sudo (Hanya Pemilik).
 /{BotCommands.RmSudoCommand}: Hapus pengguna sudo (Hanya Pemilik).
 /{BotCommands.RestartCommand}: Mulai ulang dan perbarui bot (Hanya Pemilik & Sudo).
@@ -152,7 +152,7 @@ botcmds = [
         (f'{BotCommands.DeleteCommand}','Menghapus file/folder dari Drive'),
         (f'{BotCommands.CancelMirror}','Cancel sebuah task'),
         (f'{BotCommands.CancelAllCommand}','Cancel semua downloading tasks'),
-        (f'{BotCommands.LeechSetCommand}','Leech settings'),
+        (f'{BotCommands.UserSetCommand}','Users settings'),
         (f'{BotCommands.SetThumbCommand}','Set Leech thumbnail'),
         (f'{BotCommands.ListCommand}', 'Mencari file yang sudah ada di Drive'),
         (f'{BotCommands.StatusCommand}','Menampilkan status mirror'),
@@ -204,21 +204,24 @@ def main():
         osremove(".restartmsg")
 
     start_handler = CommandHandler(BotCommands.StartCommand, start, run_async=True)
-    ping_handler = CommandHandler(BotCommands.PingCommand, ping,
-                                  filters=CustomFilters.authorized_chat | CustomFilters.authorized_user, run_async=True)
+    log_handler = CommandHandler(BotCommands.LogCommand, log,
+                                filters=CustomFilters.owner_filter | CustomFilters.sudo_user, run_async=True)
     restart_handler = CommandHandler(BotCommands.RestartCommand, restart,
-                                     filters=CustomFilters.owner_filter | CustomFilters.sudo_user, run_async=True)
-    help_handler = CommandHandler(BotCommands.HelpCommand,
-                                  bot_help, filters=CustomFilters.authorized_chat | CustomFilters.authorized_user, run_async=True)
-    stats_handler = CommandHandler(BotCommands.StatsCommand,
-                                   stats, filters=CustomFilters.authorized_chat | CustomFilters.authorized_user, run_async=True)
-    log_handler = CommandHandler(BotCommands.LogCommand, log, filters=CustomFilters.owner_filter | CustomFilters.sudo_user, run_async=True)
+                                filters=CustomFilters.owner_filter | CustomFilters.sudo_user, run_async=True)
+    ping_handler = CommandHandler(BotCommands.PingCommand, ping,
+                                filters=CustomFilters.authorized_chat | CustomFilters.authorized_user, run_async=True)
+    help_handler = CommandHandler(BotCommands.HelpCommand, bot_help,
+                                filters=CustomFilters.authorized_chat | CustomFilters.authorized_user, run_async=True)
+    stats_handler = CommandHandler(BotCommands.StatsCommand, stats,
+                                filters=CustomFilters.authorized_chat | CustomFilters.authorized_user, run_async=True)
+
     dispatcher.add_handler(start_handler)
-    dispatcher.add_handler(ping_handler)
+    dispatcher.add_handler(log_handler)
     dispatcher.add_handler(restart_handler)
+    dispatcher.add_handler(ping_handler)
     dispatcher.add_handler(help_handler)
     dispatcher.add_handler(stats_handler)
-    dispatcher.add_handler(log_handler)
+
     updater.start_polling(drop_pending_updates=IGNORE_PENDING_REQUESTS)
     LOGGER.info("Bot Started!")
     signal(SIGINT, exit_clean_up)

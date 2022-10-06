@@ -70,6 +70,9 @@ class TelegramDownloadHelper:
     def __download(self, message, path):
         try:
             download = message.download(file_name=path, progress=self.__onDownloadProgress)
+            if self.__is_cancelled:
+                self.__onDownloadError('Dibatalkan oleh user!')
+                return
         except Exception as e:
             LOGGER.error(str(e))
             return self.__onDownloadError(str(e))
