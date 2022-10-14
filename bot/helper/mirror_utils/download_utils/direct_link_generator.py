@@ -451,7 +451,7 @@ def uploadee(url: str) -> str:
 def gofile(url: str) -> str:
     password = ''
     api_uri = 'https://api.gofile.io'
-    client = requests.Session()
+    client = cloudscraper.create_scraper(allow_brotli=False)
 
     try:
         crtAcc = client.get(api_uri+'/createAccount').json()
