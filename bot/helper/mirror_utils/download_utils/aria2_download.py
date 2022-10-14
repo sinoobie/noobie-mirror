@@ -192,7 +192,7 @@ def start_listener():
                                   on_bt_download_complete=__onBtDownloadComplete,
                                   timeout=60)
 
-def add_aria2c_download(link: str, path, listener, filename, auth, ratio, seed_time):
+def add_aria2c_download(link: str, path, listener, filename, auth, ratio, seed_time, headers):
     args = {'dir': path, 'max-upload-limit': '1K'}
     if filename:
         args['out'] = filename
@@ -202,8 +202,8 @@ def add_aria2c_download(link: str, path, listener, filename, auth, ratio, seed_t
         args['seed-ratio'] = ratio
     if seed_time:
         args['seed-time'] = seed_time
-    if 'static.romsget.io' in link:
-        args['header'] = "Referer: https://www.romsget.io/"
+    if headers:
+        args['header'] = headers
 
     if is_magnet(link):
         download = aria2.add_magnet(link, args)

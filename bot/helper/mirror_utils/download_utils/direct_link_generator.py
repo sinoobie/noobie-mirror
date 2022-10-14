@@ -1,13 +1,3 @@
-# Copyright (C) 2019 The Raphielscape Company LLC.
-#
-# Licensed under the Raphielscape Public License, Version 1.c (the "License");
-# you may not use this file except in compliance with the License.
-#
-""" Helper Module containing various sites direct links generators. This module is copied and modified as per need
-from https://github.com/AvinashReddy3108/PaperplaneExtended . I hereby take no credit of the following code other
-than the modifications. See https://github.com/AvinashReddy3108/PaperplaneExtended/commits/master/userbot/modules/direct_links.py
-for original authorship. """
-
 import cloudscraper
 import requests
 import math
@@ -456,6 +446,33 @@ def uploadee(url: str) -> str:
         raise DirectDownloadLinkException(
             f"Failed to acquire download URL from upload.ee for : {url}")
 
+def gofile(url: str) -> str:
+    password = ''
+    api_uri = 'https://api.gofile.io'
+    client = requests.Session()
+
+    try:
+        crtAcc = client.get(api_uri+'/createAccount').json()
+        data = {
+            'contentId': url.split('/')[-1],
+            'token': crtAcc['data']['token'],
+            'websiteToken': '12345',
+            'cache': 'true',
+            'password': sha256(password.encode('utf-8')).hexdigest()
+        }
+        getCon = client.get(api_uri+'/getContent', params=data).json()
+
+        content = []
+        for item in getCon['data']['contents'].values():
+            content.append(item)
+    except:
+        raise DirectDownloadLinkException("ERROR: Tidak dapat mengambil direct link")
+
+    headers=f"""Host: {urlparse(content[0]['link']).netloc}
+                Cookie: accountToken={data['token']}
+            """
+    return content[0]['link'], headers
+
 def romsget(url: str) -> str:
     try:
         req = requests.get(url)
@@ -635,6 +652,8 @@ def appdrive(url: str) -> str:
     if len(ddl_btn):
         info_parsed['link_type'] = 'direct'
         data['action'] = 'direct'
+
+    response = None
     while data['type'] <= 3:
         try:
             response = client.post(url, data=gen_payload(data), headers=headers).json()
@@ -645,6 +664,9 @@ def appdrive(url: str) -> str:
     elif 'error' in response and response['error']:
         info_parsed['error'] = True
         info_parsed['error_message'] = response['message']
+    else:
+        info_parsed['error'] = True
+        info_parsed['error_message'] = "Tidak dapat mengambil direct link"
     if any(x in url for x in appdrive_family) and not info_parsed['error']:
         res = client.get(info_parsed['gdrive_link'])
         drive_link = etree.HTML(res.content).xpath("//a[contains(@class,'btn')]/@href")[0]

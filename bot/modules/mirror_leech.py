@@ -164,6 +164,8 @@ def _mirror_leech(bot, message, isZip=False, extract=False, isQbit=False, isLeec
                 if "uptobox.com" in host or "uploadhaven.com" in host:
                     editMessage(f"ℹ️ {tag} Generating {host} direct link. Tunggu sebentar...", check_)
                     link = direct_link_generator(link, host)
+                elif "gofile.io" in host:
+                    link, _headers = direct_link_generator(link, host)
                 else:
                     link = direct_link_generator(link, host)
                 LOGGER.info(f"Generated link: {link}")
@@ -208,8 +210,12 @@ def _mirror_leech(bot, message, isZip=False, extract=False, isQbit=False, isLeec
             auth = "Basic " + b64encode(auth.encode()).decode('ascii')
         else:
             auth = ''
+        if 'gofile.io' in link:
+            headers = _headers
+        elif 'static.romsget.io' in link:
+            headers = "Referer: https://www.romsget.io/"
         Thread(target=add_aria2c_download, args=(link, f'{DOWNLOAD_DIR}{listener.uid}', listener, name,
-                                                 auth, ratio, seed_time)).start()
+                                                 auth, ratio, seed_time, headers)).start()
 
     if multi > 1:
         sleep(4)
