@@ -475,7 +475,7 @@ def gofile(url: str) -> str:
         getCon = client.get(api_uri+'/getContent', params=data).json()
         if getCon['status'] == 'ok':
             rstr = jsondumps(getCon)
-            link = re.findall(r"'directLink': '(.*?)'", rstr)
+            link = re.findall(r'"directLink": "(.*?)"', rstr)
         elif getCon['status'] == 'error-passwordWrong':
             raise DirectDownloadLinkException("ERROR: Link ini memerlukan password!\n\n- Tambahkan <b>pswd:</b> setelah link dan ketik password filenya.\n\n<b>Contoh:</b>\n<code>/{BotCommands.MirrorCommand[0]} https://gofile.io/d/xyz--pw:love you</code>")
         else:
