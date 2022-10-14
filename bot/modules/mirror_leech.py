@@ -210,10 +210,13 @@ def _mirror_leech(bot, message, isZip=False, extract=False, isQbit=False, isLeec
             auth = "Basic " + b64encode(auth.encode()).decode('ascii')
         else:
             auth = ''
+
+        headers = None
         if 'gofile.io' in link:
             headers = _headers
         elif 'static.romsget.io' in link:
             headers = "Referer: https://www.romsget.io/"
+
         Thread(target=add_aria2c_download, args=(link, f'{DOWNLOAD_DIR}{listener.uid}', listener, name,
                                                  auth, ratio, seed_time, headers)).start()
 
