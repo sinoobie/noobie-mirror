@@ -467,7 +467,8 @@ def gofile(url: str) -> str:
         content = []
         for item in getCon['data']['contents'].values():
             content.append(item)
-    except:
+    except Exceptiona as err:
+        LOGGER.error(err)
         raise DirectDownloadLinkException("ERROR: Tidak dapat mengambil direct link")
 
     headers=f"""Host: {urlparse(content[0]['link']).netloc}
