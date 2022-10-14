@@ -480,8 +480,7 @@ def gofile(url: str) -> str:
             raise DirectDownloadLinkException("ERROR: Link ini memerlukan password!\n\n- Tambahkan <b>pswd:</b> setelah link dan ketik password filenya.\n\n<b>Contoh:</b>\n<code>/{BotCommands.MirrorCommand[0]} https://gofile.io/d/xyz--pw:love you</code>")
         else:
             raise DirectDownloadLinkException("ERROR: Tidak dapat mengambil direct link")
-    except Exception as err:
-        LOGGER.error(err)
+    except:
         raise DirectDownloadLinkException("ERROR: Tidak dapat mengambil direct link")
 
     fileNum = args.get('fileNum')
@@ -552,7 +551,7 @@ def wetransfer(url):
             return res["url"]
         else:
             raise DirectDownloadLinkException(f"ERROR: {res['msg']}")
-    except Exception as err:
+    except:
         raise DirectDownloadLinkException("ERROR: Tidak dapat mengambil direct link")
 
 def gdtot(url: str) -> str:
