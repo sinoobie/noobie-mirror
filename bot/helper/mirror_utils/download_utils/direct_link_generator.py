@@ -6,7 +6,7 @@ import re
 from hashlib import sha256
 from base64 import b64decode
 from urllib.parse import urlparse, unquote
-from json import loads as jsonloads
+from json import loads as jsonloads, dumps as jsondumps
 from lk21 import Bypass
 from cfscrape import create_scraper
 from bs4 import BeautifulSoup
@@ -450,32 +450,46 @@ def uploadee(url: str) -> str:
             f"Failed to acquire download URL from upload.ee for : {url}")
 
 def gofile(url: str) -> str:
-    password = ''
     api_uri = 'https://api.gofile.io'
     client = requests.Session()
+    args = {'fileNum':0, 'password':''}
 
     try:
+        _link = url.split('--')
+        url = _link[0]
+        if len(_link) > 1:
+            for l in _link:
+                if 'pw:' in l:
+                    args['password'] = l.strip('pw:')
+                if 'fn:' in l:
+                    args['fileNum'] = int(l.strip('fn:'))
+
         crtAcc = client.get(api_uri+'/createAccount').json()
         data = {
             'contentId': url.split('/')[-1],
             'token': crtAcc['data']['token'],
             'websiteToken': '12345',
             'cache': 'true',
-            'password': sha256(password.encode('utf-8')).hexdigest()
+            'password': sha256(args['password'].encode('utf-8')).hexdigest()
         }
         getCon = client.get(api_uri+'/getContent', params=data).json()
-
-        content = []
-        for item in getCon['data']['contents'].values():
-            content.append(item)
+        if getCon['status'] == 'ok':
+            rstr = jsondumps(getCon)
+            link = re.findall(r"'directLink': '(.*?)'", s)
+        elif getCon['status'] == 'error-passwordWrong':
+            raise DirectDownloadLinkException("ERROR: Link ini memerlukan password!\n\n- Tambahkan <b>pswd:</b> setelah link dan ketik password filenya.\n\n<b>Contoh:</b>\n<code>/{BotCommands.MirrorCommand[0]} https://gofile.io/d/xyz--pw:love you</code>")
+        else:
+            raise DirectDownloadLinkException("ERROR: Tidak dapat mengambil direct link")
     except Exception as err:
         LOGGER.error(err)
         raise DirectDownloadLinkException("ERROR: Tidak dapat mengambil direct link")
 
-    headers=f"""Host: {urlparse(content[0]['link']).netloc}
+    fileNum = args.get('fileNum')
+    dl_url = link[fileNum] if fileNum == 0 else link[fileNum-1]
+    headers=f"""Host: {urlparse(dl_url).netloc}
                 Cookie: accountToken={data['token']}
             """
-    return content[0]['link'], headers
+    return dl_url, headers
 
 def romsget(url: str) -> str:
     try:
