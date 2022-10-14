@@ -3,6 +3,7 @@ import requests
 import math
 import re
 
+from hashlib import sha256
 from base64 import b64decode
 from urllib.parse import urlparse, unquote
 from json import loads as jsonloads
@@ -450,7 +451,7 @@ def uploadee(url: str) -> str:
 
 def gofile(url: str) -> str:
     password = ''
-    api_uri = 'http://api.gofile.io'
+    api_uri = 'https://api.gofile.io'
     client = requests.Session()
 
     try:
