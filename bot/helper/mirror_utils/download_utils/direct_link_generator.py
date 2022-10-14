@@ -473,14 +473,14 @@ def gofile(url: str) -> str:
             'password': sha256(args['password'].encode('utf-8')).hexdigest()
         }
         getCon = client.get(api_uri+'/getContent', params=data).json()
-        if getCon['status'] == 'ok':
-            rstr = jsondumps(getCon)
-            link = re.findall(r'"link": "(.*?)"', rstr)
-        elif getCon['status'] == 'error-passwordWrong':
-            raise DirectDownloadLinkException("ERROR: Link ini memerlukan password!\n\n- Tambahkan <b>pswd:</b> setelah link dan ketik password filenya.\n\n<b>Contoh:</b>\n<code>/{BotCommands.MirrorCommand[0]} https://gofile.io/d/xyz--pw:love you</code>")
-        else:
-            raise DirectDownloadLinkException("ERROR: Tidak dapat mengambil direct link")
     except:
+        raise DirectDownloadLinkException("ERROR: Tidak dapat mengambil direct link")
+    if getCon['status'] == 'ok':
+        rstr = jsondumps(getCon)
+        link = re.findall(r'"link": "(.*?)"', rstr)
+    elif getCon['status'] == 'error-passwordWrong':
+        raise DirectDownloadLinkException("ERROR: Link ini memerlukan password!\n\n- Tambahkan <b>pswd:</b> setelah link dan ketik password filenya.\n\n<b>Contoh:</b>\n<code>/{BotCommands.MirrorCommand[0]} https://gofile.io/d/xyz--pw:love you</code>")
+    else:
         raise DirectDownloadLinkException("ERROR: Tidak dapat mengambil direct link")
 
     fileNum = args.get('fileNum')
@@ -536,23 +536,20 @@ def uploadhaven(url: str) -> str:
 def wetransfer(url):
     """ WeTransfer direct link generator
     By https://github.com/TheCaduceus/Link-Bypasser/ """
+    api = "https://api.emilyx.in/api"
+    client = cloudscraper.create_scraper(allow_brotli=False)
+    resp = client.get(url)
+    if resp.status_code == 404:
+        raise DirectDownloadLinkException("ERROR: File tidak ditemukan atau link yang kamu masukan salah!")
     try:
-        api = "https://api.emilyx.in/api"
-        client = cloudscraper.create_scraper(allow_brotli=False)
-        resp = client.get(url)
-        if resp.status_code == 404:
-            raise DirectDownloadLinkException("ERROR: File tidak ditemukan atau link yang kamu masukan salah!")
-        try:
-            resp = client.post(api, json={"type": "wetransfer", "url": url})
-            res = resp.json()
-        except BaseException:
-            raise DirectDownloadLinkException("ERROR: Server API sedang down atau link yang kamu masukan salah!")
-        if res["success"] is True:
-            return res["url"]
-        else:
-            raise DirectDownloadLinkException(f"ERROR: {res['msg']}")
-    except:
-        raise DirectDownloadLinkException("ERROR: Tidak dapat mengambil direct link")
+        resp = client.post(api, json={"type": "wetransfer", "url": url})
+        res = resp.json()
+    except BaseException:
+        raise DirectDownloadLinkException("ERROR: Server API sedang down atau link yang kamu masukan salah!")
+    if res["success"] is True:
+        return res["url"]
+    else:
+        raise DirectDownloadLinkException(f"ERROR: {res['msg']}")
 
 def gdtot(url: str) -> str:
     """ Gdtot google drive link generator
@@ -602,18 +599,17 @@ def sharerpw(url: str, forced_login=False) -> str:
         
         if not forced_login:
             data['nl'] = 1
-        
-        try: 
-            res = client.post(url+'/dl', headers=headers, data=data).json()
-            return res['url']
-        except:
-            if len(ddl_btn) and not forced_login:
-                # retry download via login
-                return sharerpw(url, forced_login=True)
-            else:
-                raise DirectDownloadLinkException("ERROR: Tidak dapat mengambil direct link")
     except:
         raise DirectDownloadLinkException("ERROR: Tidak dapat mengambil direct link. Kemungkinan file sudah tidak ada")
+    try: 
+        res = client.post(url+'/dl', headers=headers, data=data).json()
+        return res['url']
+    except:
+        if len(ddl_btn) and not forced_login:
+            # retry download via login
+            return sharerpw(url, forced_login=True)
+        else:
+            raise DirectDownloadLinkException("ERROR: Tidak dapat mengambil direct link")
 
 
 def account_login(client, url, email, password):
