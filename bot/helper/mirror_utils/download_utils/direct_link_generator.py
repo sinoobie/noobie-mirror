@@ -66,6 +66,8 @@ def direct_link_generator(link: str, host):
         return uploadee(link)
     elif 'wetransfer.com' in host:
         return wetransfer(link)
+    elif 'gofile.io' in host:
+        return gofile(link)
     elif 'romsget.io' in host:
         return link if host == 'static.romsget.io' else romsget(link)
     elif is_gdtot_link(link):
