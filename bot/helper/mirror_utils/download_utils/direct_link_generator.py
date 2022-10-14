@@ -479,7 +479,7 @@ def gofile(url: str) -> str:
         rstr = jsondumps(getCon)
         link = re.findall(r'"link": "(.*?)"', rstr)
     elif getCon['status'] == 'error-passwordWrong':
-        raise DirectDownloadLinkException("ERROR: Link ini memerlukan password!\n\n- Tambahkan <b>pswd:</b> setelah link dan ketik password filenya.\n\n<b>Contoh:</b>\n<code>/{BotCommands.MirrorCommand[0]} https://gofile.io/d/xyz--pw:love you</code>")
+        raise DirectDownloadLinkException("ERROR: Link ini memerlukan password!\n\n- Tambahkan <b>--pw:</b> setelah link dan ketik password filenya.\n\n<b>Contoh:</b>\n<code>/{BotCommands.MirrorCommand[0]} https://gofile.io/d/xyz--pw:love you</code>")
     else:
         raise DirectDownloadLinkException("ERROR: Tidak dapat mengambil direct link")
 
