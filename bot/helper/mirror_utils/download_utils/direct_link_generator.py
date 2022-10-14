@@ -475,15 +475,18 @@ def gofile(url: str) -> str:
         getCon = client.get(api_uri+'/getContent', params=data).json()
     except:
         raise DirectDownloadLinkException("ERROR: Tidak dapat mengambil direct link")
+
+    fileNum = args.get('fileNum')
     if getCon['status'] == 'ok':
         rstr = jsondumps(getCon)
         link = re.findall(r'"link": "(.*?)"', rstr)
+        if fileNum > len(link):
+            fileNum = 0 #Force to first link
     elif getCon['status'] == 'error-passwordWrong':
         raise DirectDownloadLinkException(f"ERROR: Link ini memerlukan password!\n\n- Tambahkan <b>--pw:</b> setelah link dan ketik password filenya.\n\n<b>Contoh:</b>\n<code>/{BotCommands.MirrorCommand[0]} https://gofile.io/d/xyz--pw:love you</code>")
     else:
         raise DirectDownloadLinkException("ERROR: Tidak dapat mengambil direct link")
 
-    fileNum = args.get('fileNum')
     dl_url = link[fileNum] if fileNum == 0 else link[fileNum-1]
     headers=f"""Host: {urlparse(dl_url).netloc}
                 Cookie: accountToken={data['token']}
