@@ -455,10 +455,10 @@ def gofile(url: str) -> str:
     args = {'fileNum':0, 'password':''}
 
     try:
-        _link = url.split('--')
-        url = _link[0]
-        if len(_link) > 1:
-            for l in _link:
+        if '--' in url:
+            _link = url.split('--')
+            url = _link[0]
+            for l in _link[1:]:
                 if 'pw:' in l:
                     args['password'] = l.strip('pw:')
                 if 'fn:' in l:
