@@ -37,6 +37,8 @@ def mirror_status(update, context):
 @new_thread
 def status_pages(update, context):
     query = update.callback_query
+    user_id = query.from_user.id
+    chat_id = update.effective_chat.
     auth = context.bot.get_chat_member(chat_id, user_id).status in ['creator', 'administrator'] or user_id in [OWNER_ID]
     data = query.data
     data = data.split()
