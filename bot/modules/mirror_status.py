@@ -37,7 +37,7 @@ def mirror_status(update, context):
 @new_thread
 def status_pages(update, context):
     query = update.callback_query
-    user_id = query.from_user.id
+    userID = query.from_user.id
     data = query.data
     data = data.split()
     if data[1] == "cls":
@@ -45,23 +45,24 @@ def status_pages(update, context):
         with download_dict_lock:
             for dl in list(download_dict.values()):
                 onstatus.append(dl.message.from_user.id)
-        if user_id == OWNER_ID or user_id in onstatus or user_data.get(user_id, user_data).get('is_sudo'):
-            context.bot.deleteMessage(chat_id=update.effective_chat.id,
-                                      message_id=query.message.message_id)
+        if userID == OWNER_ID or userID in onstatus or user_data.get(userID, user_data).get('is_sudo'):
             query.answer()
+            query.message.delete()
         else:
             query.answer(text="⚠️ Minimal harus punya satu proses mirror!", show_alert=True)
     elif data[1] == "sta":
         stat = statistik(alert=True)
         query.answer(text=stat, show_alert=True)
     elif data[1] in ['pre', 'nex']:
+        query.answer()
         done = turn(data)
         if done:
-            update_all_messages(True)
-            query.answer()
+            msg, buttons = get_readable_message()
+            query.edit_message_text(text=msg, reply_markup=buttons, parse_mode='HTMl', disable_web_page_preview=True)
         else:
             query.message.delete()
     else:
+        query.answer()
         query.message.delete()
 
 
