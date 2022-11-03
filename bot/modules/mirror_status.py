@@ -46,7 +46,8 @@ def status_pages(update, context):
             for dl in list(download_dict.values()):
                 onstatus.append(dl.message.from_user.id)
         if user_id == OWNER_ID or user_id in onstatus or user_data.get(user_id, user_data).get('is_sudo'):
-            delete_all_messages()
+            context.bot.deleteMessage(chat_id=update.effective_chat.id,
+                                      message_id=query.message.message_id)
             query.answer()
         else:
             query.answer(text="⚠️ Minimal harus punya satu proses mirror!", show_alert=True)
