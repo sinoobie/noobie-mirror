@@ -1,7 +1,6 @@
 from signal import signal, SIGINT
 from os import path as ospath, remove as osremove, execl as osexecl
-from subprocess import run as srun, check_output
-from psutil import disk_usage, cpu_percent, swap_memory, cpu_count, virtual_memory, net_io_counters, boot_time
+from subprocess import run as srun
 from time import time
 from sys import executable
 from telegram.ext import CommandHandler
@@ -9,7 +8,7 @@ from threading import Thread
 
 from bot import bot, dispatcher, updater, botStartTime, IGNORE_PENDING_REQUESTS, LOGGER, Interval, INCOMPLETE_TASK_NOTIFIER, DB_URI, alive, app, main_loop
 from .helper.ext_utils.fs_utils import start_cleanup, clean_all, exit_clean_up
-from .helper.ext_utils.bot_utils import get_readable_file_size, get_readable_time
+from .helper.ext_utils.bot_utils import statistik
 from .helper.ext_utils.db_handler import DbManger
 from .helper.telegram_helper.bot_commands import BotCommands
 from .helper.telegram_helper.message_utils import sendMessage, sendMarkup, editMessage, sendLogFile, auto_delete_message
@@ -20,26 +19,7 @@ from .modules import authorize, list, cancel_mirror, mirror_status, mirror_leech
 
 
 def stats(update, context):
-    botVersion = check_output(["git log -1 --date=format:v%Y.%m.%d --pretty=format:%cd"], shell=True).decode()
-    currentTime = get_readable_time(time() - botStartTime)
-    total, used, free, disk= disk_usage('/')
-    total = get_readable_file_size(total)
-    used = get_readable_file_size(used)
-    free = get_readable_file_size(free)
-    sent = get_readable_file_size(net_io_counters().bytes_sent)
-    recv = get_readable_file_size(net_io_counters().bytes_recv)
-    cpuUsage = cpu_percent(interval=0.5)
-    memory = virtual_memory()
-    mem_p = memory.percent
-    stats = f'🕒 <b>Bot Uptime:</b> {currentTime}\n\n'\
-            f'💽 <b>Total Disk Space:</b> {total}\n'\
-            f'📀 <b>Used:</b> {used}\n'\
-            f'💿 <b>Free:</b> {free}\n\n'\
-            f'🔺 <b>Upload:</b> {sent}\n'\
-            f'🔻 <b>Download:</b> {recv}\n'\
-            f'🖥️ <b>CPU:</b> {cpuUsage}%\n'\
-            f'💾 <b>RAM:</b> {mem_p}%\n\n'\
-            f'🤖 <b>Bot Version:</b> {botVersion} [FINAL]'
+    stats = statistik()
     smsg = sendMessage(stats, context.bot, update.message)
     Thread(target=auto_delete_message, args=(context.bot, update.message, smsg)).start()
 

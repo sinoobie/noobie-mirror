@@ -3,9 +3,9 @@ from time import time
 from threading import Thread
 from telegram.ext import CommandHandler, CallbackQueryHandler
 
-from bot import dispatcher, status_reply_dict_lock, download_dict, download_dict_lock, botStartTime, DOWNLOAD_DIR, Interval, DOWNLOAD_STATUS_UPDATE_INTERVAL
-from bot.helper.telegram_helper.message_utils import sendMessage, deleteMessage, auto_delete_message, sendStatusMessage, update_all_messages
-from bot.helper.ext_utils.bot_utils import get_readable_file_size, get_readable_time, turn, setInterval
+from bot import dispatcher, status_reply_dict_lock, download_dict, download_dict_lock, botStartTime, DOWNLOAD_DIR, Interval, DOWNLOAD_STATUS_UPDATE_INTERVAL, OWNER_ID
+from bot.helper.telegram_helper.message_utils import sendMessage, deleteMessage, auto_delete_message, sendStatusMessage, update_all_messages, delete_all_messages
+from bot.helper.ext_utils.bot_utils import get_readable_file_size, get_readable_time, turn, setInterval, new_thread, statistik
 from bot.helper.telegram_helper.filters import CustomFilters
 from bot.helper.telegram_helper.bot_commands import BotCommands
 
@@ -34,16 +34,29 @@ def mirror_status(update, context):
             finally:
                 Interval.append(setInterval(DOWNLOAD_STATUS_UPDATE_INTERVAL, update_all_messages))
 
+@new_thread
 def status_pages(update, context):
     query = update.callback_query
-    query.answer()
+    auth = context.bot.get_chat_member(chat_id, user_id).status in ['creator', 'administrator'] or user_id in [OWNER_ID]
     data = query.data
     data = data.split()
-    if data[1] == "ref":
-        update_all_messages(True)
-        return
-    done = turn(data)
-    if not done:
+    if data[1] == "cls":
+        if auth:
+            delete_all_messages()
+            query.answer()
+        else:
+            query.answer(text="⚠️ Minimal harus punya satu proses mirror!", show_alert=True)
+    elif data[1] == "sta":
+        stat = statistik(alert=True)
+        query.answer(text=stat, show_alert=True)
+    elif data[1] in ['pre', 'nex']:
+        done = turn(data)
+        if done:
+            update_all_messages(True)
+            query.answer()
+        else:
+            query.message.delete()
+    else:
         query.message.delete()
 
 

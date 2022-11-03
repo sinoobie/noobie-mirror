@@ -3,10 +3,11 @@ from threading import Thread, Event
 from time import time
 from math import ceil
 from html import escape
-from psutil import cpu_percent, disk_usage
 from requests import head as rhead
 from urllib.request import urlopen
 from urllib.parse import quote
+from subprocess import check_output
+from psutil import disk_usage, cpu_percent, virtual_memory, net_io_counters
 
 from bot import download_dict, download_dict_lock, STATUS_LIMIT, botStartTime, DOWNLOAD_DIR, WEB_PINCODE, BASE_URL, user_data
 from bot.helper.telegram_helper.bot_commands import BotCommands
@@ -156,7 +157,7 @@ def get_readable_message():
             else:
                 msg += f"\n📦 {download.size()}"
             msg += f"\n👤 {tag}"
-            msg += f"\n❌ <code>/{BotCommands.CancelMirror} {download.gid()}</code>"
+            msg += f"\n⛔️ <code>/{BotCommands.CancelMirror} {download.gid()}</code>"
             msg += "\n\n"
             if STATUS_LIMIT is not None and index == STATUS_LIMIT:
                 break
@@ -186,15 +187,15 @@ def get_readable_message():
                     up_speed += float(spd.split('M')[0]) * 1048576
         bmsg = f"\n🖥️ <b>CPU:</b> {cpu_percent()}% | 💿 <b>FREE:</b> {get_readable_file_size(disk_usage(DOWNLOAD_DIR).free)}"
         bmsg += f"\n🔻 <b>DL:</b> {get_readable_file_size(dl_speed)}/s | 🔺 <b>UL:</b> {get_readable_file_size(up_speed)}/s"
+        buttons = ButtonMaker()
         if STATUS_LIMIT is not None and tasks > STATUS_LIMIT:
             msg += f" | 📑 <b>Page:</b> {PAGE_NO}/{PAGES}"
-            buttons = ButtonMaker()
             buttons.sbutton("⏪ Previous", "status pre")
-            buttons.sbutton("♻️ Refresh", "status ref")
             buttons.sbutton("Next ⏩", "status nex")
-            button = buttons.build_menu(3)
-            return msg + bmsg, button
-        return msg + bmsg, ""
+        buttons.sbutton("❌ Close", "status cls")
+        buttons.sbutton("📊 Stats", "status sta")
+        button = buttons.build_menu(2)
+        return msg + bmsg, button
 
 def turn(data):
     try:
@@ -300,3 +301,33 @@ def update_user_ldata(id_: int, key, value):
         user_data[id_][key] = value
     else:
         user_data[id_] = {key: value}
+
+
+def statistik(alert=False):
+    botVersion = check_output(["git log -1 --date=format:v%Y.%m.%d --pretty=format:%cd"], shell=True).decode()
+    currentTime = get_readable_time(time() - botStartTime)
+    total, used, free, disk= disk_usage('/')
+    total = get_readable_file_size(total)
+    used = get_readable_file_size(used)
+    free = get_readable_file_size(free)
+    sent = get_readable_file_size(net_io_counters().bytes_sent)
+    recv = get_readable_file_size(net_io_counters().bytes_recv)
+    cpuUsage = cpu_percent(interval=0.5)
+    memory = virtual_memory()
+    mem_p = memory.percent
+    stats = f'🕒 <b>Bot Uptime:</b> {currentTime}\n\n'\
+            f'💽 <b>Total Disk Space:</b> {total}\n'\
+            f'📀 <b>Used:</b> {used}\n'\
+            f'💿 <b>Free:</b> {free}\n\n'\
+            f'🔺 <b>Upload:</b> {sent}\n'\
+            f'🔻 <b>Download:</b> {recv}\n'\
+            f'🖥️ <b>CPU:</b> {cpuUsage}%\n'\
+            f'💾 <b>RAM:</b> {mem_p}%\n\n'\
+            f'🤖 <b>Bot Version:</b> {botVersion} [FINAL]'
+    if alert:
+        _astats = stats.split('\n')
+        del _astats[1:6]
+        astats = '\n'.join(_astats)
+        return astats.replace('<b>', '').replace('</b>','')
+    else:
+        return stats
