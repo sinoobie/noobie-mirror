@@ -325,9 +325,6 @@ def statistik(alert=False):
             f'💾 <b>RAM:</b> {mem_p}%\n\n'\
             f'🤖 <b>Bot Version:</b> {botVersion} [FINAL]'
     if alert:
-        _astats = stats.split('\n')
-        del _astats[1:6]
-        astats = '\n'.join(_astats)
         return astats.replace('<b>', '').replace('</b>','')
     else:
         return stats
