@@ -61,9 +61,6 @@ def status_pages(update, context):
             query.edit_message_text(text=msg, reply_markup=buttons, parse_mode='HTMl', disable_web_page_preview=True)
         else:
             query.message.delete()
-    else:
-        query.answer()
-        query.message.delete()
 
 
 mirror_status_handler = CommandHandler(BotCommands.StatusCommand, mirror_status,
