@@ -45,7 +45,7 @@ def status_pages(update, context):
         with download_dict_lock:
             for dl in list(download_dict.values()):
                 onstatus.append(dl.message.from_user.id)
-        if user_id == OWNER_ID or user_id in onstatus or user_data[user_id].get('is_sudo'):
+        if user_id == OWNER_ID or user_id in onstatus or user_data.get(user_id, user_data).get('is_sudo'):
             delete_all_messages()
             query.answer()
         else:
