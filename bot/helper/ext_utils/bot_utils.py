@@ -138,7 +138,7 @@ def get_readable_message():
             ### AKHIR CUSTOM STATUS ###
             msg += f"💽 <code>{escape(str(download.name()))}</code>"
             msg += f"\n<a href=\"{pemirror.link}\"><b>{download.status()}</b></a>"
-            if download.status() != MirrorStatus.STATUS_SEEDING:
+            if download.status() not in [MirrorStatus.STATUS_SEEDING, MirrorStatus.STATUS_PAUSED, MirrorStatus.STATUS_WAITING]:
                 msg += f"\n🌀 {get_progress_bar_string(download)} {download.progress()}"
                 msg += f"\n📦 {get_readable_file_size(download.processed_bytes())} / {download.size()}"
                 msg += f"\n⚡️ {download.speed()} | ⏳ {download.eta()}"
@@ -154,6 +154,8 @@ def get_readable_message():
                 msg += f"\n⚡️ {download.upload_speed()}"
                 msg += f" | 🌀 <b>Ratio: </b>{download.ratio()}"
                 msg += f"\n🕒 {download.seeding_time()}"
+            elif download.status() in [MirrorStatus.STATUS_PAUSED, MirrorStatus.STATUS_WAITING]:
+                msg += f"\n⏱ {get_readable_time(time() - download.message.date.timestamp())}"
             else:
                 msg += f"\n📦 {download.size()}"
             msg += f"\n👤 {tag}"

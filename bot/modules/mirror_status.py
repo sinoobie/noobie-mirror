@@ -38,6 +38,7 @@ def mirror_status(update, context):
 def status_pages(update, context):
     query = update.callback_query
     userID = query.from_user.id
+    qmessage = query.message
     data = query.data
     data = data.split()
     if data[1] == "cls":
@@ -47,7 +48,7 @@ def status_pages(update, context):
                 onstatus.append(dl.message.from_user.id)
         if userID == OWNER_ID or userID in onstatus or user_data.get(userID, user_data).get('is_sudo'):
             query.answer()
-            query.message.delete()
+            qmessage.delete()
         else:
             query.answer(text="⚠️ Minimal harus punya satu proses mirror!", show_alert=True)
     elif data[1] == "sta":
@@ -58,9 +59,9 @@ def status_pages(update, context):
         done = turn(data)
         if done:
             msg, buttons = get_readable_message()
-            query.edit_message_text(text=msg, reply_markup=buttons, parse_mode='HTMl', disable_web_page_preview=True)
+            qmessage.edit_text(text=msg, reply_markup=buttons, parse_mode='HTMl', disable_web_page_preview=True)
         else:
-            query.message.delete()
+            qmessage.delete()
 
 
 mirror_status_handler = CommandHandler(BotCommands.StatusCommand, mirror_status,
