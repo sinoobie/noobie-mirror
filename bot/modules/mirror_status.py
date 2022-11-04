@@ -99,7 +99,6 @@ def onProcess_stats():
         mem = virtual_memory().percent
         recv = get_readable_file_size(net_io_counters().bytes_recv)
         sent = get_readable_file_size(net_io_counters().bytes_sent)
-        free = disk_usage(DOWNLOAD_DIR).free
         msg = f"==Bot Statistics==\n" \
             f"Send: {sent} | Recv: {recv}\n" \
             f"CPU: {cpu_percent()}% | RAM: {mem}%\n\n" \
