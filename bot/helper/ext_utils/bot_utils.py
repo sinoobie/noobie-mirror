@@ -6,8 +6,7 @@ from html import escape
 from requests import head as rhead
 from urllib.request import urlopen
 from urllib.parse import quote
-from subprocess import check_output
-from psutil import disk_usage, cpu_percent, virtual_memory, net_io_counters
+from psutil import disk_usage, cpu_percent
 
 from bot import download_dict, download_dict_lock, STATUS_LIMIT, botStartTime, DOWNLOAD_DIR, WEB_PINCODE, BASE_URL, user_data
 from bot.helper.telegram_helper.bot_commands import BotCommands
@@ -299,30 +298,3 @@ def update_user_ldata(id_: int, key, value):
         user_data[id_][key] = value
     else:
         user_data[id_] = {key: value}
-
-
-def statistik(alert=False):
-    botVersion = check_output(["git log -1 --date=format:v%Y.%m.%d --pretty=format:%cd"], shell=True).decode()
-    currentTime = get_readable_time(time() - botStartTime)
-    total, used, free, disk= disk_usage('/')
-    total = get_readable_file_size(total)
-    used = get_readable_file_size(used)
-    free = get_readable_file_size(free)
-    sent = get_readable_file_size(net_io_counters().bytes_sent)
-    recv = get_readable_file_size(net_io_counters().bytes_recv)
-    cpuUsage = cpu_percent(interval=0.5)
-    memory = virtual_memory()
-    mem_p = memory.percent
-    stats = f'🕒 <b>Bot Uptime:</b> {currentTime}\n\n'\
-            f'💽 <b>Total Disk Space:</b> {total}\n'\
-            f'📀 <b>Used:</b> {used}\n'\
-            f'💿 <b>Free:</b> {free}\n\n'\
-            f'🔺 <b>Upload:</b> {sent}\n'\
-            f'🔻 <b>Download:</b> {recv}\n'\
-            f'🖥️ <b>CPU:</b> {cpuUsage}%\n'\
-            f'💾 <b>RAM:</b> {mem_p}%\n\n'\
-            f'🤖 <b>Bot Version:</b> {botVersion} [FINAL]'
-    if alert:
-        return stats.replace('<b>', '').replace('</b>','')
-    else:
-        return stats
