@@ -127,12 +127,7 @@ def get_readable_message():
             pemirror = download.message
             reply_to = pemirror.reply_to_message
             if not reply_to or reply_to.from_user.is_bot:
-                if pemirror.from_user.username:
-                    tag = f"<code>@{pemirror.from_user.username}</code> (<code>{pemirror.from_user.id}</code>)"
-                else:
-                    tag = f"<code>{pemirror.from_user.first_name}</code> (<code>{pemirror.from_user.id}</code>)"
-            elif reply_to.from_user.username:
-                tag = f"<code>@{reply_to.from_user.username}</code> (<code>{reply_to.from_user.id}</code>)"
+                tag = f"<code>{pemirror.from_user.first_name}</code> (<code>{pemirror.from_user.id}</code>)"
             else:
                 tag = f"<code>{reply_to.from_user.first_name}</code> (<code>{reply_to.from_user.id}</code>)"
             ### AKHIR CUSTOM STATUS ###
