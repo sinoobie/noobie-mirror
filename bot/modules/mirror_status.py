@@ -99,7 +99,9 @@ def onProcess_stats():
         mem = virtual_memory().percent
         recv = get_readable_file_size(net_io_counters().bytes_recv)
         sent = get_readable_file_size(net_io_counters().bytes_sent)
+        upTime = get_readable_time(time() - botStartTime)
         msg = f"==Bot Statistics==\n" \
+            f"Uptime: {upTime}\n" \
             f"Send: {sent} | Recv: {recv}\n" \
             f"CPU: {cpu_percent()}% | RAM: {mem}%\n\n" \
             f"{onProcess}\n"
