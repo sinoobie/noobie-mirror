@@ -55,6 +55,8 @@ def status_pages(update, context):
         if userID == OWNER_ID or userID in onstatus or user_data.get(userID, user_data).get('is_sudo'):
             query.answer()
             qmessage.delete()
+            clsmsg = sendMessage(f"ℹ️ Status ditutup oleh {query.from_user.mention_html(query.from_user.first_name)}. Ketik /status untuk menampilkan status lagi", context.bot, update.message)
+            Thread(target=auto_delete_message, args=(context.bot, update.message, clsmsg)).start()
         else:
             query.answer(text="⚠️ Minimal lu harus punya satu proses mirror!", show_alert=True)
     elif data[1] == "sta":
