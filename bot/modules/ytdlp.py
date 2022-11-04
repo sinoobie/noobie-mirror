@@ -56,19 +56,12 @@ def _ytdl(bot, message, isZip=False, isLeech=False):
     else:
         opt = None
 
-    if message.from_user.username:
-        tag = f"@{message.from_user.username}"
-    else:
-        tag = message.from_user.mention_html(message.from_user.first_name)
-
+    tag = message.from_user.mention_html(message.from_user.first_name)
     reply_to = message.reply_to_message
     if reply_to is not None:
         if len(link) == 0:
             link = reply_to.text.split(maxsplit=1)[0].strip()
-        if reply_to.from_user.username:
-            tag = f"@{reply_to.from_user.username}"
-        else:
-            tag = reply_to.from_user.mention_html(reply_to.from_user.first_name)
+        tag = reply_to.from_user.mention_html(reply_to.from_user.first_name)
 
     if not is_url(link):
         help_msg = f"ℹ️ {tag} Tidak ada link video yang mau di-mirror. Lihat format dibawah!"

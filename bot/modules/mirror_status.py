@@ -50,7 +50,7 @@ def status_pages(update, context):
             query.answer()
             qmessage.delete()
         else:
-            query.answer(text="⚠️ Minimal harus punya satu proses mirror!", show_alert=True)
+            query.answer(text="⚠️ Minimal lu harus punya satu proses mirror!", show_alert=True)
     elif data[1] == "sta":
         stat = statistik(alert=True)
         query.answer(text=stat, show_alert=True)

@@ -14,7 +14,7 @@ from bot.helper.ext_utils.bot_utils import update_user_ldata
 
 def getleechinfo(from_user):
     user_id = from_user.id
-    name = from_user.full_name
+    tag = from_user.mention_html(from_user.first_name)
     buttons = ButtonMaker()
     thumbpath = f"Thumbnails/{user_id}.jpg"
     user_dict = user_data.get(user_id, False)
@@ -33,7 +33,7 @@ def getleechinfo(from_user):
 
     buttons.sbutton("Close", f"leechset {user_id} close")
     button = buttons.build_menu(1)
-    text = f"<u>Settings for <a href='tg://user?id={user_id}'>{name}</a></u>\n"\
+    text = f"<u>Settings for {tag}</u>\n"\
            f"Leech Type <b>{ltype}</b>\n"\
            f"Custom Thumbnail <b>{thumbmsg}</b>"
     return text, button
@@ -97,7 +97,7 @@ def setThumb(update, context):
         update_user_ldata(user_id, 'thumb', True)
         if DB_URI is not None:
             DbManger().update_thumb(user_id, des_dir)
-        msg = f"ℹ️ Custom thumbnail saved for <a href='tg://user?id={user_id}'>{update.message.from_user.full_name}</a>."
+        msg = f"ℹ️ Custom thumbnail saved for {update.message.from_user.mention_html(update.message.from_user.first_name)}."
         sendMessage(msg, context.bot, update.message)
     else:
         sendMessage("ℹ️ Reply to a photo to save custom thumbnail.", context.bot, update.message)

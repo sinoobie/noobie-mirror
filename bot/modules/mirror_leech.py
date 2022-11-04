@@ -81,19 +81,12 @@ def _mirror_leech(bot, message, isZip=False, extract=False, isQbit=False, isLeec
     else:
         pswd = None
 
-    if message.from_user.username:
-        tag = f"@{message.from_user.username}"
-    else:
-        tag = message.from_user.mention_html(message.from_user.first_name)
-
+    tag = message.from_user.mention_html(message.from_user.first_name)
     reply_to = message.reply_to_message
     if reply_to is not None:
         file_ = reply_to.document or reply_to.video or reply_to.audio or reply_to.photo or None
         if not reply_to.from_user.is_bot:
-            if reply_to.from_user.username:
-                tag = f"@{reply_to.from_user.username}"
-            else:
-                tag = reply_to.from_user.mention_html(reply_to.from_user.first_name)
+            tag = reply_to.from_user.mention_html(reply_to.from_user.first_name)
         if len(link) == 0 or not is_url(link) and not is_magnet(link):
             if file_ is None:
                 reply_text = reply_to.text.split(maxsplit=1)[0].strip()

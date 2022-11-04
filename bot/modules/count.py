@@ -13,17 +13,11 @@ def countNode(update, context):
     link = ''
     if len(context.args) == 1:
         link = context.args[0]
-        if update.message.from_user.username:
-            tag = f"@{update.message.from_user.username}"
-        else:
-            tag = update.message.from_user.mention_html(update.message.from_user.first_name)
+        tag = update.message.from_user.mention_html(update.message.from_user.first_name)
     if reply_to:
         if len(link) == 0:
             link = reply_to.text.split(maxsplit=1)[0].strip()
-        if reply_to.from_user.username:
-            tag = f"@{reply_to.from_user.username}"
-        else:
-            tag = reply_to.from_user.mention_html(reply_to.from_user.first_name)
+        tag = reply_to.from_user.mention_html(reply_to.from_user.first_name)
     if is_gdrive_link(link):
         msg = sendMessage(f"Counting: <code>{link}</code>", context.bot, update.message)
         gd = GoogleDriveHelper()

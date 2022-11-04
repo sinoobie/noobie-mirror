@@ -18,7 +18,7 @@ def list_drives(update, context):
             deleteMessage(context.bot, bmsg)
             sendFile(context.bot, bmsg.reply_to_message, f_name, cap)
         else:
-            editMessage(f'ℹ️ <b>Tidak ada file yang cocok dengan</b> <code>{key}</code>', bmsg)
+            editMessage(f'🧐 <b>Tidak ada file yang cocok dengan</b> <code>{key}</code>', bmsg)
     except Exception as err:
         LOGGER.error(f"listing error: {err}")
         bmsg = sendMessage('⚠️ <b>Ketik sebuah keyword untuk memulai pencarian!</b>', context.bot, update.message)
