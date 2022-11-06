@@ -149,10 +149,7 @@ def get_readable_message():
                 msg += f" | 🌀 <b>Ratio: </b>{download.ratio()}"
                 msg += f"\n🕒 {download.seeding_time()}"
             elif download.status() in [MirrorStatus.STATUS_PAUSED, MirrorStatus.STATUS_WAITING]:
-                msg += f"\n📦 {download.size()}"
                 msg += f"\n⏱ {get_readable_time(time() - download.message.date.timestamp())}"
-            else:
-                msg += f"\n📦 {download.size()}"
             msg += f"\n👤 {tag}"
             msg += f"\n⛔️ <code>/{BotCommands.CancelMirror} {download.gid()}</code>"
             msg += "\n\n"
