@@ -80,11 +80,10 @@ def onProcess_stats():
     with download_dict_lock:
         if len(download_dict) == 0:
             return
-        active = upload = extract = archive = split = dsize = 0
+        active = upload = extract = archive = split = queue = 0
         for stats in list(download_dict.values()):
             if stats.status() == MirrorStatus.STATUS_DOWNLOADING:
                 active += 1
-                dsize += stats.processed_bytes()
             if stats.status() == MirrorStatus.STATUS_UPLOADING:
                 upload += 1
             if stats.status() == MirrorStatus.STATUS_EXTRACTING:
@@ -93,9 +92,11 @@ def onProcess_stats():
                 archive += 1
             if stats.status() == MirrorStatus.STATUS_SPLITTING:
                 split += 1
+            if stats.status() == MirrorStatus.STATUS_WAITING:
+                queue += 1
         onProcess = "==OnProcess==\n" \
                     f"ZIP: {archive} | UNZIP: {extract} | SPLIT: {split}\n" \
-                    f"DL: {active} | UP: {upload} | ProcessedBytes: {get_readable_file_size(dsize)}"
+                    f"DL: {active} | UP: {upload} | QUEUE: {queue}"
         mem = virtual_memory().percent
         recv = get_readable_file_size(net_io_counters().bytes_recv)
         sent = get_readable_file_size(net_io_counters().bytes_sent)
